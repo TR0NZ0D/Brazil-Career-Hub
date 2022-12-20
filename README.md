@@ -102,6 +102,22 @@ E.g.: Caso a URL do site seja `https://JobFinder.com` e gostaríamos de requisit
 - **SSH PEM Key:** Job_Finder_TCC_CC.pem
 - **Username:** ubuntu
 
+## Contas de usuário
+
+| Username | Password | Authorization level |
+| -------- | -------- | ------------------- |
+| ApiAdmin | XJpU7iUw8BuZ5tT | Staff (Read only) |
+
+## Postman
+
+Para utilizar o postman, importe a coleção `TCC-CC/tests/postman/JobFinderAPI.postman_collection.json` para o postman.
+
+Para importar, no postman, no canto superior esquerdo da tela, clique no botão "Import" ao lado do nome do workspace.
+
+Ao clicar no botão irá abrir um prompt para importar um arquivo, importe o arquivo `JobFinderAPI.postman_collection.json` presente no repositório do projeto.
+
+Ao importar, você verá os endpoint divididos em pastas, por padrão, estamos utilizando variáveis da coleção para tratar autorizações, o usuário padrão é o `ApiAdmin`. Caso prefire, crie um ambiente virtual e insira as credenciais do seu usuário.
+
 ## Licença
 
 **GNU GPL v3**

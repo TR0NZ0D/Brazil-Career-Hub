@@ -15,8 +15,21 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework_swagger.views import get_swagger_view  # type: ignore
+
+schema_url_patterns = [
+    path('api/', include('api.urls'))
+]
+
+swagger_view = get_swagger_view(title="Job Finder - API",
+                                patterns=schema_url_patterns)
 
 urlpatterns = [
+    path('api/docs/', swagger_view, name="swagger_docs"),  # type: ignore
     path('admin/', admin.site.urls),
-    path('api/', include('api.urls'))
+    path('api/', include('api.urls')),
+]
+
+urlpatterns += [
+    path('api/auth/', include('rest_framework.urls'))
 ]

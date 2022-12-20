@@ -1,6 +1,7 @@
 from .constants import CURRENT_VERSION as __version, ENVIRONMENT as __env
 
 version = f'v{__version}'
+num_version = __version
 environment = __env.get('long_desc', 'Unknown')
 
 

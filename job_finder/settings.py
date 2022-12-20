@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+from api.tools.api_tools import num_version as version
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,8 +33,10 @@ ALLOWED_HOSTS = ['localhost', '54.175.223.130', '127.0.0.1']
 
 INSTALLED_APPS = [
     'rest_framework',  # Toolkit for building web APIs
+    'rest_framework_swagger',  # Swagger ui for API docs
     'corsheaders',  # Handler server headers required for CORS
-    'api',
+    'api',  # Base API app
+    'api_admins',  # Administrators accounts for API management
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,6 +48,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',  # CORS middleware (Keep first)
 
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -110,6 +114,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'pt-BR'
 
+LANGUAGES = [
+    ('pt-BR', 'Portuguese'),
+    ('en', 'English'),
+]
+
 TIME_ZONE = 'America/Sao_Paulo'
 
 USE_I18N = True
@@ -145,10 +154,39 @@ CORS_ALLOWED_ORIGINS = [f'https://{i}' for i in ALLOWED_HOSTS] + [f'http://{i}' 
 
 # REST Framework
 
-REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'}
+REST_FRAMEWORK = {'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'}
 
 # Sessions
 
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # Session in days: 60s * 60m * 24h * 1d
 SESSION_SAVE_EVERY_REQUEST = False
+
+# Swagger Ui
+
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': True,
+    'SECURITY_DEFINITIONS': {
+        "api_key": {
+            "type": "apiKey",
+            "name": "token",
+            "in": "header"
+        }
+    },
+    'LOGIN_URL': 'admin:login',
+    'LOGOUT_URL': 'admin:logout',
+    'DOC_EXPANSION': 'list',
+    'APIS_SORTER': 'alpha',
+    'OPERATIONS_SORTER': 'alpha',
+    'JSON_EDITOR': True,
+    'SHOW_REQUEST_HEADERS': True,
+    'SUPPORTED_SUBMIT_METHODS': [
+        'get',
+        'post',
+        'put',
+        'delete',
+        'patch'
+    ],
+    'VALIDATOR_URL': '',
+    'ACCEPT_HEADER_VERSION': version,
+    'CUSTOM_HEADERS': {}
+}
