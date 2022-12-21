@@ -5,19 +5,14 @@ from .tools.api_tools import generate_version, version, environment
 
 app_name = 'api'
 
-schema_url_patterns = [
-    path('api/', include('api.urls'))
-]
-
-schema_view = get_schema_view(title='Job Finder - API',
-                              description=f'API documentation [{version} - {environment}]',
-                              version=generate_version(),
-                              patterns=schema_url_patterns)
-
 urlpatterns = [
-    path('schema/', schema_view, name='api_schema'),
-    path('status/', views.ApiStatus.as_view()),  # type: ignore
-    path('version/', views.ApiVersion.as_view()),  # type: ignore
-    path('token/', views.AuthToken.as_view()),  # type: ignore
-    path('res_test/', views.ApiTesting.as_view())  # type: ignore
+    # ========== API Info ========== #
+    path('info/status/', views.ApiStatus.as_view()),  # type: ignore
+    path('info/version/', views.ApiVersion.as_view()),  # type: ignore
+
+    # ========== Authentication ========== #
+    path('auth/', include('api_admins.urls')),  # type: ignore
+
+    # ========== Users ========== #
+    path('users/', include('users.urls')),
 ]

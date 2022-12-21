@@ -25,11 +25,11 @@ swagger_view = get_swagger_view(title="Job Finder - API",
                                 patterns=schema_url_patterns)
 
 urlpatterns = [
-    path('api/docs/', swagger_view, name="swagger_docs"),  # type: ignore
-    path('admin/', admin.site.urls),
+    # ========== API ========== #
     path('api/', include('api.urls')),
-]
+    path('api/docs/', swagger_view, name="swagger_docs"),  # type: ignore
+    path('api/auth/', include('rest_framework.urls')),
 
-urlpatterns += [
-    path('api/auth/', include('rest_framework.urls'))
+    # ========== Django Built-In ========== #
+    path('admin/', admin.site.urls),
 ]

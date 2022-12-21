@@ -32,30 +32,32 @@ ALLOWED_HOSTS = ['localhost', '54.175.223.130', '127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
-    'rest_framework',  # Toolkit for building web APIs
-    'rest_framework_swagger',  # Swagger ui for API docs
-    'corsheaders',  # Handler server headers required for CORS
-    'api',  # Base API app
-    'api_admins',  # Administrators accounts for API management
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'api',  # Base API app
+    'api_admins',  # Administrators accounts for API management
+    'users',  # User profile and account (prod clients)
+    'django_filters',
+    'rest_framework',  # Toolkit for building web APIs
+    'rest_framework_swagger',  # Swagger ui for API docs
+    'corsheaders',  # Handler server headers required for CORS
+
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # CORS middleware (Keep first)
-
-    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # CORS middleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 ]
 
 ROOT_URLCONF = 'job_finder.urls'
@@ -149,12 +151,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS
 
-CORS_ALLOW_ALL_ORIGINS = False  # Disable (true) / Enable (false) CORS feature
 CORS_ALLOWED_ORIGINS = [f'https://{i}' for i in ALLOWED_HOSTS] + [f'http://{i}' for i in ALLOWED_HOSTS]
 
 # REST Framework
 
-REST_FRAMEWORK = {'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'}
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+    'DEFAULT_PERMISSION_CLASSES': [
+        'api.permissions.AuthenticateApiClient'
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ]
+}
 
 # Sessions
 
