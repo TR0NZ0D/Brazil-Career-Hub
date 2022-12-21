@@ -7,30 +7,7 @@
 	},
 	"item": [
 		{
-			"name": "status",
-			"item": [
-				{
-					"name": "API Status",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{base_url}}/status/",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"status",
-								""
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "version",
+			"name": "API Info",
 			"item": [
 				{
 					"name": "API Version",
@@ -38,55 +15,180 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/version/",
+							"raw": "{{base_url}}/info/version/",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
+								"info",
 								"version",
 								""
 							]
 						}
 					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Response Tests",
-			"item": [
-				{
-					"name": "Response parameters",
-					"request": {
-						"auth": {
-							"type": "apikey",
-							"apikey": [
+					"response": [
+						{
+							"name": "API Version success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/api/info/version/",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"info",
+										"version",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
 								{
-									"key": "value",
-									"value": "{{token}}",
-									"type": "string"
+									"key": "Date",
+									"value": "Sun, 01 Jan 2023 23:37:25 GMT"
 								},
 								{
-									"key": "key",
-									"value": "token",
-									"type": "string"
+									"key": "Server",
+									"value": "WSGIServer/0.2 CPython/3.11.0"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Vary",
+									"value": "Accept, Accept-Language, Origin, Cookie"
+								},
+								{
+									"key": "Allow",
+									"value": "GET, HEAD, OPTIONS"
+								},
+								{
+									"key": "Content-Language",
+									"value": "pt-br"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Length",
+									"value": "63"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
 								}
-							]
-						},
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"message\": \"API version\",\n    \"version\": \"v0.0.2 [Dev]\"\n}"
+						}
+					]
+				},
+				{
+					"name": "API Status",
+					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/res_test/",
+							"raw": "{{base_url}}/info/status/",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
-								"res_test",
+								"info",
+								"status",
 								""
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "API Status success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/info/status/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"info",
+										"status",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 01 Jan 2023 23:38:01 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "WSGIServer/0.2 CPython/3.11.0"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Vary",
+									"value": "Accept, Accept-Language, Origin, Cookie"
+								},
+								{
+									"key": "Allow",
+									"value": "GET, HEAD, OPTIONS"
+								},
+								{
+									"key": "Content-Language",
+									"value": "pt-br"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Length",
+									"value": "38"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"message\": \"API running\"\n}"
+						}
+					]
 				}
 			]
 		},
@@ -113,17 +215,99 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/token/",
+							"raw": "{{base_url}}/auth/token/",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
+								"auth",
 								"token",
 								""
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Get Token success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "username",
+										"value": "{{username}}",
+										"type": "text"
+									},
+									{
+										"key": "password",
+										"value": "{{password}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/auth/token/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"token",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 01 Jan 2023 23:38:40 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "WSGIServer/0.2 CPython/3.11.0"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Vary",
+									"value": "Accept, Accept-Language, Origin, Cookie"
+								},
+								{
+									"key": "Allow",
+									"value": "GET, POST, HEAD, OPTIONS"
+								},
+								{
+									"key": "Content-Language",
+									"value": "pt-br"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Length",
+									"value": "194"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 200,\n    \"message\": \"API token for user: ApiAdmin\",\n    \"token\": \"fcb48081a69866e064d4e22f61f669f44200c75cccba6402919bca1d77f7c010bfa95d02c69f58eba8c57f75a37aa8faba18e8c435a0ff968d5854808ab81676\"\n}"
+						}
+					]
 				},
 				{
 					"name": "Create Token",
@@ -144,18 +328,2538 @@
 								"type": "text"
 							}
 						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								}
+							]
+						},
 						"url": {
-							"raw": "{{base_url}}/token/",
+							"raw": "{{base_url}}/auth/token/",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
+								"auth",
 								"token",
 								""
 							]
 						}
 					},
-					"response": []
+					"response": [
+						{
+							"name": "Create Token success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "username",
+										"value": "{{username}}",
+										"type": "text"
+									},
+									{
+										"key": "password",
+										"value": "{{password}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "username",
+											"value": "{{username}}",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "{{password}}",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/token/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"auth",
+										"token",
+										""
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 01 Jan 2023 23:46:49 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "WSGIServer/0.2 CPython/3.11.0"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Vary",
+									"value": "Accept, Accept-Language, Origin, Cookie"
+								},
+								{
+									"key": "Allow",
+									"value": "GET, POST, HEAD, OPTIONS"
+								},
+								{
+									"key": "Content-Language",
+									"value": "pt-br"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Length",
+									"value": "197"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 201,\n    \"message\": \"API Token created for: ApiAdmin\",\n    \"token\": \"fcb48081a69866e064d4e22f61f669f44200c75cccba6402919bca1d77f7c010bfa95d02c69f58eba8c57f75a37aa8faba18e8c435a0ff968d5854808ab81676\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Badges",
+					"item": [
+						{
+							"name": "Get All Badges",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/badges/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"badges",
+										""
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Get All Badges  success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/users/badges/",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"users",
+												"badges",
+												""
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 23:52:55 GMT"
+										},
+										{
+											"key": "Server",
+											"value": "WSGIServer/0.2 CPython/3.11.0"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Vary",
+											"value": "Accept, Accept-Language, Origin, Cookie"
+										},
+										{
+											"key": "Allow",
+											"value": "GET, POST, PUT, DELETE, HEAD, OPTIONS"
+										},
+										{
+											"key": "Content-Language",
+											"value": "pt-br"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Length",
+											"value": "93"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										}
+									],
+									"cookie": [],
+									"body": "[\n    {\n        \"id\": 12,\n        \"name\": \"test\",\n        \"description\": \"testing badge creation by postman\",\n        \"color\": \"#c7c7c5\"\n    }\n]"
+								}
+							]
+						},
+						{
+							"name": "Get Badge",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/badges/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"badges",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Get Badge success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/users/badges/?pk=12",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"users",
+												"badges",
+												""
+											],
+											"query": [
+												{
+													"key": "pk",
+													"value": "12"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 23:53:18 GMT"
+										},
+										{
+											"key": "Server",
+											"value": "WSGIServer/0.2 CPython/3.11.0"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Vary",
+											"value": "Accept, Accept-Language, Origin, Cookie"
+										},
+										{
+											"key": "Allow",
+											"value": "GET, POST, PUT, DELETE, HEAD, OPTIONS"
+										},
+										{
+											"key": "Content-Language",
+											"value": "pt-br"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Length",
+											"value": "91"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"id\": 12,\n    \"name\": \"test\",\n    \"description\": \"testing badge creation by postman\",\n    \"color\": \"#c7c7c5\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Create Badge",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "description",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "color",
+											"value": "",
+											"description": "HEX color format (#000000)",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/users/badges/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"badges",
+										""
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Create Badge success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "name",
+													"value": "test",
+													"type": "text"
+												},
+												{
+													"key": "description",
+													"value": "testing badge creation by postman",
+													"type": "text"
+												},
+												{
+													"key": "color",
+													"value": "#c7c7c5",
+													"description": "HEX color format (#000000)",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{base_url}}/users/badges/",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"users",
+												"badges",
+												""
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 23:52:29 GMT"
+										},
+										{
+											"key": "Server",
+											"value": "WSGIServer/0.2 CPython/3.11.0"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Vary",
+											"value": "Accept, Accept-Language, Origin, Cookie"
+										},
+										{
+											"key": "Allow",
+											"value": "GET, POST, PUT, DELETE, HEAD, OPTIONS"
+										},
+										{
+											"key": "Content-Language",
+											"value": "pt-br"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Length",
+											"value": "91"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"id\": 12,\n    \"name\": \"test\",\n    \"description\": \"testing badge creation by postman\",\n    \"color\": \"#c7c7c5\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Delete Badge",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/badges/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"badges",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Delete Badge success",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/users/badges/?pk=12",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"users",
+												"badges",
+												""
+											],
+											"query": [
+												{
+													"key": "pk",
+													"value": "12"
+												}
+											]
+										}
+									},
+									"status": "No Content",
+									"code": 204,
+									"_postman_previewlanguage": "plain",
+									"header": [
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 23:55:27 GMT"
+										},
+										{
+											"key": "Server",
+											"value": "WSGIServer/0.2 CPython/3.11.0"
+										},
+										{
+											"key": "Vary",
+											"value": "Accept, Accept-Language, Origin, Cookie"
+										},
+										{
+											"key": "Allow",
+											"value": "GET, POST, PUT, DELETE, HEAD, OPTIONS"
+										},
+										{
+											"key": "Content-Language",
+											"value": "pt-br"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Length",
+											"value": "0"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										}
+									],
+									"cookie": [],
+									"body": null
+								}
+							]
+						},
+						{
+							"name": "Update Badge",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "description",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "color",
+											"value": "",
+											"description": "HEX color format (#000000)",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/users/badges/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"badges",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Update Badge success",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "name",
+													"value": "update test badge",
+													"type": "text"
+												},
+												{
+													"key": "description",
+													"value": "update completed",
+													"type": "text"
+												},
+												{
+													"key": "color",
+													"value": "#000000",
+													"description": "HEX color format (#000000)",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "http://localhost:8000/api/users/badges/?pk=12",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"users",
+												"badges",
+												""
+											],
+											"query": [
+												{
+													"key": "pk",
+													"value": "12"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 23:54:39 GMT"
+										},
+										{
+											"key": "Server",
+											"value": "WSGIServer/0.2 CPython/3.11.0"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Vary",
+											"value": "Accept, Accept-Language, Origin, Cookie"
+										},
+										{
+											"key": "Allow",
+											"value": "GET, POST, PUT, DELETE, HEAD, OPTIONS"
+										},
+										{
+											"key": "Content-Language",
+											"value": "pt-br"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Length",
+											"value": "87"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"id\": 12,\n    \"name\": \"update test badge\",\n    \"description\": \"update completed\",\n    \"color\": \"#000000\"\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Bans",
+					"item": [
+						{
+							"name": "Get All Banned Users",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/bans/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"bans",
+										""
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Get All Banned Users success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8000/api/users/bans/",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"users",
+												"bans",
+												""
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 23:58:23 GMT"
+										},
+										{
+											"key": "Server",
+											"value": "WSGIServer/0.2 CPython/3.11.0"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Vary",
+											"value": "Accept, Accept-Language, Origin, Cookie"
+										},
+										{
+											"key": "Allow",
+											"value": "GET, POST, DELETE, HEAD, OPTIONS"
+										},
+										{
+											"key": "Content-Language",
+											"value": "pt-br"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Length",
+											"value": "249"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										}
+									],
+									"cookie": [],
+									"body": "[\n    {\n        \"id\": 4,\n        \"user\": 3,\n        \"user_username\": \"ApiAdmin\",\n        \"profile\": 2,\n        \"profile_name\": \"ApiAdmin's profile\",\n        \"reason\": \"Testing ban issue creation by postman\",\n        \"responsible\": 1,\n        \"responsible_username\": \"TR0NZ0D\",\n        \"date\": \"2023-01-01T20:57:08.989594-03:00\",\n        \"ip\": \"0.0.0.0\"\n    }\n]"
+								}
+							]
+						},
+						{
+							"name": "Get Banned User",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/bans/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"bans",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "slug",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Get Banned User success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8000/api/users/bans/?pk=4",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"users",
+												"bans",
+												""
+											],
+											"query": [
+												{
+													"key": "pk",
+													"value": "4"
+												},
+												{
+													"key": "slug",
+													"value": "",
+													"disabled": true
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 23:58:54 GMT"
+										},
+										{
+											"key": "Server",
+											"value": "WSGIServer/0.2 CPython/3.11.0"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Vary",
+											"value": "Accept, Accept-Language, Origin, Cookie"
+										},
+										{
+											"key": "Allow",
+											"value": "GET, POST, DELETE, HEAD, OPTIONS"
+										},
+										{
+											"key": "Content-Language",
+											"value": "pt-br"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Length",
+											"value": "247"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"id\": 4,\n    \"user\": 3,\n    \"user_username\": \"ApiAdmin\",\n    \"profile\": 2,\n    \"profile_name\": \"ApiAdmin's profile\",\n    \"reason\": \"Testing ban issue creation by postman\",\n    \"responsible\": 1,\n    \"responsible_username\": \"TR0NZ0D\",\n    \"date\": \"2023-01-01T20:57:08.989594-03:00\",\n    \"ip\": \"0.0.0.0\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Create Ban Issue",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "user_username",
+											"value": "",
+											"description": "Banned user username",
+											"type": "text"
+										},
+										{
+											"key": "profile_slug",
+											"value": "",
+											"description": "banned user profile slug",
+											"type": "text"
+										},
+										{
+											"key": "reason",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "responsible_username",
+											"value": "",
+											"description": "Administrator username",
+											"type": "text"
+										},
+										{
+											"key": "ip",
+											"value": "",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/users/bans/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"bans",
+										""
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Create Ban Issue success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "user_username",
+													"value": "ApiAdmin",
+													"type": "text"
+												},
+												{
+													"key": "profile_slug",
+													"value": "apiadmin-3",
+													"type": "text"
+												},
+												{
+													"key": "reason",
+													"value": "Testing ban issue creation by postman",
+													"type": "text"
+												},
+												{
+													"key": "responsible_username",
+													"value": "TR0NZ0D",
+													"type": "text"
+												},
+												{
+													"key": "ip",
+													"value": "0.0.0.0",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "http://localhost:8000/api/users/bans/",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"users",
+												"bans",
+												""
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 23:57:09 GMT"
+										},
+										{
+											"key": "Server",
+											"value": "WSGIServer/0.2 CPython/3.11.0"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Vary",
+											"value": "Accept, Accept-Language, Origin, Cookie"
+										},
+										{
+											"key": "Allow",
+											"value": "GET, POST, DELETE, HEAD, OPTIONS"
+										},
+										{
+											"key": "Content-Language",
+											"value": "pt-br"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Length",
+											"value": "247"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"id\": 4,\n    \"user\": 3,\n    \"user_username\": \"ApiAdmin\",\n    \"profile\": 2,\n    \"profile_name\": \"ApiAdmin's profile\",\n    \"reason\": \"Testing ban issue creation by postman\",\n    \"responsible\": 1,\n    \"responsible_username\": \"TR0NZ0D\",\n    \"date\": \"2023-01-01T20:57:08.989594-03:00\",\n    \"ip\": \"0.0.0.0\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Delete Ban Issue",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/bans/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"bans",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "slug",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Delete Ban Issue success",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8000/api/users/bans/?pk=4",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"users",
+												"bans",
+												""
+											],
+											"query": [
+												{
+													"key": "pk",
+													"value": "4"
+												},
+												{
+													"key": "slug",
+													"value": "",
+													"disabled": true
+												}
+											]
+										}
+									},
+									"status": "No Content",
+									"code": 204,
+									"_postman_previewlanguage": "plain",
+									"header": [
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 23:59:12 GMT"
+										},
+										{
+											"key": "Server",
+											"value": "WSGIServer/0.2 CPython/3.11.0"
+										},
+										{
+											"key": "Vary",
+											"value": "Accept, Accept-Language, Origin, Cookie"
+										},
+										{
+											"key": "Allow",
+											"value": "GET, POST, DELETE, HEAD, OPTIONS"
+										},
+										{
+											"key": "Content-Language",
+											"value": "pt-br"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Length",
+											"value": "0"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										}
+									],
+									"cookie": [],
+									"body": null
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Profile",
+					"item": [
+						{
+							"name": "Get user profile",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/profile/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"profile",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "slug",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Get user profile by slug",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8000/api/users/profile/?slug=apiadmin-3",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"users",
+												"profile",
+												""
+											],
+											"query": [
+												{
+													"key": "pk",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "slug",
+													"value": "apiadmin-3"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 23:35:38 GMT"
+										},
+										{
+											"key": "Server",
+											"value": "WSGIServer/0.2 CPython/3.11.0"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Vary",
+											"value": "Accept, Accept-Language, Origin, Cookie"
+										},
+										{
+											"key": "Allow",
+											"value": "GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS"
+										},
+										{
+											"key": "Content-Language",
+											"value": "pt-br"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Length",
+											"value": "399"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"id\": 2,\n    \"user\": \"ApiAdmin\",\n    \"tag\": \"3\",\n    \"age\": 1,\n    \"birth_date\": \"2022-01-01\",\n    \"biography\": \"\",\n    \"company\": null,\n    \"locale\": null,\n    \"website\": null,\n    \"image\": \"/media/defaults/person-8x.png\",\n    \"email_confirmed\": false,\n    \"slug\": \"apiadmin-3\",\n    \"recovery_key\": null,\n    \"language\": \"pt-br\",\n    \"gender\": \"NI\",\n    \"cover_color\": \"#1488ac\",\n    \"primary_color\": \"#0b1524\",\n    \"secondary_color\": \"#c7c7c5\",\n    \"banned\": false,\n    \"must_reset_password\": false,\n    \"badges\": []\n}"
+								},
+								{
+									"name": "Get user profile by profile ID",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/users/profile/?pk=2",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"users",
+												"profile",
+												""
+											],
+											"query": [
+												{
+													"key": "pk",
+													"value": "2"
+												},
+												{
+													"key": "slug",
+													"value": "",
+													"disabled": true
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 23:36:21 GMT"
+										},
+										{
+											"key": "Server",
+											"value": "WSGIServer/0.2 CPython/3.11.0"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Vary",
+											"value": "Accept, Accept-Language, Origin, Cookie"
+										},
+										{
+											"key": "Allow",
+											"value": "GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS"
+										},
+										{
+											"key": "Content-Language",
+											"value": "pt-br"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Length",
+											"value": "399"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"id\": 2,\n    \"user\": \"ApiAdmin\",\n    \"tag\": \"3\",\n    \"age\": 1,\n    \"birth_date\": \"2022-01-01\",\n    \"biography\": \"\",\n    \"company\": null,\n    \"locale\": null,\n    \"website\": null,\n    \"image\": \"/media/defaults/person-8x.png\",\n    \"email_confirmed\": false,\n    \"slug\": \"apiadmin-3\",\n    \"recovery_key\": null,\n    \"language\": \"pt-br\",\n    \"gender\": \"NI\",\n    \"cover_color\": \"#1488ac\",\n    \"primary_color\": \"#0b1524\",\n    \"secondary_color\": \"#c7c7c5\",\n    \"banned\": false,\n    \"must_reset_password\": false,\n    \"badges\": []\n}"
+								}
+							]
+						},
+						{
+							"name": "Create user profile",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "user_username",
+											"value": "",
+											"description": "Required",
+											"type": "text"
+										},
+										{
+											"key": "language",
+											"value": "",
+											"description": "Required",
+											"type": "text"
+										},
+										{
+											"key": "gender",
+											"value": "",
+											"description": "Required",
+											"type": "text"
+										},
+										{
+											"key": "birth_date",
+											"value": "",
+											"description": "Required ISO 8601 date format (yyyy-mm-dd)",
+											"type": "text"
+										},
+										{
+											"key": "age",
+											"value": "",
+											"description": "Required",
+											"type": "text"
+										},
+										{
+											"key": "biography",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "company",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "locale",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "website",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "image",
+											"contentType": "multipart/form-data",
+											"type": "file",
+											"src": []
+										},
+										{
+											"key": "email_confirmed",
+											"value": "",
+											"description": "Boolean value",
+											"type": "text"
+										},
+										{
+											"key": "recovery_key",
+											"value": "",
+											"description": "Used for account recovery process",
+											"type": "text"
+										},
+										{
+											"key": "cover_color",
+											"value": "",
+											"description": "HEX color format (#000000)",
+											"type": "text"
+										},
+										{
+											"key": "primary_color",
+											"value": "",
+											"description": "HEX color format (#000000)",
+											"type": "text"
+										},
+										{
+											"key": "secondary_color",
+											"value": "",
+											"description": "HEX color format (#000000)",
+											"type": "text"
+										},
+										{
+											"key": "banned",
+											"value": "",
+											"description": "Boolean value",
+											"type": "text"
+										},
+										{
+											"key": "reset_password",
+											"value": "",
+											"description": "Boolean value",
+											"type": "text"
+										},
+										{
+											"key": "Badges",
+											"value": "",
+											"description": "Badge ID array (Array of integers)",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/users/profile/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"profile",
+										""
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Create user profile success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "user_username",
+													"value": "ApiAdmin",
+													"description": "Required",
+													"type": "text"
+												},
+												{
+													"key": "language",
+													"value": "en-us",
+													"description": "Required",
+													"type": "text"
+												},
+												{
+													"key": "gender",
+													"value": "NI",
+													"description": "Required",
+													"type": "text"
+												},
+												{
+													"key": "birth_date",
+													"value": "2022-01-01",
+													"description": "ISO 8601 date format (yyyy-mm-dd)",
+													"type": "text"
+												},
+												{
+													"key": "age",
+													"value": "1",
+													"type": "text"
+												},
+												{
+													"key": "biography",
+													"value": "",
+													"type": "text"
+												},
+												{
+													"key": "company",
+													"value": "",
+													"type": "text"
+												},
+												{
+													"key": "locale",
+													"value": "",
+													"type": "text"
+												},
+												{
+													"key": "website",
+													"value": "",
+													"type": "text"
+												},
+												{
+													"key": "image",
+													"contentType": "multipart/form-data",
+													"description": "Not working in v0.0.2",
+													"type": "file",
+													"src": []
+												},
+												{
+													"key": "email_confirmed",
+													"value": "",
+													"description": "Boolean value",
+													"type": "text"
+												},
+												{
+													"key": "recovery_key",
+													"value": "",
+													"description": "Used for account recovery process",
+													"type": "text"
+												},
+												{
+													"key": "cover_color",
+													"value": "",
+													"description": "HEX color format (#000000)",
+													"type": "text"
+												},
+												{
+													"key": "primary_color",
+													"value": "",
+													"description": "HEX color format (#000000)",
+													"type": "text"
+												},
+												{
+													"key": "secondary_color",
+													"value": "",
+													"description": "HEX color format (#000000)",
+													"type": "text"
+												},
+												{
+													"key": "banned",
+													"value": "",
+													"description": "Boolean value",
+													"type": "text"
+												},
+												{
+													"key": "reset_password",
+													"value": "",
+													"description": "Boolean value",
+													"type": "text"
+												},
+												{
+													"key": "Badges",
+													"value": "",
+													"description": "Badge ID array (Array of integers)",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{base_url}}/users/profile/",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"users",
+												"profile",
+												""
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Date",
+											"value": "Mon, 02 Jan 2023 01:10:56 GMT"
+										},
+										{
+											"key": "Server",
+											"value": "WSGIServer/0.2 CPython/3.11.0"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Vary",
+											"value": "Accept, Accept-Language, Origin, Cookie"
+										},
+										{
+											"key": "Allow",
+											"value": "GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS"
+										},
+										{
+											"key": "Content-Language",
+											"value": "pt-br"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Length",
+											"value": "357"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"id\": 3,\n    \"user\": 3,\n    \"tag\": \"3\",\n    \"age\": 1,\n    \"birth_date\": \"2022-01-01\",\n    \"biography\": \"\",\n    \"company\": \"\",\n    \"locale\": \"\",\n    \"website\": \"\",\n    \"image\": null,\n    \"email_confirmed\": false,\n    \"slug\": \"apiadmin-3\",\n    \"recovery_key\": null,\n    \"language\": \"en-us\",\n    \"gender\": \"NI\",\n    \"cover_color\": \"#1488ac\",\n    \"primary_color\": \"#0b1524\",\n    \"secondary_color\": \"#c7c7c5\",\n    \"banned\": false,\n    \"must_reset_password\": false,\n    \"badges\": []\n}"
+								}
+							]
+						},
+						{
+							"name": "Update all user profile data",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "user_username",
+											"value": "",
+											"description": "Required",
+											"type": "text"
+										},
+										{
+											"key": "language",
+											"value": "",
+											"description": "Required",
+											"type": "text"
+										},
+										{
+											"key": "gender",
+											"value": "",
+											"description": "Required",
+											"type": "text"
+										},
+										{
+											"key": "birth_date",
+											"value": "",
+											"description": "Required ISO 8601 date format (yyyy-mm-dd)",
+											"type": "text"
+										},
+										{
+											"key": "age",
+											"value": "",
+											"description": "Required",
+											"type": "text"
+										},
+										{
+											"key": "biography",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "company",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "locale",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "website",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "image",
+											"contentType": "multipart/form-data",
+											"type": "file",
+											"src": []
+										},
+										{
+											"key": "email_confirmed",
+											"value": "",
+											"description": "Boolean value",
+											"type": "text"
+										},
+										{
+											"key": "recovery_key",
+											"value": "",
+											"description": "Used for account recovery process",
+											"type": "text"
+										},
+										{
+											"key": "cover_color",
+											"value": "",
+											"description": "HEX color format (#000000)",
+											"type": "text"
+										},
+										{
+											"key": "primary_color",
+											"value": "",
+											"description": "HEX color format (#000000)",
+											"type": "text"
+										},
+										{
+											"key": "secondary_color",
+											"value": "",
+											"description": "HEX color format (#000000)",
+											"type": "text"
+										},
+										{
+											"key": "banned",
+											"value": "",
+											"description": "Boolean value",
+											"type": "text"
+										},
+										{
+											"key": "reset_password",
+											"value": "",
+											"description": "Boolean value",
+											"type": "text"
+										},
+										{
+											"key": "Badges",
+											"value": "",
+											"description": "Badge ID array (Array of integers)",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/users/profile/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"profile",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "slug",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Update all user profile data success",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "user_username",
+													"value": "ApiAdmin",
+													"description": "Required",
+													"type": "text"
+												},
+												{
+													"key": "language",
+													"value": "en-us",
+													"description": "Required",
+													"type": "text"
+												},
+												{
+													"key": "gender",
+													"value": "NI",
+													"description": "Required",
+													"type": "text"
+												},
+												{
+													"key": "birth_date",
+													"value": "2022-01-01",
+													"description": "ISO 8601 date format (yyyy-mm-dd)",
+													"type": "text"
+												},
+												{
+													"key": "age",
+													"value": "01",
+													"type": "text"
+												},
+												{
+													"key": "biography",
+													"value": "",
+													"type": "text"
+												},
+												{
+													"key": "company",
+													"value": "",
+													"type": "text"
+												},
+												{
+													"key": "locale",
+													"value": "",
+													"type": "text"
+												},
+												{
+													"key": "website",
+													"value": "",
+													"type": "text"
+												},
+												{
+													"key": "image",
+													"contentType": "multipart/form-data",
+													"description": "Not working in v0.0.2",
+													"type": "file",
+													"src": "/home/tr0nz0d/Downloads/person-8x.png"
+												},
+												{
+													"key": "email_confirmed",
+													"value": "true",
+													"description": "Boolean value",
+													"type": "text"
+												},
+												{
+													"key": "recovery_key",
+													"value": "",
+													"description": "Used for account recovery process",
+													"type": "text"
+												},
+												{
+													"key": "cover_color",
+													"value": "",
+													"description": "HEX color format (#000000)",
+													"type": "text"
+												},
+												{
+													"key": "primary_color",
+													"value": "",
+													"description": "HEX color format (#000000)",
+													"type": "text"
+												},
+												{
+													"key": "secondary_color",
+													"value": "",
+													"description": "HEX color format (#000000)",
+													"type": "text"
+												},
+												{
+													"key": "banned",
+													"value": "",
+													"description": "Boolean value",
+													"type": "text"
+												},
+												{
+													"key": "reset_password",
+													"value": "",
+													"description": "Boolean value",
+													"type": "text"
+												},
+												{
+													"key": "Badges",
+													"value": "",
+													"description": "Badge ID array (Array of integers)",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{base_url}}/users/profile/?slug={{slug}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"users",
+												"profile",
+												""
+											],
+											"query": [
+												{
+													"key": "pk",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "slug",
+													"value": "{{slug}}"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Date",
+											"value": "Mon, 02 Jan 2023 01:22:45 GMT"
+										},
+										{
+											"key": "Server",
+											"value": "WSGIServer/0.2 CPython/3.11.0"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Vary",
+											"value": "Accept, Accept-Language, Origin, Cookie"
+										},
+										{
+											"key": "Allow",
+											"value": "GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS"
+										},
+										{
+											"key": "Content-Language",
+											"value": "pt-br"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Length",
+											"value": "356"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"id\": 3,\n    \"user\": 3,\n    \"tag\": \"3\",\n    \"age\": 1,\n    \"birth_date\": \"2022-01-01\",\n    \"biography\": \"\",\n    \"company\": \"\",\n    \"locale\": \"\",\n    \"website\": \"\",\n    \"image\": null,\n    \"email_confirmed\": true,\n    \"slug\": \"apiadmin-3\",\n    \"recovery_key\": null,\n    \"language\": \"en-us\",\n    \"gender\": \"NI\",\n    \"cover_color\": \"#1488ac\",\n    \"primary_color\": \"#0b1524\",\n    \"secondary_color\": \"#c7c7c5\",\n    \"banned\": false,\n    \"must_reset_password\": false,\n    \"badges\": []\n}"
+								}
+							]
+						},
+						{
+							"name": "Update specific user profile data",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "user_username",
+											"value": "",
+											"description": "Required",
+											"type": "text"
+										},
+										{
+											"key": "language",
+											"value": "",
+											"description": "Required",
+											"type": "text"
+										},
+										{
+											"key": "gender",
+											"value": "",
+											"description": "Required",
+											"type": "text"
+										},
+										{
+											"key": "birth_date",
+											"value": "",
+											"description": "Required ISO 8601 date format (yyyy-mm-dd)",
+											"type": "text"
+										},
+										{
+											"key": "age",
+											"value": "",
+											"description": "required",
+											"type": "text"
+										},
+										{
+											"key": "biography",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "company",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "locale",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "website",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "image",
+											"contentType": "multipart/form-data",
+											"type": "file",
+											"src": []
+										},
+										{
+											"key": "email_confirmed",
+											"value": "",
+											"description": "Boolean value",
+											"type": "text"
+										},
+										{
+											"key": "recovery_key",
+											"value": "",
+											"description": "Used for account recovery process",
+											"type": "text"
+										},
+										{
+											"key": "cover_color",
+											"value": "",
+											"description": "HEX color format (#000000)",
+											"type": "text"
+										},
+										{
+											"key": "primary_color",
+											"value": "",
+											"description": "HEX color format (#000000)",
+											"type": "text"
+										},
+										{
+											"key": "secondary_color",
+											"value": "",
+											"description": "HEX color format (#000000)",
+											"type": "text"
+										},
+										{
+											"key": "banned",
+											"value": "",
+											"description": "Boolean value",
+											"type": "text"
+										},
+										{
+											"key": "reset_password",
+											"value": "",
+											"description": "Boolean value",
+											"type": "text"
+										},
+										{
+											"key": "Badges",
+											"value": "",
+											"description": "Badge ID array (Array of integers)",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/users/profile/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"profile",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "slug",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Update specific user profile data success",
+									"originalRequest": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "user_username",
+													"value": "ApiAdmin",
+													"description": "Required",
+													"type": "text"
+												},
+												{
+													"key": "language",
+													"value": "en-us",
+													"description": "Required",
+													"type": "text"
+												},
+												{
+													"key": "gender",
+													"value": "NI",
+													"description": "Required",
+													"type": "text"
+												},
+												{
+													"key": "birth_date",
+													"value": "2022-01-01",
+													"description": "ISO 8601 date format (yyyy-mm-dd)",
+													"type": "text"
+												},
+												{
+													"key": "age",
+													"value": "1",
+													"type": "text"
+												},
+												{
+													"key": "biography",
+													"value": "",
+													"type": "text"
+												},
+												{
+													"key": "company",
+													"value": "",
+													"type": "text"
+												},
+												{
+													"key": "locale",
+													"value": "",
+													"type": "text"
+												},
+												{
+													"key": "website",
+													"value": "",
+													"type": "text"
+												},
+												{
+													"key": "image",
+													"contentType": "multipart/form-data",
+													"type": "file",
+													"src": "/home/tr0nz0d/Downloads/person-8x.png"
+												},
+												{
+													"key": "email_confirmed",
+													"value": "",
+													"description": "Boolean value",
+													"type": "text"
+												},
+												{
+													"key": "recovery_key",
+													"value": "",
+													"description": "Used for account recovery process",
+													"type": "text"
+												},
+												{
+													"key": "cover_color",
+													"value": "",
+													"description": "HEX color format (#000000)",
+													"type": "text"
+												},
+												{
+													"key": "primary_color",
+													"value": "",
+													"description": "HEX color format (#000000)",
+													"type": "text"
+												},
+												{
+													"key": "secondary_color",
+													"value": "",
+													"description": "HEX color format (#000000)",
+													"type": "text"
+												},
+												{
+													"key": "banned",
+													"value": "",
+													"description": "Boolean value",
+													"type": "text"
+												},
+												{
+													"key": "reset_password",
+													"value": "",
+													"description": "Boolean value",
+													"type": "text"
+												},
+												{
+													"key": "Badges",
+													"value": "",
+													"description": "Badge ID array (Array of integers)",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{base_url}}/users/profile/?slug={{slug}}",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"users",
+												"profile",
+												""
+											],
+											"query": [
+												{
+													"key": "pk",
+													"value": null,
+													"disabled": true
+												},
+												{
+													"key": "slug",
+													"value": "{{slug}}"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Date",
+											"value": "Mon, 02 Jan 2023 01:25:55 GMT"
+										},
+										{
+											"key": "Server",
+											"value": "WSGIServer/0.2 CPython/3.11.0"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										},
+										{
+											"key": "Vary",
+											"value": "Accept, Accept-Language, Origin, Cookie"
+										},
+										{
+											"key": "Allow",
+											"value": "GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS"
+										},
+										{
+											"key": "Content-Language",
+											"value": "pt-br"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Length",
+											"value": "401"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"id\": 3,\n    \"user\": 3,\n    \"tag\": \"3\",\n    \"age\": 1,\n    \"birth_date\": \"2022-01-01\",\n    \"biography\": \"update bio\",\n    \"company\": \"\",\n    \"locale\": \"\",\n    \"website\": \"\",\n    \"image\": \"/media/users/2023/01/01/person-8x.png\",\n    \"email_confirmed\": true,\n    \"slug\": \"apiadmin-3\",\n    \"recovery_key\": null,\n    \"language\": \"en-us\",\n    \"gender\": \"NI\",\n    \"cover_color\": \"#1488ac\",\n    \"primary_color\": \"#0b1524\",\n    \"secondary_color\": \"#c7c7c5\",\n    \"banned\": false,\n    \"must_reset_password\": false,\n    \"badges\": []\n}"
+								}
+							]
+						},
+						{
+							"name": "Delete user profile",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/profile/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"profile",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "slug",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Delete user profile by profile ID success",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8000/api/users/profile/?pk=2",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"users",
+												"profile",
+												""
+											],
+											"query": [
+												{
+													"key": "pk",
+													"value": "2"
+												},
+												{
+													"key": "slug",
+													"value": null,
+													"disabled": true
+												}
+											]
+										}
+									},
+									"status": "No Content",
+									"code": 204,
+									"_postman_previewlanguage": "plain",
+									"header": [
+										{
+											"key": "Date",
+											"value": "Mon, 02 Jan 2023 00:04:23 GMT"
+										},
+										{
+											"key": "Server",
+											"value": "WSGIServer/0.2 CPython/3.11.0"
+										},
+										{
+											"key": "Vary",
+											"value": "Accept, Accept-Language, Origin, Cookie"
+										},
+										{
+											"key": "Allow",
+											"value": "GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS"
+										},
+										{
+											"key": "Content-Language",
+											"value": "pt-br"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Length",
+											"value": "0"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										}
+									],
+									"cookie": [],
+									"body": null
+								},
+								{
+									"name": "Delete user profile by slug success",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/users/profile/?slug=apiadmin-3",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"users",
+												"profile",
+												""
+											],
+											"query": [
+												{
+													"key": "pk",
+													"value": "",
+													"disabled": true
+												},
+												{
+													"key": "slug",
+													"value": "apiadmin-3"
+												}
+											]
+										}
+									},
+									"status": "No Content",
+									"code": 204,
+									"_postman_previewlanguage": "plain",
+									"header": [
+										{
+											"key": "Date",
+											"value": "Mon, 02 Jan 2023 01:38:45 GMT"
+										},
+										{
+											"key": "Server",
+											"value": "WSGIServer/0.2 CPython/3.11.0"
+										},
+										{
+											"key": "Vary",
+											"value": "Accept, Accept-Language, Origin, Cookie"
+										},
+										{
+											"key": "Allow",
+											"value": "GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS"
+										},
+										{
+											"key": "Content-Language",
+											"value": "pt-br"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "DENY"
+										},
+										{
+											"key": "Content-Length",
+											"value": "0"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										}
+									],
+									"cookie": [],
+									"body": null
+								}
+							]
+						}
+					]
 				}
 			]
 		}
@@ -203,7 +2907,7 @@
 		},
 		{
 			"key": "token",
-			"value": "c7ea087aa809b4245cf769a9d393789b9bb2e726bb2abf41a3e83c673b1a14c8a824b0198fc2e8a451c5b54a35681599f8be736983b889310e17fb227f34dae3",
+			"value": "fcb48081a69866e064d4e22f61f669f44200c75cccba6402919bca1d77f7c010bfa95d02c69f58eba8c57f75a37aa8faba18e8c435a0ff968d5854808ab81676",
 			"type": "string"
 		},
 		{
@@ -214,6 +2918,16 @@
 		{
 			"key": "password",
 			"value": "XJpU7iUw8BuZ5tT",
+			"type": "string"
+		},
+		{
+			"key": "id",
+			"value": "3",
+			"type": "string"
+		},
+		{
+			"key": "slug",
+			"value": "apiadmin-3",
 			"type": "string"
 		}
 	]

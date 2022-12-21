@@ -4,13 +4,17 @@ from rest_framework.response import Response
 from rest_framework import status
 from .tools import api_tools as tools
 from api_admins.models import ApiAdmin
+from api.tools.api_tools import description_generator
 from django.contrib.auth.models import User
+from rest_framework.schemas.coreapi import AutoSchema
+import coreapi  # type: ignore
 from django.contrib import auth
 from typing import TypeAlias, Optional, Any
 from uuid import uuid4
 from hashlib import md5, sha512
 
 
+# =================== Base API Class =================== #
 class Base(APIView):
     permission_classes = [AuthenticateApiClient]
     __api_token__: TypeAlias = Optional[str]
@@ -83,8 +87,13 @@ class Base(APIView):
             'response': self.generate_basic_response(status.HTTP_304_NOT_MODIFIED, 'Token request returned with default values')
         }
 
-        username = request.headers.get('username', None)
-        password = request.headers.get('password', None)
+        username = request.data.get('username', None)
+        password = request.data.get('password', None)
+
+        if (username is None) and (password is None):
+            username = request.headers.get('username', None)
+            password = request.headers.get('password', None)
+
         if (username is not None) and (password is not None):
 
             error_string = ''
@@ -110,7 +119,7 @@ class Base(APIView):
             if user is None:
                 response_dict['found'] = False
                 response_dict['token'] = None
-                response_dict['response'] = self.generate_basic_response(status.HTTP_401_UNAUTHORIZED, 'Missing credentials dict in headers')
+                response_dict['response'] = self.generate_basic_response(status.HTTP_401_UNAUTHORIZED, 'Missing credentials')
                 return response_dict
 
             self.authenticated_user = user
@@ -127,188 +136,80 @@ class Base(APIView):
         return response_dict
 
 
-class ApiTesting(Base):  # TODO: Remove before sending to prod
-    """Endpoint for testing API requests and responses"""
-    def get(self, request, format=None):
-        """
-Get basic info from back-end (used only for debugging, useless in front-end)
----
-    Authorization:
-        Type: API Key
-        Key: 'token'
-        Add to: header
+# =================== API Built-In Info =================== #
+class StatusSchema(AutoSchema):
+    def get_description(self, path: str, method: str) -> str:
+        authorization_info = """
+## Authorization:
 
-    Response body:
-    {
-        'user': username (str),
-        'data': request data (json),
-        'auth': authentication (str),
-        'query_params': query parameters (json),
-        'accepted_media_type': accepted media type (str),
-        'method': request method (str),
-        'content_type': content type (str),
-        'scheme': scheme (str),
-        'body': body (str),
-        'path': request path (str),
-        'path_info': same as request path (str),
-        'encoding': request encoding,
-        'content_params': content parameters (json),
-        'COOKIES': request cookies (json),
-        'headers': request headers (json),
-        'token': api token for request (str)
-    }
-    """
-        data = {
-            'user': f'{request.user}',
-            'data': request.data,
-            'auth': f'{request.auth}',
-            'query_params': request.query_params,
-            'accepted_media_type': request.accepted_media_type,
-            'method': request.method,
-            'content_type': request.content_type,
-            'scheme': request.scheme,
-            'body': request.body,
-            'path': request.path,
-            'path_info': request.path_info,
-            'encoding': request.encoding,
-            'content_params': request.content_params,
-            'COOKIES': request.COOKIES,
-            'headers': request.headers,
-            'token': self.get_token(request)
-        }
-        return Response(data=data, status=status.HTTP_200_OK)
+**Type:** API Key
+**Key:** "token"
+**Add to:** header
+"""
+        match method:
+            case 'GET':
+                responses = {
+                    "200": {
+                        'description': 'OK',
+                        'reason': 'API reachable and responsive'
+                    }
+                }
+                return description_generator(title="Check API reachability",
+                                             description=authorization_info,
+                                             responses=responses)
+            case _:
+                return ''
+
+    def get_path_fields(self, path: str, method: str) -> list[coreapi.Field]:
+        match method:
+            case _:
+                return []
 
 
-# =================== API Built-In Info ===================
 class ApiStatus(Base):
-    """Endpoint to check API reachability."""
+    """Checks API reachability."""
+
+    schema = StatusSchema()
 
     def get(self, request, format=None):
-        """
-Check API reachability.
----
-    Authorization:
-        Type: API Key
-        Key: 'token'
-        Add to: header
-
-    Response body:
-        {
-            'status': response status code (int),
-            'message': response message (str)
-        }
-    """
         return self.generate_basic_response(status.HTTP_200_OK, 'API running')
 
 
+class VersionSchema(AutoSchema):
+    def get_description(self, path: str, method: str) -> str:
+        authorization_info = """
+## Authorization:
+
+**Type:** API Key
+**Key:** "token"
+**Add to:** header
+"""
+        match method:
+            case 'GET':
+                responses = {
+                    "200": {
+                        'description': 'OK',
+                        'reason': 'API Version and environment fetched successfully'
+                    },
+                }
+                return description_generator(title="Fetches API version and environment",
+                                             description=authorization_info,
+                                             responses=responses)
+            case _:
+                return ''
+
+    def get_path_fields(self, path: str, method: str) -> list[coreapi.Field]:
+        match method:
+            case _:
+                return []
+
+
 class ApiVersion(Base):
-    """API version and its environment"""
+    """Returns API version and its environment"""
 
-    def get(self, request, format=None):
-        """
-Returns API's current version and environment
----
-    Authorization:
-        Type: API Key
-        Key: 'token'
-        Add to: header
+    schema = VersionSchema()
 
-    Response body:
-        {
-            'status': response status code (int),
-            'message': response message (str),
-            'version': API's current version and environment (str)
-        }
-    """
+    def get(self, request):
         data = self.generate_basic_response_data(status.HTTP_200_OK, 'API version')
         data['version'] = tools.generate_version()
         return Response(data=data, status=data.get('status'))
-
-
-# =================== API Security & Credentials ===================
-class AuthToken(Base):
-    """Manage API access token"""
-    def get(self, request):
-        """
-Get user API authentication token
----
-    Authorization:
-        None
-
-    Required parameter in header:
-        'username': username (str)
-        'password': password (str)
-
-    Response body:
-        {
-            'status': response status code (int),
-            'message': response message (str),
-            'token': user's API token (str)
-        }
-    """
-        validation = self.get_token_or_response(request)
-        fallback_response = self.generate_basic_response(status.HTTP_500_INTERNAL_SERVER_ERROR, 'Fallback response from token validation')
-
-        if not validation.get('found', False):
-            return validation.get('response', fallback_response)
-        else:
-            data = self.generate_basic_response_data(status.HTTP_200_OK, f'API token for user: {self.authenticated_user.get_username() if self.authenticated_user is not None else "Unknown"}')
-            data['token'] = validation.get('token')
-            return Response(data=data, status=data.get('status'))
-
-    def post(self, request):
-        """
-Create API token.
----
-    Authorization:
-        None
-
-    Requirements:
-        - User must exist in back-end users database
-        - User must have admin permissions and access to back-end admin page
-
-    Required parameter in header:
-        'username': username (str)
-        'password': password (str)
-
-    Response body:
-        {
-            'status': response status code (int),
-            'message': response message (str),
-            'token': user's created API token (str)
-        }
-        """
-        username = request.headers.get('username', None)
-        password = request.headers.get('password', None)
-        if (username is not None) and (password is not None):
-            if username is None or password is None:
-                return self.generate_basic_response(status.HTTP_401_UNAUTHORIZED, 'Missing credentials dict in headers')
-
-            authenticated_user = auth.authenticate(request, username=username, password=password)
-
-            if authenticated_user is None:
-                return self.generate_basic_response(status.HTTP_404_NOT_FOUND, 'User not found')
-
-            user = User.objects.all().filter(username=authenticated_user.get_username()).first()
-        else:
-            user = User.objects.all().filter(username=request.user.get_username()).first()
-
-        if user is None:
-            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, 'User not found')
-
-        if not user.is_staff:
-            return self.generate_basic_response(status.HTTP_403_FORBIDDEN, 'User does not have permission to perform this action')
-
-        self.authenticated_user = user
-
-        api_admin, _ = ApiAdmin.objects.get_or_create(user=user)
-
-        if not api_admin.token:
-            api_admin.token = self.generate_api_token()
-            api_admin.save()
-
-        token = api_admin.token
-
-        data = self.generate_basic_response_data(status.HTTP_200_OK, f'API Token created for: {self.authenticated_user.get_username()}')
-        data['token'] = token
-        return Response(data=data, status=status.HTTP_202_ACCEPTED)
