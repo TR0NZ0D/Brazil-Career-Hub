@@ -1,19 +1,36 @@
-from . import models, serializers
-from rest_framework.response import Response
-from rest_framework import status
-from api.views import Base
-from api.tools.api_tools import description_generator
-from django.contrib.auth.models import User
-from rest_framework.schemas.coreapi import AutoSchema
+# pylint: disable=C0302
+"""
+users/views.py
+
+Created by: Gabriel Menezes de Antonio
+"""
+from datetime import date
+from typing import TypeAlias
+
 import coreapi  # type: ignore
 import coreschema  # type: ignore
-from api.tools.constants import supported_languages__str__, genders__str__, supported_languages_keys, genders_keys, DEFAULT_COVER_COLOR, DEFAULT_PRIMARY_COLOR, DEFAULT_SECONDARY_COLOR
-from datetime import date
+from api.tools.api_tools import description_generator
+from api.tools.constants import (DEFAULT_COVER_COLOR, DEFAULT_PRIMARY_COLOR,
+                                 DEFAULT_SECONDARY_COLOR, genders__str__,
+                                 genders_keys, supported_languages__str__,
+                                 supported_languages_keys)
+from api.views import Base
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.schemas.coreapi import AutoSchema
+
+from . import models, serializers
+
+User = get_user_model()
+user_model: TypeAlias = User  # type: ignore
 
 
 # =================== User Profile =================== #
 class UserProfileSchema(AutoSchema):
+    """Schema for user profile"""
+
     def get_description(self, path: str, method: str) -> str:
         authorization_info = """
 ## Authorization:
@@ -89,7 +106,9 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                     }
                 }
                 return description_generator(title="Update specific information from user profile",
-                                             description=query_params_info + authorization_info + choices_info,
+                                             # noqa: E502
+                                             description=query_params_info + \
+                                             authorization_info + choices_info,
                                              responses=responses)
             case 'PUT':
                 responses = {
@@ -107,7 +126,9 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                     }
                 }
                 return description_generator(title="Update all data from user profile",
-                                             description=query_params_info + authorization_info + choices_info,
+                                             # noqa: E502
+                                             description=query_params_info + \
+                                             authorization_info + choices_info,
                                              responses=responses)
             case 'DELETE':
                 responses = {
@@ -589,7 +610,13 @@ class UserProfile(Base):
 
     schema = UserProfileSchema()
 
-    def handle_profile_data(self, request, bypass_required: bool = False) -> tuple[bool, dict[str, User | str | int | list[int] | bool | date | None] | Response]:
+    def handle_profile_data(self, request,
+                            # noqa
+                            bypass_required: bool = False) -> tuple[bool, dict[str, user_model | \
+                                                                    str | int | list[int] | \
+                                                                    bool | date | None] | \
+                                                                    Response]:
+        """Handle profile data"""
         def generate_error_response(text: str) -> tuple[bool, Response]:
             return (False, self.generate_basic_response(status.HTTP_400_BAD_REQUEST, text))
 
@@ -623,7 +650,7 @@ class UserProfile(Base):
         if not isinstance(username, str):
             return generate_error_response('User username must be a string')
 
-        user = User.objects.all().filter(username=username).first()
+        user: user_model | None = User.objects.all().filter(username=username).first()
 
         if user is None:
             return generate_error_response('This username does not exist')
@@ -656,7 +683,8 @@ class UserProfile(Base):
             try:
                 formatted_birth_date = date.fromisoformat(birth_date)
             except ValueError:
-                return generate_error_response('Birth date must follow the ISO 8601 date format (yyyy-mm-dd)')
+                return generate_error_response('Birth date must follow the ISO \
+                                                8601 date format (yyyy-mm-dd)')
 
         # Age validations
         if age:
@@ -697,8 +725,9 @@ class UserProfile(Base):
             return generate_error_response('Website must have a max length of 200 characters')
 
         # Image validations
+        # TODO: Review image validation
         if image:
-            image = image
+            image = image  # pylint: disable=W0127
 
         # Email confirmed validations
         if email_confirmed:
@@ -770,23 +799,27 @@ class UserProfile(Base):
 
         if badges:
             try:
-                [isinstance(badge_id, int) for badge_id in [int(badge) for badge in badges]]
+                [isinstance(badge_id, int)
+                 for badge_id in [int(badge) for badge in badges]]
             except ValueError:
                 return generate_error_response('All items in badges array must be integers')
 
-            unexisting_ids = [*set([int(badge_id) if not models.UserBadges.objects.all().filter(pk=int(badge_id)).exists() else '' for badge_id in badges])]
+            unexisting_ids = {int(badge_id) if not models.UserBadges.objects.all()
+                              .filter(pk=int(badge_id)).exists() else '' for badge_id in badges}
 
             if '' in unexisting_ids:
                 unexisting_ids.remove('')
 
             if unexisting_ids:
-                response_singular = f'Please remove the following badge ID from array since it does not exist: {unexisting_ids}'
-                response_plural = f'Please remove the following badges IDs since they does not exist: {unexisting_ids}'
-                return generate_error_response(response_plural if len(unexisting_ids) > 1 else response_singular)
+                response_singular = f'Please remove the following badge ID \
+                                    from array since it does not exist: {unexisting_ids}'
+                response_plural = f'Please remove the following badges \
+                                  IDs since they does not exist: {unexisting_ids}'
+                return generate_error_response(response_plural if len(unexisting_ids) > 1
+                                               else response_singular)
 
-        print(type(image))
         # Data conversion and handling
-        data: dict[str, User | str | int | list[int] | bool | date | None] = {
+        data: dict[str, user_model | str | int | list[int] | bool | date | None] = {
             'user': user,
             'language': language,
             'gender': gender,
@@ -810,28 +843,33 @@ class UserProfile(Base):
         return (True, data)
 
     def get(self, request):
-        pk = request.query_params.get('pk', None)
+        """Get request"""
+        primary_key = request.query_params.get('pk', None)
 
-        if pk is None:
+        if primary_key is None:
             slug = request.query_params.get('slug', None)
 
             if slug is None:
-                return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_slug_nor_id_str)
-            elif not slug:
-                return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_slug_str)
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_slug_nor_id_str)
+            if not slug:
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_slug_str)
 
             user_profile = models.UserProfile.objects.all().filter(slug=slug).first()
         else:
-            if not pk:
-                return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
+            if not primary_key:
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_id_str)
 
-            user_profile = models.UserProfile.objects.all().filter(pk=pk).first()
+            user_profile = models.UserProfile.objects.all().filter(pk=primary_key).first()
 
         if user_profile is not None:
             serializer = serializers.UserProfileSerializer(user_profile)
             data = serializer.data
             try:
-                data['image'] = f"/media{user_profile.image.path.split('/media')[1]}"  # type: ignore
+                # type: ignore
+                data['image'] = f"/media{user_profile.image.path.split('/media')[1]}"
             except IndexError:
                 data['image'] = None
             return Response(data=data, status=status.HTTP_200_OK)
@@ -839,11 +877,12 @@ class UserProfile(Base):
         return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_profile_str)
 
     def post(self, request):
+        """Post request"""
         data_valid, data_or_response = self.handle_profile_data(request)
         if not data_valid:
             return data_or_response
-        else:
-            profile_data = data_or_response
+
+        profile_data = data_or_response
 
         user = profile_data.get('user', None)
 
@@ -851,22 +890,33 @@ class UserProfile(Base):
             return self.generate_basic_response(status.HTTP_404_NOT_FOUND, 'User not found')
 
         profile = models.UserProfile(user=user,
-                                     age=profile_data.get('age', 0),  # type: ignore
-                                     birth_date=profile_data.get('birth_date', date.today()),  # type: ignore
-                                     biography=profile_data.get('biography', ''),
+                                     age=profile_data.get(
+                                         'age', 0),  # type: ignore
+                                     birth_date=profile_data.get(
+                                         'birth_date', date.today()),  # type: ignore
+                                     biography=profile_data.get(
+                                         'biography', ''),
                                      company=profile_data.get('company', ''),
                                      locale=profile_data.get('locale', ''),
                                      website=profile_data.get('website', ''),
                                      image=profile_data.get('image'),
-                                     email_confirmed=profile_data.get('email_confirmed', False),  # type: ignore
-                                     recovery_key=profile_data.get('recovery_key', ''),
-                                     language=profile_data.get('language', 'pt-br'),
+                                     email_confirmed=profile_data.get(
+                                         'email_confirmed', False),  # type: ignore
+                                     recovery_key=profile_data.get(
+                                         'recovery_key', ''),
+                                     language=profile_data.get(
+                                         'language', 'pt-br'),
                                      gender=profile_data.get('gender', 'NI'),
-                                     cover_color=profile_data.get('cover_color', DEFAULT_COVER_COLOR),
-                                     primary_color=profile_data.get('primary_color', DEFAULT_PRIMARY_COLOR),
-                                     secondary_color=profile_data.get('secondary_color', DEFAULT_SECONDARY_COLOR),
-                                     banned=profile_data.get('banned', False),  # type: ignore
-                                     must_reset_password=profile_data.get('must_reset_password', False)  # type: ignore
+                                     cover_color=profile_data.get(
+                                         'cover_color', DEFAULT_COVER_COLOR),
+                                     primary_color=profile_data.get(
+                                         'primary_color', DEFAULT_PRIMARY_COLOR),
+                                     secondary_color=profile_data.get(
+                                         'secondary_color', DEFAULT_SECONDARY_COLOR),
+                                     banned=profile_data.get(
+                                         'banned', False),  # type: ignore
+                                     must_reset_password=profile_data.get(
+                                         'must_reset_password', False)  # type: ignore
                                      )
 
         if profile_data.get('image', None):  # TODO: Image posting is not working
@@ -877,7 +927,7 @@ class UserProfile(Base):
                 try:
                     badge = models.UserBadges.objects.get(pk=badge_id)
                     profile.badges.add(badge)
-                except Exception:
+                except Exception:  # pylint: disable=W0718
                     continue
 
         data = serializers.UserProfileSerializer(profile, many=False).data
@@ -893,31 +943,37 @@ class UserProfile(Base):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request):
-        pk = request.query_params.get('pk', None)
+        """Patch request"""
+        primary_key = request.query_params.get('pk', None)
 
-        if pk is None:
+        if primary_key is None:
             slug = request.query_params.get('slug', None)
 
             if slug is None:
-                return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_slug_nor_id_str)
-            elif not slug:
-                return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_slug_str)
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_slug_nor_id_str)
+            if not slug:
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_slug_str)
 
             user_profile = models.UserProfile.objects.all().filter(slug=slug).first()
         else:
-            if not pk:
-                return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
+            if not primary_key:
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_id_str)
 
-            user_profile = models.UserProfile.objects.all().filter(pk=pk).first()
+            user_profile = models.UserProfile.objects.all().filter(pk=primary_key).first()
 
         if user_profile is None:
-            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_profile_str)
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                self.not_found_profile_str)
 
-        data_valid, data_or_response = self.handle_profile_data(request, bypass_required=True)
+        data_valid, data_or_response = self.handle_profile_data(
+            request, bypass_required=True)
         if not data_valid:
             return data_or_response
-        else:
-            profile_data = data_or_response
+
+        profile_data = data_or_response
 
         if profile_data.get('user', None):
             user: User = profile_data.get('user', None)  # type: ignore
@@ -974,11 +1030,13 @@ class UserProfile(Base):
             user_profile.cover_color = cover_color
 
         if profile_data.get('primary_color', None):
-            primary_color: str = profile_data.get('primary_color', DEFAULT_PRIMARY_COLOR)  # type: ignore
+            primary_color: str = profile_data.get('primary_color',  # type: ignore
+                                                  DEFAULT_PRIMARY_COLOR)  # type: ignore
             user_profile.primary_color = primary_color
 
         if profile_data.get('secondary_color', None):
-            secondary_color: str = profile_data.get('secondary_color', DEFAULT_SECONDARY_COLOR)  # type: ignore
+            secondary_color: str = profile_data.get('secondary_color',  # type: ignore
+                                                    DEFAULT_SECONDARY_COLOR)  # type: ignore
             user_profile.secondary_color = secondary_color
 
         if profile_data.get('banned', None):
@@ -993,7 +1051,8 @@ class UserProfile(Base):
             user_profile.clean_fields()
             user_profile.clean()
         except ValidationError as err:
-            data = self.generate_basic_response_data(status.HTTP_400_BAD_REQUEST, 'Patch data validation error')
+            data = self.generate_basic_response_data(
+                status.HTTP_400_BAD_REQUEST, 'Patch data validation error')
             data['errors'] = err
             return Response(data=data, status=data.get('status'))
 
@@ -1009,31 +1068,36 @@ class UserProfile(Base):
         return Response(data=data, status=status.HTTP_200_OK)
 
     def put(self, request):
-        pk = request.query_params.get('pk', None)
+        """Put request"""
+        primary_key = request.query_params.get('pk', None)
 
-        if pk is None:
+        if primary_key is None:
             slug = request.query_params.get('slug', None)
 
             if slug is None:
-                return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_slug_nor_id_str)
-            elif not slug:
-                return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_slug_str)
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_slug_nor_id_str)
+            if not slug:
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_slug_str)
 
             user_profile = models.UserProfile.objects.all().filter(slug=slug).first()
         else:
-            if not pk:
-                return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
+            if not primary_key:
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_id_str)
 
-            user_profile = models.UserProfile.objects.all().filter(pk=pk).first()
+            user_profile = models.UserProfile.objects.all().filter(pk=primary_key).first()
 
         if user_profile is None:
-            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_profile_str)
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                self.not_found_profile_str)
 
         data_valid, data_or_response = self.handle_profile_data(request)
         if not data_valid:
             return data_or_response
-        else:
-            profile_data = data_or_response
+
+        profile_data = data_or_response
 
         user = profile_data.get('user', None)
 
@@ -1042,20 +1106,29 @@ class UserProfile(Base):
 
         profile = models.UserProfile(user=user,
                                      age=profile_data.get('age', 0),  # type: ignore
-                                     birth_date=profile_data.get('birth_date', date.today()),  # type: ignore
+                                     birth_date=profile_data.get('birth_date',  # type: ignore
+                                                                 date.today()),  # type: ignore
                                      biography=profile_data.get('biography', ''),
                                      company=profile_data.get('company', ''),
                                      locale=profile_data.get('locale', ''),
                                      website=profile_data.get('website', ''),
-                                     email_confirmed=profile_data.get('email_confirmed', False),  # type: ignore
-                                     recovery_key=profile_data.get('recovery_key', ''),
-                                     language=profile_data.get('language', 'pt-br'),
+                                     email_confirmed=profile_data.get(
+                                         'email_confirmed', False),  # type: ignore
+                                     recovery_key=profile_data.get(
+                                         'recovery_key', ''),
+                                     language=profile_data.get(
+                                         'language', 'pt-br'),
                                      gender=profile_data.get('gender', 'NI'),
-                                     cover_color=profile_data.get('cover_color', DEFAULT_COVER_COLOR),
-                                     primary_color=profile_data.get('primary_color', DEFAULT_PRIMARY_COLOR),
-                                     secondary_color=profile_data.get('secondary_color', DEFAULT_SECONDARY_COLOR),
-                                     banned=profile_data.get('banned', False),  # type: ignore
-                                     must_reset_password=profile_data.get('must_reset_password', False)  # type: ignore
+                                     cover_color=profile_data.get(
+                                         'cover_color', DEFAULT_COVER_COLOR),
+                                     primary_color=profile_data.get(
+                                         'primary_color', DEFAULT_PRIMARY_COLOR),
+                                     secondary_color=profile_data.get(
+                                         'secondary_color', DEFAULT_SECONDARY_COLOR),
+                                     banned=profile_data.get(
+                                         'banned', False),  # type: ignore
+                                     must_reset_password=profile_data.get(
+                                         'must_reset_password', False)  # type: ignore
                                      )
 
         if profile_data.get('image', None):
@@ -1066,7 +1139,7 @@ class UserProfile(Base):
                 try:
                     badge = models.UserBadges.objects.get(pk=badge_id)
                     profile.badges.add(badge)
-                except Exception:
+                except Exception:  # pylint: disable=W0718
                     continue
 
         data = serializers.UserProfileSerializer(profile, many=False).data
@@ -1075,29 +1148,34 @@ class UserProfile(Base):
             serializer.save()
             data = serializer.data
             try:
-                data['image'] = f"/media{user_profile.image.path.split('/media')[1]}"  # type: ignore
+                # type: ignore
+                data['image'] = f"/media{user_profile.image.path.split('/media')[1]}"
             except IndexError:
                 data['image'] = None
             return Response(data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
-        pk = request.query_params.get('pk', None)
+        """Delete request"""
+        primary_key = request.query_params.get('pk', None)
 
-        if pk is None:
+        if primary_key is None:
             slug = request.query_params.get('slug', None)
 
             if slug is None:
-                return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_slug_nor_id_str)
-            elif not slug:
-                return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_slug_str)
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_slug_nor_id_str)
+            if not slug:
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_slug_str)
 
             user_profile = models.UserProfile.objects.all().filter(slug=slug).first()
         else:
-            if not pk:
-                return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
+            if not primary_key:
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_id_str)
 
-            user_profile = models.UserProfile.objects.all().filter(pk=pk).first()
+            user_profile = models.UserProfile.objects.all().filter(pk=primary_key).first()
 
         if user_profile is not None:
             user_profile.delete()
@@ -1108,6 +1186,8 @@ class UserProfile(Base):
 
 # =================== Badges =================== #
 class BadgesSchema(AutoSchema):
+    """Schema for badges"""
+
     def get_description(self, path: str, method: str) -> str:
         authorization_info = """
 ## Authorization:
@@ -1271,24 +1351,26 @@ class UserBadges(Base):
     schema = BadgesSchema()
 
     def get(self, request):
-        pk = request.query_params.get('pk', None)
+        """Get request"""
+        primary_key = request.query_params.get('pk', None)
 
-        if (not pk) and (pk is not None):
+        if (not primary_key) and (primary_key is not None):
             return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
 
-        if pk is None:
+        if primary_key is None:
             user_badges = models.UserBadges.objects.all()
             serializer = serializers.UserBadgesSerializer(
                 user_badges, many=True)
             return Response(data=serializer.data, status=status.HTTP_200_OK)
-        else:
-            user_badge = models.UserBadges.objects.all().filter(pk=pk).first()
-            if user_badge is not None:
-                serializer = serializers.UserBadgesSerializer(user_badge)
-                return Response(data=serializer.data, status=status.HTTP_200_OK)
-            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
+
+        user_badge = models.UserBadges.objects.all().filter(pk=primary_key).first()
+        if user_badge is not None:
+            serializer = serializers.UserBadgesSerializer(user_badge)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
 
     def post(self, request):
+        """Post request"""
         name = request.data.get('name', None)
         description = request.data.get('description', None)
         color = request.data.get('color', None)
@@ -1303,15 +1385,16 @@ class UserBadges(Base):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request):
-        pk = request.query_params.get('pk', None)
+        """Put request"""
+        primary_key = request.query_params.get('pk', None)
 
-        if not pk:
-            pk = request.data.get('pk', None)
+        if not primary_key:
+            primary_key = request.data.get('pk', None)
 
-        if not pk:
+        if not primary_key:
             return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
 
-        user_badge = models.UserBadges.objects.all().filter(pk=pk).first()
+        user_badge = models.UserBadges.objects.all().filter(pk=primary_key).first()
         if user_badge is None:
             return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
 
@@ -1328,12 +1411,13 @@ class UserBadges(Base):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
-        pk = request.query_params.get('pk', None)
+        """Delete request"""
+        primary_key = request.query_params.get('pk', None)
 
-        if not pk:
+        if not primary_key:
             return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
 
-        user_badge = models.UserBadges.objects.all().filter(pk=pk).first()
+        user_badge = models.UserBadges.objects.all().filter(pk=primary_key).first()
         if user_badge is not None:
             user_badge.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -1342,6 +1426,8 @@ class UserBadges(Base):
 
 # =================== Banned Users =================== #
 class BannedUsersSchema(AutoSchema):
+    """Schema for banned users"""
+
     def get_description(self, path: str, method: str) -> str:
         authorization_info = """
 ## Authorization:
@@ -1491,34 +1577,38 @@ class BannedUsers(Base):
     schema = BannedUsersSchema()
 
     def get(self, request):
-        pk = request.query_params.get('pk', None)
+        """Get request"""
+        primary_key = request.query_params.get('pk', None)
 
         slug = request.query_params.get('slug', None)
 
-        if (not pk) and (pk is not None):
+        if (not primary_key) and (primary_key is not None):
             return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
-        elif (not slug) and (slug is not None):
+
+        if (not slug) and (slug is not None):
             return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_slug_str)
 
-        if pk:
-            banned_user = models.BannedUsers.objects.all().filter(pk=pk).first()
+        if primary_key:
+            banned_user = models.BannedUsers.objects.all().filter(pk=primary_key).first()
             if banned_user is not None:
                 serializer = serializers.BannedUsersSerializer(banned_user)
                 return Response(data=serializer.data, status=status.HTTP_200_OK)
             return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
-        elif slug:
+
+        if slug:
             banned_user = models.BannedUsers.objects.all().filter(profile__slug=slug).first()
             if banned_user is not None:
                 serializer = serializers.BannedUsersSerializer(banned_user)
                 return Response(data=serializer.data, status=status.HTTP_200_OK)
             return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.slug_not_banned_str)
-        else:
-            banned_users = models.BannedUsers.objects.all()
-            serializer = serializers.BannedUsersSerializer(
-                banned_users, many=True)
-            return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+        banned_users = models.BannedUsers.objects.all()
+        serializer = serializers.BannedUsersSerializer(
+            banned_users, many=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
+        """Post request"""
         user_username = request.data.get('user_username', None)
         user = User.objects.all().filter(username=user_username).first()
         profile_slug = request.data.get('profile_slug', None)
@@ -1526,19 +1616,22 @@ class BannedUsers(Base):
         reason = request.data.get('reason', None)
         responsible_username = request.data.get('responsible_username', None)
         responsible = User.objects.all().filter(username=responsible_username).first()
-        ip = request.data.get('ip', None)
+        user_ip = request.data.get('ip', None)
 
         if user is None:
-            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, "Banned user username not found")
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                "Banned user username not found")
 
         if profile is None:
-            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, "Banned user profile slug not found")
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                "Banned user profile slug not found")
 
         if responsible is None:
-            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, "Admin responsible username not found")
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                "Admin responsible username not found")
 
         ban_issue = models.BannedUsers(
-            user=user, profile=profile, reason=reason, responsible=responsible, ip=ip)
+            user=user, profile=profile, reason=reason, responsible=responsible, ip=user_ip)
         data = serializers.BannedUsersSerializer(ban_issue).data
         serializer = serializers.BannedUsersSerializer(data=data)
         if serializer.is_valid():
@@ -1547,26 +1640,30 @@ class BannedUsers(Base):
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
-        pk = request.query_params.get('pk', None)
+        """Delete request"""
+        primary_key = request.query_params.get('pk', None)
 
         slug = request.query_params.get('slug', None)
 
-        if (not pk) and (pk is not None):
+        if (not primary_key) and (primary_key is not None):
             return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
-        elif (not slug) and (slug is not None):
+
+        if (not slug) and (slug is not None):
             return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_slug_str)
 
-        if pk:
-            banned_user = models.BannedUsers.objects.all().filter(pk=pk).first()
+        if primary_key:
+            banned_user = models.BannedUsers.objects.all().filter(pk=primary_key).first()
             if banned_user is not None:
                 banned_user.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
-        elif slug:
+
+        if slug:
             banned_user = models.BannedUsers.objects.all().filter(profile__slug=slug).first()
             if banned_user is not None:
                 banned_user.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.slug_not_banned_str)
 
-        return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_slug_nor_id_str)
+        return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                            self.not_found_slug_nor_id_str)

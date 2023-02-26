@@ -1,17 +1,27 @@
-from . import models
-from rest_framework.response import Response
-from rest_framework import status
-from api.views import Base
-from django.contrib import auth
-from api.tools.api_tools import description_generator
-from django.contrib.auth.models import User
-from rest_framework.schemas.coreapi import AutoSchema
+"""
+api_admins/views.py
+
+Created by: Gabriel Menezes de Antonio
+"""
 import coreapi  # type: ignore
 import coreschema  # type: ignore
+from api.tools.api_tools import description_generator
+from api.views import Base
+from django.contrib import auth
+from django.contrib.auth import get_user_model
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.schemas.coreapi import AutoSchema
+
+from . import models
+
+User = get_user_model()
 
 
 # =================== API Security & Credentials =================== #
 class AuthTokenSchema(AutoSchema):
+    """Schema for auth token"""
+
     def get_description(self, path: str, method: str) -> str:
         authorization_info = """
 ## Authorization:
@@ -131,24 +141,33 @@ class BaseAuthToken(Base):
     schema = AuthTokenSchema()
 
     def get(self, request):
+        """Get request"""
         validation = self.get_token_or_response(request)
-        fallback_response = self.generate_basic_response(status.HTTP_500_INTERNAL_SERVER_ERROR, 'Fallback response from token validation')
+        fallback_response = self.generate_basic_response(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            'Fallback response from token validation'
+        )
 
         if not validation.get('found', False):
             return validation.get('response', fallback_response)
-        else:
-            data = self.generate_basic_response_data(status.HTTP_200_OK, f'API token for user: {self.authenticated_user.get_username() if self.authenticated_user is not None else "Unknown"}')
-            data['token'] = validation.get('token')
-            return Response(data=data, status=data.get('status'))
+
+        data = self.generate_basic_response_data(
+            status.HTTP_200_OK,
+            f'API token for user: {self.authenticated_user.get_username() if self.authenticated_user is not None else "Unknown"}')  # type: ignore # pylint: disable=C0301
+        data['token'] = validation.get('token')
+        return Response(data=data, status=data.get('status'))
 
     def post(self, request):
+        """Post request"""
         username = request.data.get('username', None)
         password = request.data.get('password', None)
         if (username is not None) and (password is not None):
             if username is None or password is None:
-                return self.generate_basic_response(status.HTTP_401_UNAUTHORIZED, 'Missing credentials')
+                return self.generate_basic_response(status.HTTP_401_UNAUTHORIZED,
+                                                    'Missing credentials')
 
-            authenticated_user = auth.authenticate(request, username=username, password=password)
+            authenticated_user = auth.authenticate(
+                request, username=username, password=password)
 
             if authenticated_user is None:
                 return self.generate_basic_response(status.HTTP_404_NOT_FOUND, 'User not found')
@@ -160,8 +179,11 @@ class BaseAuthToken(Base):
         if user is None:
             return self.generate_basic_response(status.HTTP_404_NOT_FOUND, 'User not found')
 
-        if not user.is_staff:
-            return self.generate_basic_response(status.HTTP_403_FORBIDDEN, 'User does not have permission to perform this action')
+        if not user.is_staff:  # type: ignore
+            return self.generate_basic_response(
+                status.HTTP_403_FORBIDDEN,
+                'User does not have permission to perform this action'
+            )
 
         self.authenticated_user = user
 
@@ -173,6 +195,9 @@ class BaseAuthToken(Base):
 
         token = api_admin.token
 
-        data = self.generate_basic_response_data(status.HTTP_201_CREATED, f'API Token created for: {self.authenticated_user.get_username()}')
+        data = self.generate_basic_response_data(
+            status.HTTP_201_CREATED,
+            f'API Token created for: {self.authenticated_user.get_username()}'
+        )
         data['token'] = token
         return Response(data=data, status=data.get('status'))

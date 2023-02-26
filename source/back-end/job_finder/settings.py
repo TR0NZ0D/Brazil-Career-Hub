@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+
 from api.tools.api_tools import num_version as version
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -151,7 +152,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS
 
-CORS_ALLOWED_ORIGINS = [f'https://{i}' for i in ALLOWED_HOSTS] + [f'http://{i}' for i in ALLOWED_HOSTS]
+CORS_ALLOWED_ORIGINS = [f'https://{i}' for i in ALLOWED_HOSTS] \
+    + [f'http://{i}' for i in ALLOWED_HOSTS]
 
 # REST Framework
 
