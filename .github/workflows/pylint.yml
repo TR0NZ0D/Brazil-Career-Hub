@@ -1,4 +1,4 @@
-name: Pylint back-end
+name: Pylint Back-end
 
 on: [push]
 
