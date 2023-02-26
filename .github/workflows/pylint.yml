@@ -21,4 +21,4 @@ jobs:
         pip install --upgrade -r source/requirements.txt
     - name: Analysing the code with pylint
       run: |
-        pylint $(git ls-files '*.py')
+        pylint --rcfile source/back-end/.pylintrc $(git ls-files '*.py')
