@@ -1,4 +1,4 @@
-name: Django Project Validation
+name: Django Validation
 
 on:
   push:
