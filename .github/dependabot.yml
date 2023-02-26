@@ -6,7 +6,7 @@
 version: 2
 updates:
   # Maintain dependencies for pip (back-end)
-  - package-ecosystem: "pip,"
+  - package-ecosystem: "pip"
     directory: "/source" # Location of package manifests
     schedule:
       interval: "weekly"
