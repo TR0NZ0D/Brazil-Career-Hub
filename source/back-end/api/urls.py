@@ -1,7 +1,11 @@
+"""
+api/urls.py
+
+Created by: Gabriel Menezes de Antonio
+"""
+from django.urls import include, path
+
 from . import views
-from django.urls import path, include
-from rest_framework.schemas import get_schema_view
-from .tools.api_tools import generate_version, version, environment
 
 app_name = 'api'
 

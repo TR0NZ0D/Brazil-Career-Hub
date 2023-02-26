@@ -1,5 +1,11 @@
-from . import views
+"""
+users/urls.py
+
+Created by: Gabriel Menezes de Antonio
+"""
 from django.urls import path
+
+from . import views
 
 app_name = 'users'
 

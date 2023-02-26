@@ -1,7 +1,14 @@
-from rest_framework import permissions
-from django.contrib.auth.models import User
+"""
+api/permissions.py
+
+Created by: Gabriel Menezes de Antonio
+"""
 from api_admins.models import ApiAdmin
 from django.contrib import auth
+from django.contrib.auth import get_user_model
+from rest_framework import permissions
+
+User = get_user_model()
 
 
 class AuthenticateApiClient(permissions.BasePermission):
@@ -11,7 +18,8 @@ class AuthenticateApiClient(permissions.BasePermission):
 
     def has_permission(self, request, view) -> bool:
         # If user is authenticated means that he is in UI docs, allow
-        if bool(request.user and request.user.is_authenticated and (request.user.is_superuser) or (request.user.is_staff)):  # type: ignore
+        if request.user and request.user.is_authenticated \
+           and ((request.user.is_superuser) or (request.user.is_staff)):  # type: ignore
             return True
 
         username = request.headers.get('username', None)
@@ -23,7 +31,8 @@ class AuthenticateApiClient(permissions.BasePermission):
             return False
 
         # If only username or only password and not api_token, deny
-        if (((username is None) and (password)) or ((username) and (password is None))) and (api_token is None):
+        if (((username is None) and (password)) or ((username) and (password is None))) \
+           and (api_token is None):
             return False
 
         # If token exists, allow

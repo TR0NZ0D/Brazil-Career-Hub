@@ -1,6 +1,13 @@
-from .constants import CURRENT_VERSION as __version, ENVIRONMENT as __env
+"""
+api/views.py
+
+Created by: Gabriel Menezes de Antonio
+"""
 from django.conf import settings
 from PIL import Image
+
+from .constants import CURRENT_VERSION as __version
+from .constants import ENVIRONMENT as __env
 
 version = f'v{__version}'
 num_version = __version
@@ -8,10 +15,12 @@ environment = __env.get('long_desc', 'Unknown')
 
 
 def generate_version() -> str:
+    """Generates an API version"""
     return f'v{__version} [{__env.get("short_desc", "?")}]'
 
 
 def resize_image(img, new_width):
+    """Resizes a image with informed width"""
     img_path = settings.MEDIA_ROOT.joinpath(img.name)
     img = Image.open(img_path)
     width, height = img.size
@@ -30,7 +39,9 @@ def resize_image(img, new_width):
     new_img.close()
 
 
-def description_generator(title: str, description: str | None = None, responses: dict[str, dict[str, str]] | None = None) -> str:
+def description_generator(title: str,
+                          description: str | None = None,
+                          responses: dict[str, dict[str, str]] | None = None) -> str:
     """
     Response struct:
         {

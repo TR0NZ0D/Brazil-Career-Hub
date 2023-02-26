@@ -1,8 +1,15 @@
+"""
+users/admin.py
+
+Created by: Gabriel Menezes de Antonio
+"""
 from django.contrib import admin
+
 from . import models
 
 
 class ProfileAdmin(admin.ModelAdmin):
+    """Admin model for profile"""
     list_display = ('tag', 'user', 'slug', 'age', 'banned', 'must_reset_password')
     list_display_links = ('tag', 'user')
     list_per_page = 35
@@ -12,6 +19,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
 
 class BadgesInlineProfile(admin.StackedInline):
+    """Inline model for badges"""
     model = models.UserProfile.badges.through
     extra = 0
     verbose_name = "Profile"
@@ -19,6 +27,7 @@ class BadgesInlineProfile(admin.StackedInline):
 
 
 class BadgesAdmin(admin.ModelAdmin):
+    """Admin model for badges"""
     inlines = [BadgesInlineProfile]
     list_display = ('pk', 'name', 'color')
     list_display_links = ('pk', 'name')
@@ -27,6 +36,7 @@ class BadgesAdmin(admin.ModelAdmin):
 
 
 class BannedUsersAdmin(admin.ModelAdmin):
+    """Admin model for banned users"""
     list_display = ("pk", 'user', 'profile', 'responsible', 'date')
     list_display_links = ('pk', 'user')
     list_per_page = 25

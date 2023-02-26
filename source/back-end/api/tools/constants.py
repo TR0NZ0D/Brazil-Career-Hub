@@ -1,3 +1,8 @@
+"""
+api/tools/constants.py
+
+Created by: Gabriel Menezes de Antonio
+"""
 __environments = {
     0: {
         'long_desc': 'Unknown',
@@ -33,10 +38,10 @@ DEFAULT_PRIMARY_COLOR = "#0b1524"  # TODO: Change default color after defining c
 DEFAULT_SECONDARY_COLOR = "#c7c7c5"  # TODO: Change default color after defining color pallete
 
 
-def __get_str_table(CONST: tuple[tuple[str, str], ...]) -> str:
+def __get_str_table(const: tuple[tuple[str, str], ...]) -> str:
     string = "| Key | Description |"
     string += "\n| --- | ----------- |"
-    for key, description in CONST:
+    for key, description in const:
         string += f'\n| {key} | {description} |'
 
     return string

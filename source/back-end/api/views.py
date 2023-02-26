@@ -1,27 +1,39 @@
-from .permissions import AuthenticateApiClient
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from .tools import api_tools as tools
-from api_admins.models import ApiAdmin
-from api.tools.api_tools import description_generator
-from django.contrib.auth.models import User
-from rest_framework.schemas.coreapi import AutoSchema
-import coreapi  # type: ignore
-from django.contrib import auth
-from typing import TypeAlias, Optional, Any
-from uuid import uuid4
+"""
+api/views.py
+
+Created by: Gabriel Menezes de Antonio
+"""
 from hashlib import md5, sha512
+from typing import Any, Optional, TypeAlias
+from uuid import uuid4
+
+import coreapi  # type: ignore
+from api.tools.api_tools import description_generator
+from api_admins.models import ApiAdmin
+from django.contrib import auth
+from django.contrib.auth import get_user_model
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.schemas.coreapi import AutoSchema
+from rest_framework.views import APIView
+
+from .permissions import AuthenticateApiClient
+from .tools import api_tools as tools
+
+User = get_user_model()
 
 
 # =================== Base API Class =================== #
 class Base(APIView):
+    """Base API class"""
+    user_model: TypeAlias = User  # type: ignore
     permission_classes = [AuthenticateApiClient]
     __api_token__: TypeAlias = Optional[str]
     __response_data__: TypeAlias = dict[str, Any]
-    authenticated_user: Optional[User] = None
+    authenticated_user: Optional[user_model] = None
 
     def generate_api_token(self) -> str:
+        """Generate API token"""
         uuid = str(uuid4())
         token_md5 = md5(uuid.encode())
         token_sha512 = sha512(uuid.encode())
@@ -30,14 +42,19 @@ class Base(APIView):
         token = (token[:250]) if len(token) > 255 else token
         return token
 
-    def get_token(self, request, username: Optional[str] = None, password: Optional[str] = None, user: Optional[User] = None) -> __api_token__:
+    def get_token(self,
+                  request,
+                  username: Optional[str] = None,
+                  password: Optional[str] = None,
+                  user: Optional[user_model] = None) -> __api_token__:
+        """Get token from request"""
         if (username is None) and (password is None) and (user is None):
             return request.headers.get('token', None)
 
         if user is not None:
             authenticated_user = user
 
-            if not user.is_staff:
+            if not user.is_staff:  # type: ignore
                 return None
         else:
             auth_user = auth.authenticate(request, username=username, password=password)
@@ -45,9 +62,10 @@ class Base(APIView):
             if auth_user is None:
                 return None
 
-            authenticated_user = User.objects.all().filter(username=auth_user.get_username()).first()  # type: ignore [assignment]
+            authenticated_user = User.objects.all() \
+                .filter(username=auth_user.get_username()).first()
 
-            if (authenticated_user is None) or (not authenticated_user.is_staff):
+            if (authenticated_user is None) or (not authenticated_user.is_staff):  # type: ignore
                 return None
 
         self.authenticated_user = authenticated_user
@@ -58,13 +76,15 @@ class Base(APIView):
 
         return api_admin.token
 
-    def generate_basic_response(self, status: int, message: str) -> Response:
-        data = self.generate_basic_response_data(status, message)
+    def generate_basic_response(self, status_code: int, message: str) -> Response:
+        """Generates a basic response"""
+        data = self.generate_basic_response_data(status_code, message)
         return Response(data=data, status=data.get('status'))
 
-    def generate_basic_response_data(self, status: int, message: str) -> __response_data__:
+    def generate_basic_response_data(self, status_code: int, message: str) -> __response_data__:
+        """Generates a basic response data"""
         return {
-            'status': status,
+            'status': status_code,
             'message': message
         }
 
@@ -84,7 +104,8 @@ class Base(APIView):
         response_dict: dict[str, bool | Optional[str] | Response] = {
             'found': False,
             'token': None,
-            'response': self.generate_basic_response(status.HTTP_304_NOT_MODIFIED, 'Token request returned with default values')
+            'response': self.generate_basic_response(status.HTTP_304_NOT_MODIFIED,
+                                                     'Token request returned with default values')
         }
 
         username = request.data.get('username', None)
@@ -108,7 +129,8 @@ class Base(APIView):
                 error_string += ' credential' if 'password' not in error_string else ' credentials'
                 response_dict['found'] = False
                 response_dict['token'] = None
-                response_dict['response'] = self.generate_basic_response(status.HTTP_401_UNAUTHORIZED, error_string)
+                response_dict['response'] = \
+                    self.generate_basic_response(status.HTTP_401_UNAUTHORIZED, error_string)
                 return response_dict
 
             token = self.get_token(request, username, password)
@@ -119,7 +141,9 @@ class Base(APIView):
             if user is None:
                 response_dict['found'] = False
                 response_dict['token'] = None
-                response_dict['response'] = self.generate_basic_response(status.HTTP_401_UNAUTHORIZED, 'Missing credentials')
+                response_dict['response'] = \
+                    self.generate_basic_response(status.HTTP_401_UNAUTHORIZED,
+                                                 'Missing credentials')
                 return response_dict
 
             self.authenticated_user = user
@@ -127,7 +151,8 @@ class Base(APIView):
         if token is None:
             response_dict['found'] = False
             response_dict['token'] = None
-            response_dict['response'] = self.generate_basic_response(status.HTTP_404_NOT_FOUND, 'API token not found')
+            response_dict['response'] = \
+                self.generate_basic_response(status.HTTP_404_NOT_FOUND, 'API token not found')
             return response_dict
 
         response_dict['found'] = True
@@ -138,6 +163,7 @@ class Base(APIView):
 
 # =================== API Built-In Info =================== #
 class StatusSchema(AutoSchema):
+    """Schema for status endpoint"""
     def get_description(self, path: str, method: str) -> str:
         authorization_info = """
 ## Authorization:
@@ -171,11 +197,13 @@ class ApiStatus(Base):
 
     schema = StatusSchema()
 
-    def get(self, request, format=None):
+    def get(self, request):
+        """Get request"""
         return self.generate_basic_response(status.HTTP_200_OK, 'API running')
 
 
 class VersionSchema(AutoSchema):
+    """Schema for version endpoint"""
     def get_description(self, path: str, method: str) -> str:
         authorization_info = """
 ## Authorization:
@@ -210,6 +238,7 @@ class ApiVersion(Base):
     schema = VersionSchema()
 
     def get(self, request):
+        """Get request"""
         data = self.generate_basic_response_data(status.HTTP_200_OK, 'API version')
         data['version'] = tools.generate_version()
         return Response(data=data, status=data.get('status'))
