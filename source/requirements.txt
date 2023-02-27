@@ -62,4 +62,4 @@ types-urllib3==1.26.25.8
 typing_extensions==4.5.0
 uritemplate==4.1.1
 urllib3==1.26.13
-wrapt==1.14.1
+wrapt==1.15.0
