@@ -22,12 +22,13 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-        cache-dependency-path: "souce/front-end/tcc-web/package-lock.json"
-    - name: Navigate to working directory
-      run: cd souce/front-end/tcc-web
+        cache-dependency-path: "source/front-end/tcc-web/package-lock.json"
     - name: Setup CI
       run: npm ci
+      working-directory: "source/front-end/tcc-web"
     - name: Run build if present
       run: npm run build --if-present
+      working-directory: "source/front-end/tcc-web"
     - name: Run tests
       run: npm test
+      working-directory: "source/front-end/tcc-web"
