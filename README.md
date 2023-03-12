@@ -7,6 +7,7 @@ Reposiório destinado ao desenvolvimento do TCC do curso de Ciências da Computa
 | :------: | :----: |
 | [![Django CI Status](https://github.com/TR0NZ0D/TCC-CC/actions/workflows/django.yml/badge.svg?branch=development)](https://github.com/TR0NZ0D/TCC-CC/actions/workflows/django.yml) | [![Django CI Status](https://github.com/TR0NZ0D/TCC-CC/actions/workflows/django.yml/badge.svg?branch=production)](https://github.com/TR0NZ0D/TCC-CC/actions/workflows/django.yml) |
 | [![Pylint Status](https://github.com/TR0NZ0D/TCC-CC/actions/workflows/pylint.yml/badge.svg?branch=development)](https://github.com/TR0NZ0D/TCC-CC/actions/workflows/pylint.yml) | [![Pylint Status](https://github.com/TR0NZ0D/TCC-CC/actions/workflows/pylint.yml/badge.svg?branch=production)](https://github.com/TR0NZ0D/TCC-CC/actions/workflows/pylint.yml) |
+| [![npm CI Status](https://github.com/TR0NZ0D/TCC-CC/actions/workflows/node.js.yml/badge.svg?branch=development)](https://github.com/TR0NZ0D/TCC-CC/actions/workflows/node.js.yml) | [![npm CI Status](https://github.com/TR0NZ0D/TCC-CC/actions/workflows/node.js.yml/badge.svg?branch=production)](https://github.com/TR0NZ0D/TCC-CC/actions/workflows/node.js.yml) |
 
 
 
