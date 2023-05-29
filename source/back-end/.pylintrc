@@ -49,14 +49,18 @@ fail-under=9
 ignore=CVS,
        manage.py,
        requirements.txt,
-       run-back-end.sh
+       run-back-end.bat,
+       update-back-end.bat,
+       validate-back-end.bat,
+       .*/job_finder/
 
 # Add files or directories matching the regular expressions patterns to the
 # ignore-list. The regex matches against paths and can be in Posix or Windows
 # format. Because '\\' represents the directory delimiter on Windows systems,
 # it can't be used as an escape character.
 ignore-paths=.*/migrations/*,
-             .*/venv/*
+             .*/venv/*,
+             .*/job_finder/*
 
 # Files or directories matching the regular expression patterns are skipped.
 # The regex matches against base names, not paths. The default value ignores
@@ -67,7 +71,7 @@ ignore-patterns=^\.#
 # (useful for modules/projects where namespaces are manipulated during runtime
 # and thus existing member attributes cannot be deduced by static analysis). It
 # supports qualified module names, as well as Unix pattern matching.
-ignored-modules=
+ignored-modules=job_finder
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().

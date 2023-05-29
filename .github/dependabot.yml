@@ -14,8 +14,8 @@ updates:
       # Allow both direct and indirect updates for all packages
       - dependency-type: "all"
     commit-message:
-      prefix: "[TCC-0][pip] "
-      prefix-development: "[TCC-0][pip-dev] "
+      prefix: "[BCH-0][pip] "
+      prefix-development: "[BCH-0][pip-dev] "
     labels:
       - "dependencies"
     pull-request-branch-name:
@@ -32,8 +32,8 @@ updates:
       # Allow both direct and indirect updates for all packages
       # - dependency-type: "all"
     commit-message:
-      prefix: "[TCC-0][npm]"
-      prefix-development: "[TCC-0][npm-dev]"
+      prefix: "[BCH-0][npm]"
+      prefix-development: "[BCH-0][npm-dev]"
     labels:
       - "dependencies"
     pull-request-branch-name:

@@ -20,7 +20,7 @@ jobs:
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip setuptools wheel
-        pip install -r source/requirements.txt
+        pip install --upgrade -r source/back-end/back-end_requirements.txt
     - name: Setup Project
       run: |
         python source/back-end/manage.py makemigrations

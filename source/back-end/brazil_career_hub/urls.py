@@ -1,4 +1,4 @@
-"""job_finder URL Configuration
+"""brazil_career_hub URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.1/topics/http/urls/
@@ -21,7 +21,7 @@ schema_url_patterns = [
     path('api/', include('api.urls'))
 ]
 
-swagger_view = get_swagger_view(title="Job Finder - API",
+swagger_view = get_swagger_view(title="Brazil Career Hub - API",
                                 patterns=schema_url_patterns)
 
 urlpatterns = [
