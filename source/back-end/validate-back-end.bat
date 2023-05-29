@@ -1,35 +1,20 @@
 @echo off
-if exist .\venv\ (
-    echo venv path already exists, ignoring...
-) else (
-    echo venv path does not exist, creating...
-    python -m venv venv
+setlocal EnableDelayedExpansion
+set pathlist=
+for /d %%D in (*) do (
+    if %%~D neq venv (
+       set pathlist=!pathlist! .\%%~D\
+    )
 )
 echo Enabling virtual environment...
 call .\venv\Scripts\activate
-echo Updating pip and requirements...
-pip install --upgrade setuptools wheel
-python -m pip install --upgrade pip
-echo Installing and updating requirements...
-pip install --upgrade -r .\back-end_requirements.txt
-echo Making Migrations...
-python .\manage.py makemigrations
-echo Migrating...
-python .\manage.py migrate
-echo Collecting static files...
-python .\manage.py collectstatic --no-input
-echo:
-echo:
-echo Back-end environment updated.
-echo:
-echo:
 echo Checking project...
 python .\manage.py check
-echo Validating project...
-pylint --rcfile .pylintrc $(git ls-files '*.py')
 echo Testing project...
 python .\manage.py test
 echo:
+echo Validating project with pylint...
+pylint --rcfile .pylintrc !pathlist!
 echo:
 echo Back-end validation finished
 exit 0
