@@ -1,4 +1,4 @@
-# Job Finder - TCC
+# Brazil Career Hub
 Reposiório destinado ao desenvolvimento do TCC do curso de Ciências da Computação 2023 - UNIP
 
 ## Pipelines / Workflows
@@ -40,30 +40,23 @@ Reposiório destinado ao desenvolvimento do TCC do curso de Ciências da Computa
 |  npm   | 9.2.0  |
 
 **Bibliotecas**
-- Vide arquivo `requirements.txt`
+- Vide arquivo `requirements.txt` de cada ambiente.
 
 ## Instalação
 
-1. Certifique-se ter instalado as dependências base
+A instalação de cada ambiente pode ter sua especificidade.
 
-2. Navegue até o diretório `[...]/TCC-CC`
+**Instalação back-end**
 
-3. Crie um ambiente virtual <br>
-    **Ubuntu:** python3.11 -m venv venv <br>
-    **Windows:** python3 -m venv venv
+Para instalar o ambiente back end, simplesmente execute o arquivo `source\back-end\run-back-end.bat`.
 
-4. Ative o ambiente virtual <br>
-    **Ubuntu:** `source venv/bin/activate` <br>
-    **Windows:** `/venv/scripts/activate.bat`
+Este arquivo criará todos os itens necessários.
 
-5. Atualize as versões do `pip`, `setuptools` e `wheel`
-    > `pip install --upgrade pip setuptools wheel`
+Caso esteja executando no powershell, antes de rodar o arquivo batch, execute o seguinte comando em um terminal com permissões administrativas:
 
-6. Instale os requisitos a partir do arquivo
-    > `pip install --upgrade -r requirements.txt`
-
-7. Instale os pacotes de front-end NPM
-    > `npm install`
+```
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
 
 ## Executando o Projeto
 
@@ -73,44 +66,33 @@ Ambos os ambientes devem estar rodando para que o projeto possa ser executado co
 
 **Executando ambiente back-end:** 
 
-Para executar o ambiente de back-end é necessário estar em um ambiente virtual (venv) com todos os requisitos instalados.
+Para executar o ambiente back end, simplesmente execute o arquivo `source\back-end\run-back-end.bat`.
 
-1. Antes de iniciar, cheque se está com a última atualização do banco, lembre-se de nunca acessar o banco de produção.
-    > `python manage.py makemigrations && python manage.py migrate`
+Este arquivo criará todos os itens necessários.
 
-2. Em seguida, cheque o projeto em busca de erros.
-    > `python manage.py check`
+Caso esteja executando no powershell, antes de rodar o arquivo batch, execute o seguinte comando em um terminal com permissões administrativas:
 
-3. Caso esteja tudo certo, execute o projeto
-    > `python manage.py runserver 0.0.0.0:8000 --insecure`
-
-4. Para acessar a documentação da API, acesse o link
-    > `http://0.0.0.0:8000/api/docs`
-
-    Caso tenha alterado o IP no comando do passo anterior, acesse o link que é exibido no terminal e acrescente `/api/docs` no final da URL.
+```
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
 
 **Executando ambiente front-end:**
 
 Para executar o ambiente de front-end, é necessário ter todos os requisitos instalados na máquina
 
-> `npm start`
+```
+npm start
+```
 
 ## Realizando chamadas para API e endpoints
 
 Para realizar uma chamada para API, realize um request (GET / POST / PUT / DELETE) para a URL do site acrescentada com `/api/<comando>`
 
-E.g.: Caso a URL do site seja `https://JobFinder.com` e gostaríamos de requisitar o status da API, o endpoint da chamada seria `https://JobFinder.com/api/status`.
+E.g.: Caso a URL do site seja `https://BrazilCareerHub.com` e gostaríamos de requisitar o status da API, o endpoint da chamada seria `https://BrazilCareerHub.com/api/status`.
 
 ## Links
 
-- [Figma Project](https://www.figma.com/files/project/76812132/Job-Finder---TCC?fuid=1085988712828291035)
-- [Site em produção [ip]](https://54.175.223.130/)
-
-## Conexão ao servidor
-
-- **DNS:** ec2-54-175-223-130.compute-1.amazonaws.com
-- **SSH PEM Key:** Job_Finder_TCC_CC.pem
-- **Username:** ubuntu
+- [Figma Project](https://www.figma.com/files/project/76812132/Brazil-Career-Hub---TCC?fuid=1085988712828291035)
 
 ## Contas de usuário
 
@@ -119,14 +101,7 @@ E.g.: Caso a URL do site seja `https://JobFinder.com` e gostaríamos de requisit
 | ApiAdmin | XJpU7iUw8BuZ5tT | Staff (Read only) |
 
 ## Postman
-
-Para utilizar o postman, importe a coleção `TCC-CC/tests/postman/JobFinderAPI.postman_collection.json` para o postman.
-
-Para importar, no postman, no canto superior esquerdo da tela, clique no botão "Import" ao lado do nome do workspace.
-
-Ao clicar no botão irá abrir um prompt para importar um arquivo, importe o arquivo `JobFinderAPI.postman_collection.json` presente no repositório do projeto.
-
-Ao importar, você verá os endpoint divididos em pastas, por padrão, estamos utilizando variáveis da coleção para tratar autorizações, o usuário padrão é o `ApiAdmin`. Caso prefire, crie um ambiente virtual e insira as credenciais do seu usuário.
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/24996295-bc42fcb3-c362-4112-917d-6d87328f7feb?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D24996295-bc42fcb3-c362-4112-917d-6d87328f7feb%26entityType%3Dcollection%26workspaceId%3Dbb3d5ede-4fd0-4d4c-babb-7ce1104b8afe)
 
 ## Licença
 

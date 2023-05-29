@@ -1,10 +1,9 @@
-{% load i18n %}
-{% load static %}
+{% load i18n static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Swagger UI</title>
+  <title>{% translate "API Docs" %} | {% translate "Brazil Career Hub" %}</title>
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:300,600|Titillium+Web:400,600,700" rel="stylesheet">
   <link href="{% static 'rest_framework_swagger/bundles/vendors.bundle.css' %}" rel="stylesheet" type="text/css">
   <link href="{% static 'rest_framework_swagger/bundles/app.bundle.css' %}" rel="stylesheet" type="text/css">
@@ -20,7 +19,7 @@
         <div class="topbar-wrapper">
           <a href="{% url 'swagger_docs' %}" class="link">
             <img src="{% static 'rest_framework_swagger/logo_small.png' %}" alt="Swagger Logo">
-            <span>Job Finder - API</span>
+            <span>{% translate "Brazil Career Hub" %}</span>
           </a>
           <div class="download-url-wrapper">
           {% if USE_SESSION_AUTH %}

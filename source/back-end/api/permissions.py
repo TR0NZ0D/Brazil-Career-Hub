@@ -3,10 +3,12 @@ api/permissions.py
 
 Created by: Gabriel Menezes de Antonio
 """
-from api_admins.models import ApiAdmin
 from django.contrib import auth
 from django.contrib.auth import get_user_model
+
 from rest_framework import permissions
+
+from api_admins.models import ApiAdmin
 
 User = get_user_model()
 

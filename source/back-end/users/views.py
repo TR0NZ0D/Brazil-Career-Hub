@@ -9,17 +9,19 @@ from typing import TypeAlias
 
 import coreapi  # type: ignore
 import coreschema  # type: ignore
+
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.schemas.coreapi import AutoSchema
+
 from api.tools.api_tools import description_generator
 from api.tools.constants import (DEFAULT_COVER_COLOR, DEFAULT_PRIMARY_COLOR,
                                  DEFAULT_SECONDARY_COLOR, genders__str__,
                                  genders_keys, supported_languages__str__,
                                  supported_languages_keys)
 from api.views import Base
-from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.schemas.coreapi import AutoSchema
 
 from . import models, serializers
 

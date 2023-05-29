@@ -5,14 +5,15 @@ Created by: Gabriel Menezes de Antonio
 """
 from datetime import datetime
 
-from api.tools.api_tools import resize_image
-from api.tools.constants import (DEFAULT_COVER_COLOR, DEFAULT_PRIMARY_COLOR,
-                                 DEFAULT_SECONDARY_COLOR, GENDERS,
-                                 SUPPORTED_LANGUAGES)
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.text import slugify
+
+from api.tools.api_tools import resize_image
+from api.tools.constants import (DEFAULT_COVER_COLOR, DEFAULT_PRIMARY_COLOR,
+                                 DEFAULT_SECONDARY_COLOR, GENDERS,
+                                 SUPPORTED_LANGUAGES)
 
 User = get_user_model()
 

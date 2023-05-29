@@ -1,5 +1,5 @@
 """
-ASGI config for job_finder project.
+ASGI config for brazil_career_hub project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'job_finder.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'brazil_career_hub.settings')
 
 application = get_asgi_application()
