@@ -14,7 +14,7 @@ class ProfileAdmin(admin.ModelAdmin):
     list_display_links = ('tag', 'user')
     list_per_page = 35
     list_filter = ('banned', 'must_reset_password', 'language', 'gender')
-    search_fields = ('user', 'biography', 'company', 'locale', 'website')
+    search_fields = ('slug', 'biography', 'company', 'locale', 'website')
     readonly_fields = ('tag', 'slug', 'recovery_key')
 
 
