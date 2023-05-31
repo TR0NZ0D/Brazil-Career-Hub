@@ -52,8 +52,16 @@ class AuthenticateApiClient(permissions.BasePermission):
         # If user not found, deny
         if user is None:
             return False
+        
+        # IF user is not staff, deny
+        if not user.is_staff:  # type: ignore
+            return False
 
         api_admin = ApiAdmin.objects.all().filter(user=user).first()
+
+        # This means that the user is trying to get or request a token, allow
+        if (api_admin is None) and ("api_admins.views.BaseAuthToken" in str(view)):
+            return True
 
         # If Api Admin registry not found, deny
         if api_admin is None:
