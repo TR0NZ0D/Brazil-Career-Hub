@@ -26,7 +26,15 @@ class AuthenticateApiClient(permissions.BasePermission):
 
         username = request.headers.get('username', None)
         password = request.headers.get('password', None)
-        api_token = request.headers.get('token', None)
+        api_token = request.headers.get('Authorization', None)
+
+        if api_token is not None:
+            # If Bearer is not in token, deny
+            if "Bearer" not in api_token:
+                return False
+
+            # Remove Bearer content to validate token
+            api_token = api_token.replace("Bearer", "").replace(" ", "")
 
         # If none of the required parameters received, deny
         if (username is None) and (password is None) and (api_token is None):

@@ -37,9 +37,7 @@ class UserProfileSchema(AutoSchema):
         authorization_info = """
 ## Authorization:
 
-**Type:** API Key
-**Key:** "token"
-**Add to:** header
+**Type:** Bearer
 """
 
         query_params_info = """
@@ -1194,9 +1192,7 @@ class BadgesSchema(AutoSchema):
         authorization_info = """
 ## Authorization:
 
-**Type:** API Key
-**Key:** "token"
-**Add to:** header
+**Type:** Bearer
 """
         query_params_info = """
 ## Query Parameters
@@ -1434,9 +1430,7 @@ class BannedUsersSchema(AutoSchema):
         authorization_info = """
 ## Authorization:
 
-**Type:** API Key
-**Key:** "token"
-**Add to:** header
+**Type:** Bearer
 """
         query_params_info = """
 ## Query Parameters

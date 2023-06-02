@@ -6,6 +6,7 @@ Created by: Gabriel Menezes de Antonio
 from hashlib import md5, sha512
 from typing import Any, Optional, TypeAlias
 from uuid import uuid4
+from random import randint
 
 import coreapi  # type: ignore
 
@@ -42,7 +43,10 @@ class Base(APIView):
         token_md5_sha512 = sha512(str(token_md5).encode())
         token = sha512(f'{token_sha512}{token_md5_sha512}'.encode()).hexdigest()
         token = (token[:250]) if len(token) > 255 else token
-        return token
+        random_start_number = randint(0, len(token) - 34)
+        end_number = random_start_number + 32
+        final_token = md5(token[random_start_number:end_number].encode()).hexdigest()
+        return final_token
 
     def get_token(self,
                   request,
@@ -170,9 +174,7 @@ class StatusSchema(AutoSchema):
         authorization_info = """
 ## Authorization:
 
-**Type:** API Key
-**Key:** "token"
-**Add to:** header
+**Type:** Bearer
 """
         match method:
             case 'GET':
@@ -210,9 +212,7 @@ class VersionSchema(AutoSchema):
         authorization_info = """
 ## Authorization:
 
-**Type:** API Key
-**Key:** "token"
-**Add to:** header
+**Type:** Bearer
 """
         match method:
             case 'GET':

@@ -162,6 +162,10 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'api.permissions.AuthenticateApiClient'
     ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication'
+    ],
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend'
     ]
@@ -179,7 +183,7 @@ SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
         "api_key": {
             "type": "apiKey",
-            "name": "token",
+            "name": "Authorization",
             "in": "header"
         }
     },
@@ -199,5 +203,7 @@ SWAGGER_SETTINGS = {
     ],
     'VALIDATOR_URL': '',
     'ACCEPT_HEADER_VERSION': version,
-    'CUSTOM_HEADERS': {}
+    'CUSTOM_HEADERS': {},
+    "api_version": version,
+    "api_path": "/api/"
 }
