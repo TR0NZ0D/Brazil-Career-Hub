@@ -9,6 +9,7 @@ from . import views
 
 app_name = 'api'
 
+# localhost:8000/api/
 urlpatterns = [
     # ========== API Info ========== #
     path('info/status/', views.ApiStatus.as_view()),  # type: ignore
@@ -19,4 +20,7 @@ urlpatterns = [
 
     # ========== Users ========== #
     path('users/', include('users.urls')),
+
+    # ========== Company ========== #
+    path('company/', include('company.urls')),
 ]

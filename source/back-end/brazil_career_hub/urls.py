@@ -24,6 +24,7 @@ schema_url_patterns = [
 swagger_view = get_swagger_view(title="Brazil Career Hub - API",
                                 patterns=schema_url_patterns)
 
+# localhost:8000/
 urlpatterns = [
     # ========== API ========== #
     path('api/', include('api.urls')),

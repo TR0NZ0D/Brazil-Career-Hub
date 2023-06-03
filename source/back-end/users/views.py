@@ -605,7 +605,6 @@ class UserProfile(Base):
 
     not_found_id_str = "Profile ID not found"
     not_found_slug_str = "Profile slug not found"
-    not_found_slug_nor_id_str = "Neither ID nor slug found"
     not_found_profile_str = "User profile not found"
 
     schema = UserProfileSchema()

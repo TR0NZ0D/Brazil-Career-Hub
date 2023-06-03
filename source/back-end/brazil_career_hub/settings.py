@@ -33,15 +33,19 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
+    # --- Django Core --- #
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # --- Project Apps --- #
     'api',  # Base API app
     'api_admins',  # Administrators accounts for API management
     'users',  # User profile and account (prod clients)
+    'company',  # Company profile and account (prod clients)
+    # --- Other Libraries --- #
     'django_filters',
     'rest_framework',  # Toolkit for building web APIs
     'rest_framework_swagger',  # Swagger ui for API docs
