@@ -60,7 +60,7 @@ class AuthenticateApiClient(permissions.BasePermission):
         # If user not found, deny
         if user is None:
             return False
-        
+
         # IF user is not staff, deny
         if not user.is_staff:  # type: ignore
             return False

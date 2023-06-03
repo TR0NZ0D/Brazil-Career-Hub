@@ -9,6 +9,7 @@ from . import views
 
 app_name = 'users'
 
+# localhost:8000/api/users/
 urlpatterns = [
     # ========== Badges ========== #
     path('badges/', views.UserBadges.as_view()),  # type: ignore

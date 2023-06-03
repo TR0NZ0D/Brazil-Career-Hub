@@ -35,6 +35,9 @@ class Base(APIView):
     __response_data__: TypeAlias = dict[str, Any]
     authenticated_user: Optional[user_model] = None
 
+    # ======== Error Strings ======== #
+    not_found_slug_nor_id_str = "Neither ID nor slug found"
+
     def generate_api_token(self) -> str:
         """Generate API token"""
         uuid = str(uuid4())
