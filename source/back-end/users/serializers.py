@@ -8,14 +8,6 @@ from rest_framework import serializers
 from . import models
 
 
-class UserBadgesSerializer(serializers.ModelSerializer):
-    """Serializer for user badges"""
-    class Meta:
-        """Meta data for user bagdes serializer"""
-        model = models.UserBadges
-        fields = ['id', 'name', 'description', 'color']
-
-
 class BannedUsersSerializer(serializers.ModelSerializer):
     """Serializer for banned users"""
     user_username = serializers.SerializerMethodField()
@@ -43,8 +35,6 @@ class BannedUsersSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializer for user profile"""
-    badges: serializers.StringRelatedField = serializers.StringRelatedField(
-        many=True)
 
     class Meta:
         """Meta data for user profile serializer"""
@@ -53,4 +43,4 @@ class UserProfileSerializer(serializers.ModelSerializer):
                   'biography', 'company', 'locale', 'website',
                   'email_confirmed', 'slug', 'recovery_key',
                   'language', 'gender', 'cover_color', 'primary_color',
-                  'secondary_color', 'banned', 'must_reset_password', 'badges']
+                  'secondary_color', 'banned', 'must_reset_password']

@@ -18,54 +18,6 @@ from api.tools.constants import (DEFAULT_COVER_COLOR, DEFAULT_PRIMARY_COLOR,
 User = get_user_model()
 
 
-class UserBadges(models.Model):
-    """User badges model"""
-    name = models.CharField(verbose_name="Name",  # type: ignore
-                            max_length=20,
-                            help_text="Badge name")
-    description = models.TextField(verbose_name="Description",  # type: ignore
-                                   max_length=255,
-                                   help_text="Badge description")
-    color = models.CharField(verbose_name="Color",  # type: ignore
-                             max_length=7,
-                             # TODO: Change default color after defining color pallete
-                             default="#c7c5c5",
-                             help_text="Badge color")
-
-    def __str__(self) -> str:
-        return self.name.__str__()
-
-    class Meta:
-        """Meta data for user badges"""
-        verbose_name = 'Badge'
-        verbose_name_plural = 'Badges'
-
-    def clean(self) -> None:
-        error_messages = {}
-
-        if not self.name:
-            error_messages["name"] = 'Please name your badge.'
-            raise ValidationError(error_messages)
-
-        badge = UserBadges.objects.all().filter(name=self.name).first()
-
-        if badge:
-            if (badge.name == self.name) and (self.pk != badge.pk):
-                error_messages['name'] = f"Badge with name '{self.name}' already exists."
-
-            if (badge.color == self.color) and (self.pk != badge.pk):
-                error_messages['color'] = f"Badge with color '{self.color}' already exists."
-
-        if not self.description:
-            error_messages['description'] = 'Please describe your badge'
-
-        if not self.color:
-            error_messages['color'] = 'Please chose a color for your badge'
-
-        if error_messages:
-            raise ValidationError(error_messages)
-
-
 class UserProfile(models.Model):
     """Model for user profile"""
     user = models.OneToOneField(User,  # type: ignore
@@ -185,11 +137,6 @@ class UserProfile(models.Model):
                                               help_text="Boolean field that indicates if \
                                                 this user must reset its password before \
                                                     logging in.")
-    badges = models.ManyToManyField(UserBadges,  # type: ignore
-                                    verbose_name="Badges",
-                                    editable=True,
-                                    blank=True,
-                                    help_text="List of badges that this user has aquired.")
 
     def __str__(self) -> str:
         return f"{self.user.get_username()}'s profile"

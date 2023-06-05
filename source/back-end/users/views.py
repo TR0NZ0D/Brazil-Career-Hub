@@ -80,7 +80,7 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'User account ID or badge ID not found'
+                        'reason': 'User account ID not found'
                     },
                     "400": {
                         'description': "BAD REQUEST",
@@ -98,7 +98,7 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'User profile ID, user account ID or badge ID not found'
+                        'reason': 'User profile ID or user account ID not found'
                     },
                     "400": {
                         'description': "BAD REQUEST",
@@ -118,7 +118,7 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'User profile ID, user account ID or badge ID not found'
+                        'reason': 'User profile ID or user account ID not found'
                     },
                     "400": {
                         'description': "BAD REQUEST",
@@ -286,13 +286,6 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         required=False,
                         schema=coreschema.Boolean(default=False),
                         description="User must reset password on next login"
-                    ),
-                    coreapi.Field(
-                        name="badges",
-                        location='form',
-                        required=False,
-                        schema=coreschema.Array(items=coreschema.Integer(1)),
-                        description="Array of badges IDs that this user has"
                     )
                 ]
             case 'PATCH':
@@ -428,13 +421,6 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         required=False,
                         schema=coreschema.Boolean(default=False),
                         description="User must reset password on next login"
-                    ),
-                    coreapi.Field(
-                        name="badges",
-                        location='form',
-                        required=False,
-                        schema=coreschema.Array(items=coreschema.Integer(1)),
-                        description="Array of badges IDs that this user has"
                     )
                 ]
             case 'PUT':
@@ -570,13 +556,6 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         required=False,
                         schema=coreschema.Boolean(default=False),
                         description="User must reset password on next login"
-                    ),
-                    coreapi.Field(
-                        name="badges",
-                        location='form',
-                        required=False,
-                        schema=coreschema.Array(items=coreschema.Integer(1)),
-                        description="Array of badges IDs that this user has"
                     )
                 ]
             case 'DELETE':
@@ -639,7 +618,6 @@ class UserProfile(Base):
         secondary_color: str = request.data.get('secondary_color', None)
         banned: bool = request.data.get('banned', None)
         must_reset_password: bool = request.data.get('reset_password', None)
-        badges: list[int] = request.data.get('badges', None)
         formatted_birth_date: date | None = None
 
         # Username validations
@@ -792,31 +770,6 @@ class UserProfile(Base):
             else:
                 return generate_error_response('Reset password must be a boolean')
 
-        # Badges validations
-        if badges and not isinstance(badges, list):
-            return generate_error_response('Badges must be an array of integers')
-
-        if badges:
-            try:
-                [isinstance(badge_id, int)
-                 for badge_id in [int(badge) for badge in badges]]
-            except ValueError:
-                return generate_error_response('All items in badges array must be integers')
-
-            unexisting_ids = {int(badge_id) if not models.UserBadges.objects.all()
-                              .filter(pk=int(badge_id)).exists() else '' for badge_id in badges}
-
-            if '' in unexisting_ids:
-                unexisting_ids.remove('')
-
-            if unexisting_ids:
-                response_singular = f'Please remove the following badge ID \
-                                    from array since it does not exist: {unexisting_ids}'
-                response_plural = f'Please remove the following badges \
-                                  IDs since they does not exist: {unexisting_ids}'
-                return generate_error_response(response_plural if len(unexisting_ids) > 1
-                                               else response_singular)
-
         # Data conversion and handling
         data: dict[str, user_model | str | int | list[int] | bool | date | None] = {
             'user': user,
@@ -835,8 +788,7 @@ class UserProfile(Base):
             'primary_color': primary_color,
             'secondary_color': secondary_color,
             'banned': banned,
-            'must_reset_password': must_reset_password,
-            'badges': badges,
+            'must_reset_password': must_reset_password
         }
 
         return (True, data)
@@ -920,14 +872,6 @@ class UserProfile(Base):
 
         if profile_data.get('image', None):  # TODO: Image posting is not working
             profile.image = profile_data.get('image')  # type: ignore
-
-        if profile_data.get('badges', None):
-            for badge_id in profile_data.get('badges', []):  # type: ignore
-                try:
-                    badge = models.UserBadges.objects.get(pk=badge_id)
-                    profile.badges.add(badge)
-                except Exception:  # pylint: disable=W0718
-                    continue
 
         data = serializers.UserProfileSerializer(profile, many=False).data
         serializer = serializers.UserProfileSerializer(data=data)
@@ -1133,14 +1077,6 @@ class UserProfile(Base):
         if profile_data.get('image', None):
             profile.image = profile_data.get('image')  # type: ignore
 
-        if profile_data.get('badges', None):
-            for badge_id in profile_data.get('badges', []):  # type: ignore
-                try:
-                    badge = models.UserBadges.objects.get(pk=badge_id)
-                    profile.badges.add(badge)
-                except Exception:  # pylint: disable=W0718
-                    continue
-
         data = serializers.UserProfileSerializer(profile, many=False).data
         serializer = serializers.UserProfileSerializer(user_profile, data=data)
         if serializer.is_valid():
@@ -1181,244 +1117,6 @@ class UserProfile(Base):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_profile_str)
-
-
-# =================== Badges =================== #
-class BadgesSchema(AutoSchema):
-    """Schema for badges"""
-
-    def get_description(self, path: str, method: str) -> str:
-        authorization_info = """
-## Authorization:
-
-**Type:** Bearer
-"""
-        query_params_info = """
-## Query Parameters
-
-Inform PK if mentioning specific badge.
-
-"""
-        match method:
-            case 'GET':
-                responses = {
-                    "200": {
-                        'description': 'OK',
-                        'reason': 'Badge found'
-                    },
-                    "404": {
-                        'description': 'NOT FOUND',
-                        'reason': 'Bagde not found'
-                    }
-                }
-                return description_generator(title="Get all badges or a specific one",
-                                             description=query_params_info + authorization_info,
-                                             responses=responses)
-            case 'POST':
-                responses = {
-                    "201": {
-                        'description': 'CREATED',
-                        'reason': 'Badge successfully created'
-                    },
-                    "400": {
-                        'description': "BAD REQUEST",
-                        'reason': 'Invalid request body'
-                    }
-                }
-                return description_generator(title="Creates a badge",
-                                             description=authorization_info,
-                                             responses=responses)
-            case 'PUT':
-                responses = {
-                    "200": {
-                        'description': 'OK',
-                        'reason': 'Badge updated successfully'
-                    },
-                    "404": {
-                        'description': 'NOT FOUND',
-                        'reason': 'Badge ID not found'
-                    },
-                    "400": {
-                        'description': "BAD REQUEST",
-                        'reason': 'Invalid request body'
-                    }
-                }
-                return description_generator(title="Updates all data from a specific badge",
-                                             description=query_params_info + authorization_info,
-                                             responses=responses)
-            case 'DELETE':
-                responses = {
-                    "204": {
-                        'description': 'NO CONTENT',
-                        'reason': 'Badge successfully deleted'
-                    },
-                    "404": {
-                        'description': 'NOT FOUND',
-                        'reason': 'Badge ID not found'
-                    }
-                }
-                return description_generator(title="Deletes a badge",
-                                             description=query_params_info + authorization_info,
-                                             responses=responses)
-            case _:
-                return ''
-
-    def get_path_fields(self, path: str, method: str) -> list[coreapi.Field]:
-        match method:
-            case 'GET':
-                return [
-                    coreapi.Field(
-                        name="pk",
-                        location="query",
-                        required=False,
-                        schema=coreschema.Integer(minimum=1),
-                        description="Badge ID"
-                    )
-                ]
-            case 'POST':
-                return [
-                    coreapi.Field(
-                        name="name",
-                        location="form",
-                        required=True,
-                        schema=coreschema.String(20),
-                        description="Badge name"
-                    ), coreapi.Field(
-                        name="description",
-                        location='form',
-                        required=True,
-                        schema=coreschema.String(255),
-                        description="Badge description"
-                    ), coreapi.Field(
-                        name="color",
-                        location='form',
-                        required=True,
-                        schema=coreschema.String(7, format='#{0:06x}'),
-                        description="Badge color [HEX]"
-                    )
-                ]
-            case 'PUT':
-                return [
-                    coreapi.Field(
-                        name="pk",
-                        location="query",
-                        required=True,
-                        schema=coreschema.Integer(minimum=1),
-                        description="Badge ID"
-                    ),
-                    coreapi.Field(
-                        name="name",
-                        location="form",
-                        required=True,
-                        schema=coreschema.String(20),
-                        description="Badge name"
-                    ), coreapi.Field(
-                        name="description",
-                        location='form',
-                        required=True,
-                        schema=coreschema.String(255),
-                        description="Badge description"
-                    ), coreapi.Field(
-                        name="color",
-                        location='form',
-                        required=True,
-                        schema=coreschema.String(7, format='#{0:06x}'),
-                        description="Badge color [HEX]"
-                    )
-                ]
-            case 'DELETE':
-                return [
-                    coreapi.Field(
-                        name="pk",
-                        location="query",
-                        required=True,
-                        schema=coreschema.Integer(minimum=1),
-                        description="Badge ID"
-                    )
-                ]
-            case _:
-                return []
-
-
-class UserBadges(Base):
-    """Manage user badges"""
-
-    not_found_id_str = "Badge ID not found"
-
-    schema = BadgesSchema()
-
-    def get(self, request):
-        """Get request"""
-        primary_key = request.query_params.get('pk', None)
-
-        if (not primary_key) and (primary_key is not None):
-            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
-
-        if primary_key is None:
-            user_badges = models.UserBadges.objects.all()
-            serializer = serializers.UserBadgesSerializer(
-                user_badges, many=True)
-            return Response(data=serializer.data, status=status.HTTP_200_OK)
-
-        user_badge = models.UserBadges.objects.all().filter(pk=primary_key).first()
-        if user_badge is not None:
-            serializer = serializers.UserBadgesSerializer(user_badge)
-            return Response(data=serializer.data, status=status.HTTP_200_OK)
-        return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
-
-    def post(self, request):
-        """Post request"""
-        name = request.data.get('name', None)
-        description = request.data.get('description', None)
-        color = request.data.get('color', None)
-        badge = models.UserBadges(
-            name=name, description=description, color=color)
-        data = serializers.UserBadgesSerializer(badge, many=False).data
-
-        serializer = serializers.UserBadgesSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def put(self, request):
-        """Put request"""
-        primary_key = request.query_params.get('pk', None)
-
-        if not primary_key:
-            primary_key = request.data.get('pk', None)
-
-        if not primary_key:
-            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
-
-        user_badge = models.UserBadges.objects.all().filter(pk=primary_key).first()
-        if user_badge is None:
-            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
-
-        name = request.data.get('name', user_badge.name)
-        description = request.data.get('description', user_badge.description)
-        color = request.data.get('color', user_badge.color)
-        badge = models.UserBadges(
-            name=name, description=description, color=color)
-        data = serializers.UserBadgesSerializer(badge, many=False).data
-        serializer = serializers.UserBadgesSerializer(user_badge, data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request):
-        """Delete request"""
-        primary_key = request.query_params.get('pk', None)
-
-        if not primary_key:
-            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
-
-        user_badge = models.UserBadges.objects.all().filter(pk=primary_key).first()
-        if user_badge is not None:
-            user_badge.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
 
 
 # =================== Banned Users =================== #
