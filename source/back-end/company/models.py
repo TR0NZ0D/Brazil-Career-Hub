@@ -20,23 +20,23 @@ class CompanyAccountModel(models.Model):
                                 "unique": "A company with this CNPJ is already registered"
                             })
     corporate_name = models.CharField(verbose_name="Corporate Name",  # type: ignore
-                                    max_length=100,
-                                    help_text="The company's corporate name")
+                                      max_length=100,
+                                      help_text="The company's corporate name")
     registration_status = models.CharField(verbose_name="Registration Status",  # type: ignore
-                                          max_length=1,
-                                          choices=REGISTRATION_STATUS,
-                                          default='1',
-                                          help_text="Company's registration status")
+                                           max_length=1,
+                                           choices=REGISTRATION_STATUS,
+                                           default='1',
+                                           help_text="Company's registration status")
     fantasy_name = models.CharField(verbose_name="Fantasy Name",  # type: ignore
-                                     max_length=60,
-                                     help_text="Company's fantasy name")
+                                    max_length=60,
+                                    help_text="Company's fantasy name")
     cnae = models.IntegerField(verbose_name="CNAE",  # type: ignore
                                help_text="Company's CNAE code")
     legal_nature = models.CharField(verbose_name="Legal Nature",  # type: ignore
-                                         max_length=6,
-                                         choices=LEGAL_NATURE,
-                                         default='EI',
-                                         help_text="Company's Legal Nature")
+                                    max_length=6,
+                                    choices=LEGAL_NATURE,
+                                    default='EI',
+                                    help_text="Company's Legal Nature")
     slug = models.SlugField(verbose_name="Company's Slug",  # type: ignore
                             unique=True,
                             null=True,
