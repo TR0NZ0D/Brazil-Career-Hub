@@ -68,6 +68,44 @@ class UserProfile(models.Model):
                               null=True,
                               help_text="This is the user's locale, \
                                 used to filter by city.")
+    nationality = models.CharField(verbose_name="Nationality",  # type: ignore
+                                   max_length=80,
+                                   help_text="This is the user's nationality.")
+    cpf = models.CharField(verbose_name="CPF",  # type: ignore
+                           null=True,
+                           blank=True,
+                           max_length=11,
+                           help_text="User's CPF")
+    ctps = models.CharField(verbose_name="CTPS",  # type: ignore
+                            null=True,
+                            blank=True,
+                            max_length=20,
+                            help_text="User's CTPS")
+    phone_number = models.CharField(verbose_name="Phone Number",  # type: ignore
+                                    null=True,
+                                    blank=True,
+                                    max_length=30,
+                                    help_text="User's phone number")
+    twitter_username = models.CharField(verbose_name="Twitter Username",  # type: ignore
+                                        null=True,
+                                        blank=True,
+                                        max_length=15,
+                                        help_text="User's Twitter account username")
+    facebook_username = models.CharField(verbose_name="Facebook Username",  # type: ignore
+                                         null=True,
+                                         blank=True,
+                                         max_length=50,
+                                         help_text="User's Facebook account username")
+    linkedin_username = models.CharField(verbose_name="LinkedIn Username",  # type: ignore
+                                         null=True,
+                                         blank=True,
+                                         max_length=60,
+                                         help_text="User's LinkedIn account username")
+    instagram_username = models.CharField(verbose_name="Instagram Username",  # type: ignore
+                                          null=True,
+                                          blank=True,
+                                          max_length=30,
+                                          help_text="User's Instagram account username")
     website = models.URLField(verbose_name="Website",  # type: ignore
                               max_length=200,
                               blank=True,

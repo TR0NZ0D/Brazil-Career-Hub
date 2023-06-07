@@ -36,11 +36,20 @@ class BannedUsersSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializer for user profile"""
 
+    user_username = serializers.SerializerMethodField()
+    language_display = serializers.CharField(source="get_language_display")
+    gender_display = serializers.CharField(source="get_gender_display")
+
+    def get_user_username(self, obj) -> str:
+        """Get user username string"""
+        return obj.user.get_username()
+
     class Meta:
         """Meta data for user profile serializer"""
         model = models.UserProfile
-        fields = ['id', 'user', 'tag', 'age', 'birth_date',
-                  'biography', 'company', 'locale', 'website',
-                  'email_confirmed', 'slug', 'recovery_key',
-                  'language', 'gender', 'cover_color', 'primary_color',
-                  'secondary_color', 'banned', 'must_reset_password']
+        fields = ['id', 'user_username', 'tag', 'age', 'birth_date', 'biography', 'company', 'locale',
+                  'website', 'email_confirmed', 'slug', 'recovery_key', 'language_display',
+                  'gender_display',
+                  'cover_color', 'primary_color', 'secondary_color', 'banned', 'cpf', 'ctps',
+                  'must_reset_password', 'nationality', 'phone_number', 'twitter_username',
+                  'facebook_username', 'linkedin_username', 'instagram_username']

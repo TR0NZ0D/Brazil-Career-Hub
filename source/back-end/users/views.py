@@ -225,6 +225,62 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         description="User's locale"
                     ),
                     coreapi.Field(
+                        name='nationality',
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(80),
+                        description="This is the user's nationality."
+                    ),
+                    coreapi.Field(
+                        name='cpf',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(11),
+                        description="User's CPF"
+                    ),
+                    coreapi.Field(
+                        name='ctps',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(20),
+                        description="User's CTPS"
+                    ),
+                    coreapi.Field(
+                        name='phone_number',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(30),
+                        description="User's phone number"
+                    ),
+                    coreapi.Field(
+                        name='twitter_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(15),
+                        description="User's Twitter account username"
+                    ),
+                    coreapi.Field(
+                        name='facebook_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(50),
+                        description="User's Facebook account username"
+                    ),
+                    coreapi.Field(
+                        name='linkedin_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(60),
+                        description="User's LinkedIn account username"
+                    ),
+                    coreapi.Field(
+                        name='instagram_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(30),
+                        description="User's Instagram account username"
+                    ),
+                    coreapi.Field(
                         name="website",
                         location='form',
                         required=False,
@@ -360,6 +416,62 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         description="User's locale"
                     ),
                     coreapi.Field(
+                        name='nationality',
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(80),
+                        description="This is the user's nationality."
+                    ),
+                    coreapi.Field(
+                        name='cpf',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(11),
+                        description="User's CPF"
+                    ),
+                    coreapi.Field(
+                        name='ctps',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(20),
+                        description="User's CTPS"
+                    ),
+                    coreapi.Field(
+                        name='phone_number',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(30),
+                        description="User's phone number"
+                    ),
+                    coreapi.Field(
+                        name='twitter_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(15),
+                        description="User's Twitter account username"
+                    ),
+                    coreapi.Field(
+                        name='facebook_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(50),
+                        description="User's Facebook account username"
+                    ),
+                    coreapi.Field(
+                        name='linkedin_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(60),
+                        description="User's LinkedIn account username"
+                    ),
+                    coreapi.Field(
+                        name='instagram_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(30),
+                        description="User's Instagram account username"
+                    ),
+                    coreapi.Field(
                         name="website",
                         location='form',
                         required=False,
@@ -421,6 +533,62 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         required=False,
                         schema=coreschema.Boolean(default=False),
                         description="User must reset password on next login"
+                    ),
+                    coreapi.Field(
+                        name='nationality',
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(80),
+                        description="This is the user's nationality."
+                    ),
+                    coreapi.Field(
+                        name='cpf',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(11),
+                        description="User's CPF"
+                    ),
+                    coreapi.Field(
+                        name='ctps',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(20),
+                        description="User's CTPS"
+                    ),
+                    coreapi.Field(
+                        name='phone_number',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(30),
+                        description="User's phone number"
+                    ),
+                    coreapi.Field(
+                        name='twitter_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(15),
+                        description="User's Twitter account username"
+                    ),
+                    coreapi.Field(
+                        name='facebook_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(50),
+                        description="User's Facebook account username"
+                    ),
+                    coreapi.Field(
+                        name='linkedin_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(60),
+                        description="User's LinkedIn account username"
+                    ),
+                    coreapi.Field(
+                        name='instagram_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(30),
+                        description="User's Instagram account username"
                     )
                 ]
             case 'PUT':
@@ -495,6 +663,62 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         description="User's locale"
                     ),
                     coreapi.Field(
+                        name='nationality',
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(80),
+                        description="This is the user's nationality."
+                    ),
+                    coreapi.Field(
+                        name='cpf',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(11),
+                        description="User's CPF"
+                    ),
+                    coreapi.Field(
+                        name='ctps',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(20),
+                        description="User's CTPS"
+                    ),
+                    coreapi.Field(
+                        name='phone_number',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(30),
+                        description="User's phone number"
+                    ),
+                    coreapi.Field(
+                        name='twitter_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(15),
+                        description="User's Twitter account username"
+                    ),
+                    coreapi.Field(
+                        name='facebook_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(50),
+                        description="User's Facebook account username"
+                    ),
+                    coreapi.Field(
+                        name='linkedin_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(60),
+                        description="User's LinkedIn account username"
+                    ),
+                    coreapi.Field(
+                        name='instagram_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(30),
+                        description="User's Instagram account username"
+                    ),
+                    coreapi.Field(
                         name="website",
                         location='form',
                         required=False,
@@ -556,6 +780,62 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         required=False,
                         schema=coreschema.Boolean(default=False),
                         description="User must reset password on next login"
+                    ),
+                    coreapi.Field(
+                        name='nationality',
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(80),
+                        description="This is the user's nationality."
+                    ),
+                    coreapi.Field(
+                        name='cpf',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(11),
+                        description="User's CPF"
+                    ),
+                    coreapi.Field(
+                        name='ctps',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(20),
+                        description="User's CTPS"
+                    ),
+                    coreapi.Field(
+                        name='phone_number',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(30),
+                        description="User's phone number"
+                    ),
+                    coreapi.Field(
+                        name='twitter_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(15),
+                        description="User's Twitter account username"
+                    ),
+                    coreapi.Field(
+                        name='facebook_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(50),
+                        description="User's Facebook account username"
+                    ),
+                    coreapi.Field(
+                        name='linkedin_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(60),
+                        description="User's LinkedIn account username"
+                    ),
+                    coreapi.Field(
+                        name='instagram_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(30),
+                        description="User's Instagram account username"
                     )
                 ]
             case 'DELETE':
@@ -618,6 +898,14 @@ class UserProfile(Base):
         secondary_color: str = request.data.get('secondary_color', None)
         banned: bool = request.data.get('banned', None)
         must_reset_password: bool = request.data.get('reset_password', None)
+        nationality: str = request.data.get('nationality', None)
+        cpf: str = request.data.get('cpf', None)
+        ctps: str = request.data.get('ctps', None)
+        phone_number: str = request.data.get('phone_number', None)
+        twitter_username: str = request.data.get('twitter_username', None)
+        facebook_username: str = request.data.get('facebook_username', None)
+        linkedin_username: str = request.data.get('linkedin_username', None)
+        instagram_username: str = request.data.get('instagram_username', None)
         formatted_birth_date: date | None = None
 
         # Username validations
@@ -770,6 +1058,75 @@ class UserProfile(Base):
             else:
                 return generate_error_response('Reset password must be a boolean')
 
+        # Nationality validations
+        if not nationality and not bypass_required:
+            return generate_error_response('Nationality is required')
+
+        if nationality and not isinstance(nationality, str):
+            return generate_error_response("Nationality must be a string")
+
+        if nationality and len(nationality) > 80:
+            return generate_error_response("Nationality must have a max length of 80 characters")
+
+        # CPF validations
+        if cpf and not isinstance(cpf, str):
+            return generate_error_response("CPF must be a string")
+
+        if cpf and len(cpf) > 11:
+            return generate_error_response("CPF must have a max length of 11 characters")
+
+        if cpf:
+            try:
+                int(cpf)
+            except ValueError:
+                return generate_error_response("CPF must be only numbers")
+
+        # CTPS validations
+        if ctps and not isinstance(ctps, str):
+            return generate_error_response("CTPS must be a string")
+
+        if ctps and len(ctps) > 20:
+            return generate_error_response("CTPS must have a max length of 20 characters")
+
+        # Phone number validations
+        if phone_number and not isinstance(phone_number, str):
+            return generate_error_response("Phone number must be a string")
+
+        if phone_number and len(phone_number) > 30:
+            return generate_error_response("Phone number must have a max length of 30 characters")
+
+        # Twitter username validations
+        if twitter_username and not isinstance(twitter_username, str):
+            return generate_error_response("Twitter username must be a string")
+
+        if twitter_username and len(twitter_username) > 15:
+            return generate_error_response("Twitter username must have a max length of\
+                                            15 characters")
+
+        # Facebook username validations
+        if facebook_username and not isinstance(facebook_username, str):
+            return generate_error_response("Facebook username must be a string")
+
+        if facebook_username and len(facebook_username) > 50:
+            return generate_error_response("Facebook username must have a max length of\
+                                            50 characters")
+
+        # LinkedIn username validations
+        if linkedin_username and not isinstance(linkedin_username, str):
+            return generate_error_response("LinkedIn username must be a string")
+
+        if linkedin_username and len(linkedin_username) > 60:
+            return generate_error_response("LinkedIn username must have a max length of\
+                                            60 characters")
+
+        # Instagram username validations
+        if instagram_username and not isinstance(instagram_username, str):
+            return generate_error_response("Instagram username must be a string")
+
+        if instagram_username and len(instagram_username) > 30:
+            return generate_error_response("Instagram username must have a max \
+                                           length of 30 characters")
+
         # Data conversion and handling
         data: dict[str, user_model | str | int | list[int] | bool | date | None] = {
             'user': user,
@@ -788,7 +1145,15 @@ class UserProfile(Base):
             'primary_color': primary_color,
             'secondary_color': secondary_color,
             'banned': banned,
-            'must_reset_password': must_reset_password
+            'must_reset_password': must_reset_password,
+            'nationality': nationality,
+            'cpf': cpf,
+            'ctps': ctps,
+            'phone_number': phone_number,
+            'twitter_username': twitter_username,
+            'facebook_username': facebook_username,
+            'linkedin_username': linkedin_username,
+            'instagram_username': instagram_username
         }
 
         return (True, data)
@@ -867,7 +1232,15 @@ class UserProfile(Base):
                                      banned=profile_data.get(
                                          'banned', False),  # type: ignore
                                      must_reset_password=profile_data.get(
-                                         'must_reset_password', False)  # type: ignore
+                                         'must_reset_password', False),  # type: ignore
+                                     nationality=profile_data.get('nationality', ''),
+                                     cpf=profile_data.get('cpf', ''),
+                                     ctps=profile_data.get('ctps', ''),
+                                     phone_number=profile_data.get('phone_number', ''),
+                                     twitter_username=profile_data.get('twitter_username', ''),
+                                     facebook_username=profile_data.get('facebook_username', ''),
+                                     linkedin_username=profile_data.get('linkedin_username', ''),
+                                     instagram_username=profile_data.get('instagram_username', '')
                                      )
 
         if profile_data.get('image', None):  # TODO: Image posting is not working
@@ -990,6 +1363,38 @@ class UserProfile(Base):
             must_reset_pass: bool = profile_data.get('must_reset_password', False)  # type: ignore
             user_profile.must_reset_password = must_reset_pass
 
+        if profile_data.get('nationality', None):
+            nationality: str = profile_data.get('nationality', None)  # type: ignore
+            user_profile.nationality = nationality
+
+        if profile_data.get('cpf', None):
+            cpf: str = profile_data.get('cpf', None)  # type: ignore
+            user_profile.cpf = cpf
+
+        if profile_data.get('ctps', None):
+            ctps: str = profile_data.get('ctps', None)  # type: ignore
+            user_profile.ctps = ctps
+
+        if profile_data.get('phone_number', None):
+            phone_number: str = profile_data.get('phone_number', None)  # type: ignore
+            user_profile.phone_number = phone_number
+
+        if profile_data.get('twitter_username', None):
+            twitter_username: str = profile_data.get('twitter_username', None)  # type: ignore
+            user_profile.twitter_username = twitter_username
+
+        if profile_data.get('facebook_username', None):
+            facebook_username: str = profile_data.get('facebook_username', None)  # type: ignore
+            user_profile.facebook_username = facebook_username
+
+        if profile_data.get('linkedin_username', None):
+            linkedin_username: str = profile_data.get('linkedin_username', None)  # type: ignore
+            user_profile.linkedin_username = linkedin_username
+
+        if profile_data.get('instagram_username', None):
+            instagram_username: str = profile_data.get('instagram_username', None)  # type: ignore
+            user_profile.instagram_username = instagram_username
+
         try:
             user_profile.clean_fields()
             user_profile.clean()
@@ -1071,7 +1476,15 @@ class UserProfile(Base):
                                      banned=profile_data.get(
                                          'banned', False),  # type: ignore
                                      must_reset_password=profile_data.get(
-                                         'must_reset_password', False)  # type: ignore
+                                         'must_reset_password', False),  # type: ignore
+                                     nationality=profile_data.get('nationality', ''),
+                                     cpf=profile_data.get('cpf', ''),
+                                     ctps=profile_data.get('ctps', ''),
+                                     phone_number=profile_data.get('phone_number', ''),
+                                     twitter_username=profile_data.get('twitter_username', ''),
+                                     facebook_username=profile_data.get('facebook_username', ''),
+                                     linkedin_username=profile_data.get('linkedin_username', ''),
+                                     instagram_username=profile_data.get('instagram_username', '')
                                      )
 
         if profile_data.get('image', None):
