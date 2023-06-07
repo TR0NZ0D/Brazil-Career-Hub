@@ -11,8 +11,11 @@ from . import models
 class CompanyAccountSerializer(serializers.ModelSerializer):
     """Serializer for user profile"""
 
+    registration_status_display = serializers.CharField(source="get_registration_status_display")
+    legal_nature_display = serializers.CharField(source="get_legal_nature_display")
+
     class Meta:
         """Meta data for user profile serializer"""
         model = models.CompanyAccountModel
-        fields = ['id', 'cnpj', 'razao_social', 'situacao_cadastral', 'nome_fantasia',
-                  'cnae', 'natureza_juridica', 'slug']
+        fields = ['id', 'cnpj', 'corporate_name', 'registration_status_display', 'fantasy_name',
+                  'cnae', 'legal_nature_display', 'slug']

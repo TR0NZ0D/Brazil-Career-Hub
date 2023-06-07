@@ -36,12 +36,12 @@ REGISTRATION_STATUS = (
 )
 
 LEGAL_NATURE = (
-    ('EI', 'Empresário Individual (EI)'),
-    ('EIRELI', 'Empresa Individual de Responsabilidade Limitada (EIRELI)'),
-    ('SI', 'Sociedade Simples'),
-    ('LTDA', 'Sociedade Empresária Limitada (LTDA)'),
-    ('SA', 'Sociedade Anônima (SA)'),
-    ('SLU', 'Sociedade Limitada Unipessoal (SLU)')
+    ('EI', 'Individual Entrepreneur (EI)'),
+    ('EIRELI', 'Individual Limited Liability Company (EIRELI)'),
+    ('SI', 'Simple Society (SI)'),
+    ('LTDA', 'Private Limited Company (LTDA)'),
+    ('SA', 'Limited Liability Company (SA)'),
+    ('SLU', 'Single-Member Limited Company (SLU)')
 )
 
 GENDERS = (

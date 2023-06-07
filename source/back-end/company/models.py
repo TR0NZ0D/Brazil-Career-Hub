@@ -19,20 +19,20 @@ class CompanyAccountModel(models.Model):
                             error_messages={
                                 "unique": "A company with this CNPJ is already registered"
                             })
-    razao_social = models.CharField(verbose_name="Corporate Name",  # type: ignore
+    corporate_name = models.CharField(verbose_name="Corporate Name",  # type: ignore
                                     max_length=100,
                                     help_text="The company's corporate name")
-    situacao_cadastral = models.CharField(verbose_name="Registration Status",  # type: ignore
+    registration_status = models.CharField(verbose_name="Registration Status",  # type: ignore
                                           max_length=1,
                                           choices=REGISTRATION_STATUS,
                                           default='1',
                                           help_text="Company's registration status")
-    nome_fantasia = models.CharField(verbose_name="Fantasy Name",  # type: ignore
+    fantasy_name = models.CharField(verbose_name="Fantasy Name",  # type: ignore
                                      max_length=60,
                                      help_text="Company's fantasy name")
     cnae = models.IntegerField(verbose_name="CNAE",  # type: ignore
                                help_text="Company's CNAE code")
-    natureza_juridica = models.CharField(verbose_name="Legal Nature",  # type: ignore
+    legal_nature = models.CharField(verbose_name="Legal Nature",  # type: ignore
                                          max_length=6,
                                          choices=LEGAL_NATURE,
                                          default='EI',
@@ -48,15 +48,15 @@ class CompanyAccountModel(models.Model):
                                 Please use another"})
 
     def __str__(self) -> str:
-        return f"{self.nome_fantasia}'s company account"
+        return f"{self.fantasy_name}'s company account"
 
     def save(self, *args, **kwargs) -> None:
         super().save(*args, **kwargs)
         if not self.slug:
             try:
-                first_fantasy_name = self.nome_fantasia.split(" ")[0]
+                first_fantasy_name = self.fantasy_name.split(" ")[0]
             except IndexError:
-                first_fantasy_name = self.nome_fantasia
+                first_fantasy_name = self.fantasy_name
 
             self.slug = str(
                 slugify(f'{first_fantasy_name}-{self.pk}'))
