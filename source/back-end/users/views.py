@@ -1424,13 +1424,14 @@ class UserProfile(Base):
         serializer = serializers.UserProfileSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            serializer_data = serializer.data
+            data = serializer.data
             try:
-                serializer_data['image'] = f"/media{profile.image.path.split('/media')[1]}"  # type: ignore
+                data['image'] = f"/media{profile.image.path.split('/media')[1]}"  # type: ignore
             except IndexError:
-                serializer_data['image'] = None
-            response_data['content'] = serializer_data
-            return Response(response_data, status=response_data.get('status', status.HTTP_201_CREATED))
+                data['image'] = None
+            response_data['content'] = data
+            return Response(response_data,
+                            status=response_data.get('status', status.HTTP_201_CREATED))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request):
@@ -1584,12 +1585,12 @@ class UserProfile(Base):
         response_data = self.generate_basic_response_data(status.HTTP_200_OK,
                                                           "User Profile patched successfully")
         serializer = serializers.UserProfileSerializer(user_profile)
-        serializer_data = serializer.data
+        data = serializer.data
         try:
-            serializer_data['image'] = f"/media{user_profile.image.path.split('/media')[1]}"  # type: ignore
+            data['image'] = f"/media{user_profile.image.path.split('/media')[1]}"  # type: ignore
         except IndexError:
-            serializer_data['image'] = None
-        response_data['content'] = serializer_data
+            data['image'] = None
+        response_data['content'] = data
         return Response(data=response_data, status=status.HTTP_200_OK)
 
     def put(self, request):
