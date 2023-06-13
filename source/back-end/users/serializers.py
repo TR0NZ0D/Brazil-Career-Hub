@@ -8,14 +8,6 @@ from rest_framework import serializers
 from . import models
 
 
-class UserBadgesSerializer(serializers.ModelSerializer):
-    """Serializer for user badges"""
-    class Meta:
-        """Meta data for user bagdes serializer"""
-        model = models.UserBadges
-        fields = ['id', 'name', 'description', 'color']
-
-
 class BannedUsersSerializer(serializers.ModelSerializer):
     """Serializer for banned users"""
     user_username = serializers.SerializerMethodField()
@@ -43,14 +35,21 @@ class BannedUsersSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializer for user profile"""
-    badges: serializers.StringRelatedField = serializers.StringRelatedField(
-        many=True)
+
+    user_username = serializers.SerializerMethodField()
+    language_display = serializers.CharField(source="get_language_display")
+    gender_display = serializers.CharField(source="get_gender_display")
+
+    def get_user_username(self, obj) -> str:
+        """Get user username string"""
+        return obj.user.get_username()
 
     class Meta:
         """Meta data for user profile serializer"""
         model = models.UserProfile
-        fields = ['id', 'user', 'tag', 'age', 'birth_date',
-                  'biography', 'company', 'locale', 'website',
-                  'email_confirmed', 'slug', 'recovery_key',
-                  'language', 'gender', 'cover_color', 'primary_color',
-                  'secondary_color', 'banned', 'must_reset_password', 'badges']
+        fields = ['id', 'user_username', 'tag', 'age', 'birth_date', 'biography', 'company',
+                  'locale', 'website', 'email_confirmed', 'slug', 'recovery_key',
+                  'language_display', 'gender_display', 'cover_color', 'primary_color',
+                  'secondary_color', 'banned', 'cpf', 'ctps', 'must_reset_password',
+                  'nationality', 'phone_number', 'twitter_username', 'facebook_username',
+                  'linkedin_username', 'instagram_username']

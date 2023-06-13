@@ -18,23 +18,6 @@ class ProfileAdmin(admin.ModelAdmin):
     readonly_fields = ('tag', 'slug', 'recovery_key')
 
 
-class BadgesInlineProfile(admin.StackedInline):
-    """Inline model for badges"""
-    model = models.UserProfile.badges.through
-    extra = 0
-    verbose_name = "Profile"
-    verbose_name_plural = "Profiles"
-
-
-class BadgesAdmin(admin.ModelAdmin):
-    """Admin model for badges"""
-    inlines = [BadgesInlineProfile]
-    list_display = ('pk', 'name', 'color')
-    list_display_links = ('pk', 'name')
-    list_per_page = 20
-    search_fields = ('name', 'description', 'color')
-
-
 class BannedUsersAdmin(admin.ModelAdmin):
     """Admin model for banned users"""
     list_display = ("pk", 'user', 'profile', 'responsible', 'date')
@@ -46,5 +29,4 @@ class BannedUsersAdmin(admin.ModelAdmin):
 
 
 admin.site.register(models.UserProfile, ProfileAdmin)
-admin.site.register(models.UserBadges, BadgesAdmin)
 admin.site.register(models.BannedUsers, BannedUsersAdmin)
