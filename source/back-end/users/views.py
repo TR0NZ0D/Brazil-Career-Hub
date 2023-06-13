@@ -10,7 +10,7 @@ from typing import TypeAlias
 import coreapi  # type: ignore
 import coreschema  # type: ignore
 
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.core.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.response import Response
@@ -27,6 +27,174 @@ from . import models, serializers
 
 User = get_user_model()
 user_model: TypeAlias = User  # type: ignore
+
+
+# =================== User Authentication =================== #
+class UserAuthenticationSchema(AutoSchema):
+    """Schema for user authentication"""
+
+    def get_description(self, path: str, method: str) -> str:
+        authorization_info = """
+## Authorization:
+
+**Type:** Bearer
+"""
+        match method:
+            case 'GET':
+                responses = {
+                    "200": {
+                        'description': 'OK',
+                        'reason': 'User logged out successfully'
+                    },
+                    "404": {
+                        'description': 'NOT FOUND',
+                        'reason': 'User is not logged in'
+                    },
+                    "500": {
+                        'description': 'INTERNAL SERVER ERROR',
+                        'reason': 'Something went wrong'
+                    }
+                }
+                return description_generator(title="logout an user",
+                                             description=authorization_info,
+                                             responses=responses)
+            case 'POST':
+                responses = {
+                    "200": {
+                        'description': 'OK',
+                        'reason': 'User authenticated and logged in successfully'
+                    },
+                    "202": {
+                        'description': 'ACCEPTED',
+                        'reason': 'User authenticated successfully, but, need to change password'
+                    },
+                    "400": {
+                        'description': "BAD REQUEST",
+                        'reason': 'Invalid request body'
+                    },
+                    "403": {
+                        'description': 'FORBIDDEN',
+                        'reason': 'Authentication failed'
+                    },
+                    "404": {
+                        'description': 'NOT FOUND',
+                        'reason': 'User account not found'
+                    },
+                    "409": {
+                        'description': 'CONFLICT',
+                        'reason': 'An user is already logged in'
+                    },
+                    "423": {
+                        'description': 'LOCKED',
+                        'reason': 'User account can\'t be accessed due to a ban or other issue'
+                    },
+                    "500": {
+                        'description': 'INTERNAL SERVER ERROR',
+                        'reason': 'Something went wrong'
+                    }
+                }
+                return description_generator(title="Authenticate and login an user",
+                                             description=authorization_info,
+                                             responses=responses)
+            case _:
+                return ''
+
+    def get_path_fields(self, path: str, method: str) -> list[coreapi.Field]:
+        match method:
+            case 'POST':
+                return [
+                    coreapi.Field(
+                        name="username",
+                        location="form",
+                        required=True,
+                        schema=coreschema.String(),
+                        description="User's account username"
+                    ),
+                    coreapi.Field(
+                        name="password",
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(),
+                        description="User's account password"
+                    )
+                ]
+            case _:
+                return []
+
+
+class UserAuthentication(Base):
+    """Authenticate user"""
+
+    schema = UserAuthenticationSchema()
+
+    def get(self, request):
+        """Get request"""
+
+        if request.user.is_anonymous:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                "User is not logged in")
+
+        logout(request)
+
+        if request.user.is_authenticated:
+            return self.generate_basic_response(status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                "User is still authenticated")
+
+        return self.generate_basic_response(status.HTTP_200_OK, "Logged out")
+
+    def post(self, request):
+        """Post request"""
+        username = request.data.get('username', None)
+        password = request.data.get('password', None)
+
+        if username is None or password is None:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST,
+                                                "Username or password not found")
+
+        if request.user.is_authenticated:
+            return self.generate_basic_response(status.HTTP_409_CONFLICT,
+                                                "An user is already logged in")
+
+        user = User.objects.all().filter(username=username).first()
+
+        if user is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                "No account found with this username")
+
+        authenticated_user = authenticate(request, username=username, password=password)
+
+        if authenticated_user is None:
+            return self.generate_basic_response(status.HTTP_403_FORBIDDEN,
+                                                "Authentication failed, check your credentials")
+
+        profile = models.UserProfile.objects.all().filter(user=authenticated_user).first()
+
+        if profile is None:
+            return self.generate_basic_response(status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                "User profile not found")
+
+        if profile.banned:
+            return self.generate_basic_response(status.HTTP_423_LOCKED,
+                                                "User's account is banned")
+
+        if profile.must_reset_password:
+            data = self.generate_basic_response_data(status.HTTP_202_ACCEPTED,
+                                                     "User must change password before logging in")
+            serializer = serializers.UserProfileSerializer(profile)
+            data['content'] = serializer.data
+            return Response(data=data, status=data.get('status', status.HTTP_202_ACCEPTED))
+
+        login(request, authenticated_user)
+
+        if request.user.is_authenticated:
+            data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                     "Logged in successfully")
+            serializer = serializers.UserProfileSerializer(profile)
+            data['content'] = serializer.data
+            return Response(data=data, status=data.get('status', status.HTTP_200_OK))
+
+        return self.generate_basic_response(status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                            "Could not login user")
 
 
 # =================== User Profile =================== #
@@ -1181,14 +1349,18 @@ class UserProfile(Base):
             user_profile = models.UserProfile.objects.all().filter(pk=primary_key).first()
 
         if user_profile is not None:
+            data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                     "User Profile found")
             serializer = serializers.UserProfileSerializer(user_profile)
-            data = serializer.data
+            serializer_data = serializer.data
             try:
                 # type: ignore
-                data['image'] = f"/media{user_profile.image.path.split('/media')[1]}"
+                serializer_data['image'] = f"/media{user_profile.image.path.split('/media')[1]}"
             except IndexError:
-                data['image'] = None
-            return Response(data=data, status=status.HTTP_200_OK)
+                serializer_data['image'] = None
+
+            data['content'] = serializer_data
+            return Response(data=data, status=data.get('status', status.HTTP_200_OK))
 
         return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_profile_str)
 
@@ -1246,16 +1418,19 @@ class UserProfile(Base):
         if profile_data.get('image', None):  # TODO: Image posting is not working
             profile.image = profile_data.get('image')  # type: ignore
 
+        response_data = self.generate_basic_response_data(0,
+                                                          "")
         data = serializers.UserProfileSerializer(profile, many=False).data
         serializer = serializers.UserProfileSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            data = serializer.data
+            serializer_data = serializer.data
             try:
-                data['image'] = f"/media{profile.image.path.split('/media')[1]}"  # type: ignore
+                serializer_data['image'] = f"/media{profile.image.path.split('/media')[1]}"  # type: ignore
             except IndexError:
-                data['image'] = None
-            return Response(data, status=status.HTTP_201_CREATED)
+                serializer_data['image'] = None
+            response_data['content'] = serializer_data
+            return Response(response_data, status=response_data.get('status', status.HTTP_201_CREATED))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request):
@@ -1406,14 +1581,16 @@ class UserProfile(Base):
 
         user_profile.save()
 
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "User Profile patched successfully")
         serializer = serializers.UserProfileSerializer(user_profile)
-        data = serializer.data
+        serializer_data = serializer.data
         try:
-            data['image'] = f"/media{user_profile.image.path.split('/media')[1]}"  # type: ignore
+            serializer_data['image'] = f"/media{user_profile.image.path.split('/media')[1]}"  # type: ignore
         except IndexError:
-            data['image'] = None
-
-        return Response(data=data, status=status.HTTP_200_OK)
+            serializer_data['image'] = None
+        response_data['content'] = serializer_data
+        return Response(data=response_data, status=status.HTTP_200_OK)
 
     def put(self, request):
         """Put request"""
@@ -1490,17 +1667,20 @@ class UserProfile(Base):
         if profile_data.get('image', None):
             profile.image = profile_data.get('image')  # type: ignore
 
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "User profile updated successfully")
         data = serializers.UserProfileSerializer(profile, many=False).data
         serializer = serializers.UserProfileSerializer(user_profile, data=data)
         if serializer.is_valid():
             serializer.save()
-            data = serializer.data
+            serializer_data = serializer.data
             try:
                 # type: ignore
-                data['image'] = f"/media{user_profile.image.path.split('/media')[1]}"
+                serializer_data['image'] = f"/media{user_profile.image.path.split('/media')[1]}"
             except IndexError:
-                data['image'] = None
-            return Response(data, status=status.HTTP_200_OK)
+                serializer_data['image'] = None
+            response_data['content'] = serializer_data
+            return Response(response_data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):

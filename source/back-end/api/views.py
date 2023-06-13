@@ -12,6 +12,7 @@ import coreapi  # type: ignore
 
 from django.contrib import auth
 from django.contrib.auth import get_user_model
+from django.http.request import HttpRequest
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.schemas.coreapi import AutoSchema
