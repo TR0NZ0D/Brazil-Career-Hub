@@ -4,7 +4,6 @@ import Container from '@mui/material/Container';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import UserForm from './components/UserForm';
 import CompanyForm from './components/CompanyForm';
 
@@ -42,21 +41,13 @@ const Signup: FC = () => {
               Sign Up
             </Typography>
 
-            <Grid container spacing={2} component="form">
-              {tabValue === 0 &&
-                <UserForm />
-              }
+            {tabValue === 0 &&
+              <UserForm />
+            }
 
-              {tabValue === 1 &&
-                <CompanyForm />
-              }
-
-              <Grid container item justifyContent="flex-end">
-                <Grid item>
-                  <Button variant="contained" type="submit">Submit</Button>
-                </Grid>
-              </Grid>
-            </Grid>
+            {tabValue === 1 &&
+              <CompanyForm />
+            }
           </Container>
         </Container>
       </Grid>

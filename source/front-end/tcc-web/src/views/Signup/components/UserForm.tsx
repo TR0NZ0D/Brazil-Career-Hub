@@ -1,15 +1,22 @@
-import { FC, useState } from 'react';
-import Grid from '@mui/material/Grid';
-import TextField from '@mui/material/TextField';
-import FormControl from '@mui/material/FormControl';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormLabel from '@mui/material/FormLabel';
-import RadioGroup from '@mui/material/RadioGroup';
-import Radio from '@mui/material/Radio';
+import { FC, FormEvent, useState } from 'react';
 import FieldMasker from '../../../utilities/FieldMasker';
 import GeneralValidator from '../../../utilities/GeneralValidator';
 import { languages, nationalities } from '../../../utilities/RelevantData';
-import { Checkbox, FormGroup, InputLabel, MenuItem, Select, Typography } from '@mui/material';
+import {
+  Button,
+  Checkbox,
+  FormGroup,
+  InputLabel,
+  MenuItem, Select,
+  Typography,
+  Radio,
+  RadioGroup,
+  FormLabel,
+  FormControlLabel,
+  FormControl,
+  TextField,
+  Grid
+} from '@mui/material';
 
 const UserForm: FC = () => {
 
@@ -43,13 +50,27 @@ const UserForm: FC = () => {
       setErrorCallback(false);
   }
 
+  function handleLanguagesChange(val: string) {
+    if (languagesSpoken.includes(val)) {
+      let newLanguages: string[] = languagesSpoken.filter(x => x !== val);
+      setLanguagesSpoken(newLanguages);
+    }
+
+    else
+      setLanguagesSpoken([...languagesSpoken, val]);
+  }
+
+  function handleFormSubmit(e: FormEvent) {
+    e.preventDefault();
+  }
+
   const languagesColumn1 = languages.slice(0, 31);
   const languagesColumn2 = languages.slice(31, 62);
   const languagesColumn3 = languages.slice(62, 93);
   const languagesColumn4 = languages.slice(93, 123);
 
   return (
-    <>
+    <Grid container spacing={2} component="form" onSubmit={(e) => handleFormSubmit(e)}>
       <Grid item lg={6} md={6} sm={12}>
         <TextField
           required
@@ -207,41 +228,61 @@ const UserForm: FC = () => {
         <Typography variant="h6" gutterBottom>Select your languages:</Typography>
       </Grid>
 
-      <Grid item lg={3} md={3} sm={12}>
+      <Grid item lg={3} md={3} sm={6}>
         <FormGroup>
           {languagesColumn1.map(x => {
             return (
-              <FormControlLabel key={x} control={<Checkbox />} label={x}></FormControlLabel>
+              <FormControlLabel
+                key={x}
+                control={<Checkbox />}
+                label={x}
+                onChange={() => handleLanguagesChange(x)}
+              ></FormControlLabel>
             )
           })}
         </FormGroup>
       </Grid>
 
-      <Grid item lg={3} md={3} sm={12}>
+      <Grid item lg={3} md={3} sm={6}>
         <FormGroup>
           {languagesColumn2.map(x => {
             return (
-              <FormControlLabel key={x} control={<Checkbox />} label={x}></FormControlLabel>
+              <FormControlLabel
+                key={x}
+                control={<Checkbox />}
+                label={x}
+                onChange={() => handleLanguagesChange(x)}
+              ></FormControlLabel>
             )
           })}
         </FormGroup>
       </Grid>
 
-      <Grid item lg={3} md={3} sm={12}>
+      <Grid item lg={3} md={3} sm={6}>
         <FormGroup>
           {languagesColumn3.map(x => {
             return (
-              <FormControlLabel key={x} control={<Checkbox />} label={x}></FormControlLabel>
+              <FormControlLabel
+                key={x}
+                control={<Checkbox />}
+                label={x}
+                onChange={() => handleLanguagesChange(x)}
+              ></FormControlLabel>
             )
           })}
         </FormGroup>
       </Grid>
 
-      <Grid item lg={3} md={3} sm={12}>
+      <Grid item lg={3} md={3} sm={6}>
         <FormGroup>
           {languagesColumn4.map(x => {
             return (
-              <FormControlLabel key={x} control={<Checkbox />} label={x}></FormControlLabel>
+              <FormControlLabel
+                key={x}
+                control={<Checkbox />}
+                label={x}
+                onChange={() => handleLanguagesChange(x)}
+              ></FormControlLabel>
             )
           })}
         </FormGroup>
@@ -276,7 +317,13 @@ const UserForm: FC = () => {
           onChange={(e) => setContactPhone(e.target.value)}
         />
       </Grid>
-    </>
+
+      <Grid container item justifyContent="flex-end">
+        <Grid item>
+          <Button variant="contained" type="submit">Submit</Button>
+        </Grid>
+      </Grid>
+    </Grid>
   )
 }
 
