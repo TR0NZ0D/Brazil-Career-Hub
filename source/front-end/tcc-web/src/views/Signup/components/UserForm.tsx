@@ -8,7 +8,8 @@ import RadioGroup from '@mui/material/RadioGroup';
 import Radio from '@mui/material/Radio';
 import FieldMasker from '../../../utilities/FieldMasker';
 import GeneralValidator from '../../../utilities/GeneralValidator';
-import { languages } from '../../../utilities/RelevantData';
+import { languages, nationalities } from '../../../utilities/RelevantData';
+import { Checkbox, FormGroup, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 
 const UserForm: FC = () => {
 
@@ -19,6 +20,8 @@ const UserForm: FC = () => {
   const [gender, setGender] = useState<string>("");
   const [cpf, setCpf] = useState<string>("");
   const [numberOfJobRegistration, setNumberOfJobRegistration] = useState<number>(0);
+  const [nationality, setNationality] = useState<string>("");
+  const [languagesSpoken, setLanguagesSpoken] = useState<string[]>([]);
   const [email, setEmail] = useState<string>("");
   const [address, setAddress] = useState<string>("");
   const [portfolio, setPortfolio] = useState<string>("");
@@ -39,6 +42,11 @@ const UserForm: FC = () => {
     else
       setErrorCallback(false);
   }
+
+  const languagesColumn1 = languages.slice(0, 31);
+  const languagesColumn2 = languages.slice(31, 62);
+  const languagesColumn3 = languages.slice(62, 93);
+  const languagesColumn4 = languages.slice(93, 123);
 
   return (
     <>
@@ -166,8 +174,6 @@ const UserForm: FC = () => {
         />
       </Grid>
 
-      {/* Todo: Add nationality */}
-
       <Grid item lg={6} md={6} sm={12}>
         <TextField
           id="address"
@@ -178,7 +184,68 @@ const UserForm: FC = () => {
         />
       </Grid>
 
-      {/* Todo: Add languages */}
+      <Grid item lg={6} md={6} sm={12}>
+        <FormControl fullWidth>
+          <InputLabel id="nationality-select-label">Nationality</InputLabel>
+          <Select
+            labelId="nationality-select-label"
+            id="nationality-select"
+            value={nationality}
+            label="Nationality"
+            onChange={(e) => setNationality(e.target.value)}
+          >
+            {nationalities.map(x => {
+              return (
+                <MenuItem key={x} value={x}>{x}</MenuItem>
+              )
+            })}
+          </Select>
+        </FormControl>
+      </Grid>
+
+      <Grid item lg={12} md={12} sm={12}>
+        <Typography variant="h6" gutterBottom>Select your languages:</Typography>
+      </Grid>
+
+      <Grid item lg={3} md={3} sm={12}>
+        <FormGroup>
+          {languagesColumn1.map(x => {
+            return (
+              <FormControlLabel key={x} control={<Checkbox />} label={x}></FormControlLabel>
+            )
+          })}
+        </FormGroup>
+      </Grid>
+
+      <Grid item lg={3} md={3} sm={12}>
+        <FormGroup>
+          {languagesColumn2.map(x => {
+            return (
+              <FormControlLabel key={x} control={<Checkbox />} label={x}></FormControlLabel>
+            )
+          })}
+        </FormGroup>
+      </Grid>
+
+      <Grid item lg={3} md={3} sm={12}>
+        <FormGroup>
+          {languagesColumn3.map(x => {
+            return (
+              <FormControlLabel key={x} control={<Checkbox />} label={x}></FormControlLabel>
+            )
+          })}
+        </FormGroup>
+      </Grid>
+
+      <Grid item lg={3} md={3} sm={12}>
+        <FormGroup>
+          {languagesColumn4.map(x => {
+            return (
+              <FormControlLabel key={x} control={<Checkbox />} label={x}></FormControlLabel>
+            )
+          })}
+        </FormGroup>
+      </Grid>
 
       <Grid item lg={6} md={6} sm={12}>
         <TextField
