@@ -1418,8 +1418,8 @@ class UserProfile(Base):
         if profile_data.get('image', None):  # TODO: Image posting is not working
             profile.image = profile_data.get('image')  # type: ignore
 
-        response_data = self.generate_basic_response_data(0,
-                                                          "")
+        response_data = self.generate_basic_response_data(status.HTTP_201_CREATED,
+                                                          "User profile created successfully")
         data = serializers.UserProfileSerializer(profile, many=False).data
         serializer = serializers.UserProfileSerializer(data=data)
         if serializer.is_valid():
@@ -1954,3 +1954,492 @@ class BannedUsers(Base):
 
         return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
                                             self.not_found_slug_nor_id_str)
+
+
+# =================== User Management =================== #
+class UserManagementSchema(AutoSchema):
+    """Schema for user account"""
+
+    def get_description(self, path: str, method: str) -> str:
+        authorization_info = """
+## Authorization:
+
+**Type:** Bearer
+"""
+
+        match method:
+            case 'GET':
+                responses = {
+                    "200": {
+                        'description': 'OK',
+                        'reason': 'User account found'
+                    },
+                    "404": {
+                        'description': 'NOT FOUND',
+                        'reason': 'User account not found'
+                    }
+                }
+                return description_generator(title="Get a specific user account.",
+                                             description=authorization_info,
+                                             responses=responses)
+            case 'POST':
+                responses = {
+                    "201": {
+                        'description': 'CREATED',
+                        'reason': 'User account successfully created'
+                    },
+                    "400": {
+                        'description': "BAD REQUEST",
+                        'reason': 'Invalid request body'
+                    }
+                }
+                return description_generator(title="Create an user account",
+                                             description=authorization_info,
+                                             responses=responses)
+            case 'PATCH':
+                responses = {
+                    "200": {
+                        'description': 'OK',
+                        'reason': 'User account successfully updated'
+                    },
+                    "404": {
+                        'description': 'NOT FOUND',
+                        'reason': 'User account not found'
+                    },
+                    "400": {
+                        'description': "BAD REQUEST",
+                        'reason': 'Invalid request body'
+                    }
+                }
+                return description_generator(title="Update specific information from user account",
+                                             # noqa: E502
+                                             description=authorization_info,
+                                             responses=responses)
+            case 'PUT':
+                responses = {
+                    "200": {
+                        'description': 'OK',
+                        'reason': 'User account successfully updated'
+                    },
+                    "404": {
+                        'description': 'NOT FOUND',
+                        'reason': 'User account not found'
+                    },
+                    "400": {
+                        'description': "BAD REQUEST",
+                        'reason': 'Invalid request body'
+                    }
+                }
+                return description_generator(title="Update all data from user account",
+                                             # noqa: E502
+                                             description=authorization_info,
+                                             responses=responses)
+            case 'DELETE':
+                responses = {
+                    "204": {
+                        'description': 'NO CONTENT',
+                        'reason': 'User account successfully deleted'
+                    },
+                    "404": {
+                        'description': 'NOT FOUND',
+                        'reason': 'User account not found'
+                    }
+                }
+                return description_generator(title="Delete a specific user account",
+                                             description=authorization_info,
+                                             responses=responses)
+            case _:
+                return ''
+
+    def get_path_fields(self, path: str, method: str) -> list[coreapi.Field]:
+        match method:
+            case 'GET':
+                return [
+                    coreapi.Field(
+                        name="username",
+                        location="query",
+                        required=True,
+                        schema=coreschema.String(),
+                        description="User account's username"
+                    )
+                ]
+            case 'POST':
+                return [
+                    coreapi.Field(
+                        name="username",
+                        location="form",
+                        required=True,
+                        schema=coreschema.String(),
+                        description="User's account username"
+                    ),
+                    coreapi.Field(
+                        name="password",
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(2),
+                        description="User's password"
+                    ),
+                    coreapi.Field(
+                        name="email",
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(),
+                        description="Email address"
+                    ),
+                    coreapi.Field(
+                        name="name",
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(),
+                        description="User's Name"
+                    ),
+                    coreapi.Field(
+                        name="surname",
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(),
+                        description="User's last name"
+                    )
+                ]
+            case 'PATCH':
+                return [
+                    coreapi.Field(
+                        name="username",
+                        location="query",
+                        required=True,
+                        schema=coreschema.String(),
+                        description="User account's username"
+                    ),
+                    coreapi.Field(
+                        name="username",
+                        location="form",
+                        required=False,
+                        schema=coreschema.String(),
+                        description="User's account new username"
+                    ),
+                    coreapi.Field(
+                        name="password",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(2),
+                        description="User's password"
+                    ),
+                    coreapi.Field(
+                        name="email",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Email address"
+                    ),
+                    coreapi.Field(
+                        name="name",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="User's Name"
+                    ),
+                    coreapi.Field(
+                        name="surname",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="User's last name"
+                    )
+                ]
+            case 'PUT':
+                return [
+                    coreapi.Field(
+                        name="username",
+                        location="query",
+                        required=True,
+                        schema=coreschema.String(),
+                        description="User account's username"
+                    ),
+                    coreapi.Field(
+                        name="username",
+                        location="form",
+                        required=False,
+                        schema=coreschema.String(),
+                        description="User's account new username"
+                    ),
+                    coreapi.Field(
+                        name="password",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(2),
+                        description="User's password"
+                    ),
+                    coreapi.Field(
+                        name="email",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Email address"
+                    ),
+                    coreapi.Field(
+                        name="name",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="User's Name"
+                    ),
+                    coreapi.Field(
+                        name="surname",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="User's last name"
+                    )
+                ]
+            case 'DELETE':
+                return [
+                    coreapi.Field(
+                        name="username",
+                        location="query",
+                        required=True,
+                        schema=coreschema.String(),
+                        description="User account's username"
+                    )
+                ]
+            case _:
+                return []
+
+
+class UserManagement(Base):
+    """Manage user profile"""
+
+    not_found_str = "User account not found"
+
+    schema = UserManagementSchema()
+
+    def handle_user_data(self, request,
+                            # noqa
+                            bypass_required: bool = False) -> tuple[bool, dict[str, str | None] | \
+                                                                    Response]:
+        """Handle profile data"""
+        def generate_error_response(text: str) -> tuple[bool, Response]:
+            return (False, self.generate_basic_response(status.HTTP_400_BAD_REQUEST, text))
+
+        current_username = request.query_params.get('username', None)
+
+        # Required
+        username: str = request.data.get('username', None)
+        password: str = request.data.get('password', None)
+        email: str = request.data.get('email', None)
+        name: str = request.data.get('name', None)
+        surname: str = request.data.get('surname', None)
+
+        # Username validations
+        if not username and not bypass_required:
+            return generate_error_response('User username is required')
+
+        if not isinstance(username, str):
+            return generate_error_response('User username must be a string')
+
+        user: user_model | None = User.objects.all().filter(username=username).first()
+
+        if current_username is not None:
+            if user is not None and username != current_username:
+                return generate_error_response('This username already exist')
+        else:
+            if user is not None:
+                return generate_error_response('This username already exist')
+
+        # Password validations
+        if not password and not bypass_required:
+            return generate_error_response('Password is required')
+
+        if not isinstance(password, str):
+            return generate_error_response('Password must be a string')
+
+        # Email validations
+        if not email and not bypass_required:
+            return generate_error_response('Email is required')
+
+        if not isinstance(email, str):
+            return generate_error_response('Email must be a string')
+
+        # Name validations
+        if not name and not bypass_required:
+            return generate_error_response('Name is required')
+
+        if not isinstance(name, str):
+            return generate_error_response('Name must be a string')
+
+        # Surname validations
+        if not surname and not bypass_required:
+            return generate_error_response('Surname is required')
+
+        if not isinstance(surname, str):
+            return generate_error_response('Surname must be a string')
+
+        # Data conversion and handling
+        data: dict[str, str | None] = {
+            'username': username,
+            'password': password,
+            'email': email,
+            'name': name,
+            'surname': surname
+        }
+
+        return (True, data)
+
+    def get(self, request):
+        """Get request"""
+        username = request.query_params.get('username', None)
+
+        if username is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_str)
+
+        user_account = User.objects.all().filter(username=username).first()
+
+        if user_account is not None:
+            data = self.generate_basic_response_data(status.HTTP_200_OK, "User account found")
+            serializer = serializers.UserSerializer(user_account)
+            data['content'] = serializer.data
+            return Response(data=data, status=data.get('status', status.HTTP_200_OK))
+
+        return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_str)
+
+    def post(self, request):
+        """Post request"""
+        data_valid, data_or_response = self.handle_user_data(request)
+        if not data_valid:
+            return data_or_response
+
+        account_data = data_or_response
+
+        new_username = account_data.get('username', None)
+
+        account = User(username=new_username,
+                       email=account_data.get('email', ''),
+                       first_name=account_data.get('name', ''),
+                       last_name=account_data.get('surname', ''))
+
+        account.set_password(account_data.get('password', None))
+
+        response_data = self.generate_basic_response_data(status.HTTP_201_CREATED,
+                                                          "User account created successfully")
+        data = serializers.UserSerializer(account, many=False).data
+        serializer = serializers.UserSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            response_data['content'] = serializer.data
+            return Response(response_data,
+                            status=response_data.get('status', status.HTTP_201_CREATED))
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request):
+        """Patch request"""
+        username = request.query_params.get('username', None)
+
+        if username is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_str)
+
+        user_account = User.objects.all().filter(username=username).first()
+
+        if user_account is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_str)
+
+        data_valid, data_or_response = self.handle_user_data(
+            request, bypass_required=True)
+        if not data_valid:
+            return data_or_response
+
+        account_data = data_or_response
+
+        if account_data.get('username', None):
+            new_username: str = account_data.get('username', None)  # type: ignore
+            user_account.username = new_username  # type: ignore
+
+        if account_data.get('password', None):
+            password: str = account_data.get('password', None)  # type: ignore
+            if authenticate(request, username=username, password=password) is None:
+                user_account.set_password(password)
+
+        if account_data.get('email', None):
+            email: str = account_data.get('email', '')  # type: ignore
+            user_account.email = email  # type: ignore
+
+        if account_data.get('name', None):
+            name: str = account_data.get('name', 0)  # type: ignore
+            user_account.first_name = name  # type: ignore
+
+        if account_data.get('surname', None):
+            surname: str = account_data.get('surname', date.today())  # type: ignore
+            user_account.last_name = surname  # type: ignore
+
+        try:
+            user_account.clean_fields()  # type: ignore
+            user_account.clean()  # type: ignore
+        except ValidationError as err:
+            data = self.generate_basic_response_data(status.HTTP_400_BAD_REQUEST,
+                                                     'Patch data validation error')
+            data['errors'] = err
+            return Response(data=data, status=data.get('status'))
+
+        user_account.save()  # type: ignore
+
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "User Profile patched successfully")
+        serializer = serializers.UserSerializer(user_account)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        """Put request"""
+        username = request.query_params.get('username', None)
+
+        if username is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_str)
+
+        user_account = User.objects.all().filter(username=username).first()
+
+        if user_account is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_str)
+
+        data_valid, data_or_response = self.handle_user_data(request)
+        if not data_valid:
+            return data_or_response
+
+        account_data = data_or_response
+
+        new_username = account_data.get('username', None)
+
+        should_change_password = False
+
+        if authenticate(request,
+                        username=username,
+                        password=account_data.get('password', '')) is None:
+            should_change_password = True
+
+        account = User(username=new_username,
+                       email=account_data.get('email', ''),
+                       first_name=account_data.get('name', ''),
+                       last_name=account_data.get('surname', ''))
+
+        if should_change_password:
+            account.set_password(account_data.get('password', ''))
+
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "User account updated successfully")
+        data = serializers.UserSerializer(account, many=False).data
+        serializer = serializers.UserSerializer(user_account, data=data)
+        if serializer.is_valid():
+            serializer.save()
+            response_data['content'] = serializer.data
+            return Response(response_data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        """Delete request"""
+        username = request.query_params.get('username', None)
+
+        if username is not None:
+            user_account = User.objects.all().filter(username=username).first()
+
+            if user_account is not None:
+                user_account.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+
+        return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_str)
