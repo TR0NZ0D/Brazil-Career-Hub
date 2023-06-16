@@ -11,6 +11,9 @@ app_name = 'users'
 
 # localhost:8000/api/users/
 urlpatterns = [
+    # ========== Auth ========== #
+    path("auth/", views.UserAuthentication.as_view()),  # type: ignore
+
     # ========== Bans ========== #
     path('bans/', views.BannedUsers.as_view()),  # type: ignore
 

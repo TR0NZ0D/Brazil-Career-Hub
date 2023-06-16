@@ -107,10 +107,12 @@ class CompanyAccount(Base):
             company_account = models.CompanyAccountModel.objects.all() \
                 .filter(pk=primary_key).first()
 
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "")
         if company_account is not None:
             serializer = serializers.CompanyAccountSerializer(company_account)
-            data = join_tables(serializer.data)
-            return Response(data=data, status=status.HTTP_200_OK)
+            response_data['content'] = join_tables(serializer.data)
+            return Response(data=response_data, status=status.HTTP_200_OK)
 
         return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_account_str)
 
