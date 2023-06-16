@@ -3,6 +3,8 @@ users/serializers.py
 
 Created by: Gabriel Menezes de Antonio
 """
+from django.contrib.auth import get_user_model
+
 from rest_framework import serializers
 
 from . import models
@@ -38,8 +40,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     username = serializers.SerializerMethodField()
     email = serializers.SerializerMethodField()
-    name = serializers.SerializerMethodField()
-    surname = serializers.SerializerMethodField()
+    first_name = serializers.SerializerMethodField()
+    last_name = serializers.SerializerMethodField()
     language_display = serializers.CharField(source="get_language_display")
     gender_display = serializers.CharField(source="get_gender_display")
 
@@ -51,20 +53,29 @@ class UserProfileSerializer(serializers.ModelSerializer):
         """Get user email"""
         return obj.user.email
 
-    def get_name(self, obj) -> str:
+    def get_first_name(self, obj) -> str:
         """Get user name"""
         return obj.user.first_name
 
-    def get_surname(self, obj) -> str:
+    def get_last_name(self, obj) -> str:
         """Get user surname"""
         return obj.user.last_name
 
     class Meta:
         """Meta data for user profile serializer"""
         model = models.UserProfile
-        fields = ['id', 'username', 'email', 'name', 'surname', 'tag', 'age', 'birth_date',
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'tag', 'age', 'birth_date',
                   'biography', 'company', 'locale', 'website', 'email_confirmed', 'slug',
                   'recovery_key', 'language_display', 'gender_display', 'cover_color',
                   'primary_color', 'secondary_color', 'banned', 'cpf', 'ctps',
                   'must_reset_password', 'nationality', 'phone_number', 'twitter_username',
                   'facebook_username', 'linkedin_username', 'instagram_username']
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """Serializer for user account"""
+
+    class Meta:
+        """Meta data for user profile serializer"""
+        model = get_user_model()
+        fields = ['id', 'username', 'email', 'first_name', 'last_name']

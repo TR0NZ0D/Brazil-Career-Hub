@@ -11,6 +11,9 @@ app_name = 'users'
 
 # localhost:8000/api/users/
 urlpatterns = [
+    # ========== User Management ========== #
+    path("", views.UserManagement.as_view()),  # type: ignore
+
     # ========== Auth ========== #
     path("auth/", views.UserAuthentication.as_view()),  # type: ignore
 
