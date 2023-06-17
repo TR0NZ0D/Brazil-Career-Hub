@@ -3,17 +3,11 @@ users/serializers.py
 
 Created by: Gabriel Menezes de Antonio
 """
+from django.contrib.auth import get_user_model
+
 from rest_framework import serializers
 
 from . import models
-
-
-class UserBadgesSerializer(serializers.ModelSerializer):
-    """Serializer for user badges"""
-    class Meta:
-        """Meta data for user bagdes serializer"""
-        model = models.UserBadges
-        fields = ['id', 'name', 'description', 'color']
 
 
 class BannedUsersSerializer(serializers.ModelSerializer):
@@ -43,14 +37,45 @@ class BannedUsersSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializer for user profile"""
-    badges: serializers.StringRelatedField = serializers.StringRelatedField(
-        many=True)
+
+    username = serializers.SerializerMethodField()
+    email = serializers.SerializerMethodField()
+    first_name = serializers.SerializerMethodField()
+    last_name = serializers.SerializerMethodField()
+    language_display = serializers.CharField(source="get_language_display")
+    gender_display = serializers.CharField(source="get_gender_display")
+
+    def get_username(self, obj) -> str:
+        """Get user username string"""
+        return obj.user.get_username()
+
+    def get_email(self, obj) -> str:
+        """Get user email"""
+        return obj.user.email
+
+    def get_first_name(self, obj) -> str:
+        """Get user name"""
+        return obj.user.first_name
+
+    def get_last_name(self, obj) -> str:
+        """Get user surname"""
+        return obj.user.last_name
 
     class Meta:
         """Meta data for user profile serializer"""
         model = models.UserProfile
-        fields = ['id', 'user', 'tag', 'age', 'birth_date',
-                  'biography', 'company', 'locale', 'website',
-                  'email_confirmed', 'slug', 'recovery_key',
-                  'language', 'gender', 'cover_color', 'primary_color',
-                  'secondary_color', 'banned', 'must_reset_password', 'badges']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'tag', 'age', 'birth_date',
+                  'biography', 'company', 'locale', 'website', 'email_confirmed', 'slug',
+                  'recovery_key', 'language_display', 'gender_display', 'cover_color',
+                  'primary_color', 'secondary_color', 'banned', 'cpf', 'ctps',
+                  'must_reset_password', 'nationality', 'phone_number', 'twitter_username',
+                  'facebook_username', 'linkedin_username', 'instagram_username']
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """Serializer for user account"""
+
+    class Meta:
+        """Meta data for user profile serializer"""
+        model = get_user_model()
+        fields = ['id', 'username', 'email', 'first_name', 'last_name']

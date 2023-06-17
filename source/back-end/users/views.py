@@ -10,7 +10,7 @@ from typing import TypeAlias
 import coreapi  # type: ignore
 import coreschema  # type: ignore
 
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.core.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.response import Response
@@ -29,6 +29,174 @@ User = get_user_model()
 user_model: TypeAlias = User  # type: ignore
 
 
+# =================== User Authentication =================== #
+class UserAuthenticationSchema(AutoSchema):
+    """Schema for user authentication"""
+
+    def get_description(self, path: str, method: str) -> str:
+        authorization_info = """
+## Authorization:
+
+**Type:** Bearer
+"""
+        match method:
+            case 'GET':
+                responses = {
+                    "200": {
+                        'description': 'OK',
+                        'reason': 'User logged out successfully'
+                    },
+                    "404": {
+                        'description': 'NOT FOUND',
+                        'reason': 'User is not logged in'
+                    },
+                    "500": {
+                        'description': 'INTERNAL SERVER ERROR',
+                        'reason': 'Something went wrong'
+                    }
+                }
+                return description_generator(title="logout an user",
+                                             description=authorization_info,
+                                             responses=responses)
+            case 'POST':
+                responses = {
+                    "200": {
+                        'description': 'OK',
+                        'reason': 'User authenticated and logged in successfully'
+                    },
+                    "202": {
+                        'description': 'ACCEPTED',
+                        'reason': 'User authenticated successfully, but, need to change password'
+                    },
+                    "400": {
+                        'description': "BAD REQUEST",
+                        'reason': 'Invalid request body'
+                    },
+                    "403": {
+                        'description': 'FORBIDDEN',
+                        'reason': 'Authentication failed'
+                    },
+                    "404": {
+                        'description': 'NOT FOUND',
+                        'reason': 'User account not found'
+                    },
+                    "409": {
+                        'description': 'CONFLICT',
+                        'reason': 'An user is already logged in'
+                    },
+                    "423": {
+                        'description': 'LOCKED',
+                        'reason': 'User account can\'t be accessed due to a ban or other issue'
+                    },
+                    "500": {
+                        'description': 'INTERNAL SERVER ERROR',
+                        'reason': 'Something went wrong'
+                    }
+                }
+                return description_generator(title="Authenticate and login an user",
+                                             description=authorization_info,
+                                             responses=responses)
+            case _:
+                return ''
+
+    def get_path_fields(self, path: str, method: str) -> list[coreapi.Field]:
+        match method:
+            case 'POST':
+                return [
+                    coreapi.Field(
+                        name="username",
+                        location="form",
+                        required=True,
+                        schema=coreschema.String(),
+                        description="User's account username"
+                    ),
+                    coreapi.Field(
+                        name="password",
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(),
+                        description="User's account password"
+                    )
+                ]
+            case _:
+                return []
+
+
+class UserAuthentication(Base):
+    """Authenticate user"""
+
+    schema = UserAuthenticationSchema()
+
+    def get(self, request):
+        """Get request"""
+
+        if request.user.is_anonymous:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                "User is not logged in")
+
+        logout(request)
+
+        if request.user.is_authenticated:
+            return self.generate_basic_response(status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                "User is still authenticated")
+
+        return self.generate_basic_response(status.HTTP_200_OK, "Logged out")
+
+    def post(self, request):
+        """Post request"""
+        username = request.data.get('username', None)
+        password = request.data.get('password', None)
+
+        if username is None or password is None:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST,
+                                                "Username or password not found")
+
+        if request.user.is_authenticated:
+            return self.generate_basic_response(status.HTTP_409_CONFLICT,
+                                                "An user is already logged in")
+
+        user = User.objects.all().filter(username=username).first()
+
+        if user is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                "No account found with this username")
+
+        authenticated_user = authenticate(request, username=username, password=password)
+
+        if authenticated_user is None:
+            return self.generate_basic_response(status.HTTP_403_FORBIDDEN,
+                                                "Authentication failed, check your credentials")
+
+        profile = models.UserProfile.objects.all().filter(user=authenticated_user).first()
+
+        if profile is None:
+            return self.generate_basic_response(status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                "User profile not found")
+
+        if profile.banned:
+            return self.generate_basic_response(status.HTTP_423_LOCKED,
+                                                "User's account is banned")
+
+        if profile.must_reset_password:
+            data = self.generate_basic_response_data(status.HTTP_202_ACCEPTED,
+                                                     "User must change password before logging in")
+            serializer = serializers.UserProfileSerializer(profile)
+            data['content'] = serializer.data
+            return Response(data=data, status=data.get('status', status.HTTP_202_ACCEPTED))
+
+        login(request, authenticated_user)
+
+        if request.user.is_authenticated:
+            data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                     "Logged in successfully")
+            serializer = serializers.UserProfileSerializer(profile)
+            data['content'] = serializer.data
+            return Response(data=data, status=data.get('status', status.HTTP_200_OK))
+
+        return self.generate_basic_response(status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                            "Could not login user")
+
+
 # =================== User Profile =================== #
 class UserProfileSchema(AutoSchema):
     """Schema for user profile"""
@@ -37,9 +205,7 @@ class UserProfileSchema(AutoSchema):
         authorization_info = """
 ## Authorization:
 
-**Type:** API Key
-**Key:** "token"
-**Add to:** header
+**Type:** Bearer
 """
 
         query_params_info = """
@@ -82,7 +248,7 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'User account ID or badge ID not found'
+                        'reason': 'User account ID not found'
                     },
                     "400": {
                         'description': "BAD REQUEST",
@@ -100,7 +266,7 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'User profile ID, user account ID or badge ID not found'
+                        'reason': 'User profile ID or user account ID not found'
                     },
                     "400": {
                         'description': "BAD REQUEST",
@@ -120,7 +286,7 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'User profile ID, user account ID or badge ID not found'
+                        'reason': 'User profile ID or user account ID not found'
                     },
                     "400": {
                         'description': "BAD REQUEST",
@@ -227,6 +393,62 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         description="User's locale"
                     ),
                     coreapi.Field(
+                        name='nationality',
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(80),
+                        description="This is the user's nationality."
+                    ),
+                    coreapi.Field(
+                        name='cpf',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(11),
+                        description="User's CPF"
+                    ),
+                    coreapi.Field(
+                        name='ctps',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(20),
+                        description="User's CTPS"
+                    ),
+                    coreapi.Field(
+                        name='phone_number',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(30),
+                        description="User's phone number"
+                    ),
+                    coreapi.Field(
+                        name='twitter_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(15),
+                        description="User's Twitter account username"
+                    ),
+                    coreapi.Field(
+                        name='facebook_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(50),
+                        description="User's Facebook account username"
+                    ),
+                    coreapi.Field(
+                        name='linkedin_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(60),
+                        description="User's LinkedIn account username"
+                    ),
+                    coreapi.Field(
+                        name='instagram_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(30),
+                        description="User's Instagram account username"
+                    ),
+                    coreapi.Field(
                         name="website",
                         location='form',
                         required=False,
@@ -288,13 +510,6 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         required=False,
                         schema=coreschema.Boolean(default=False),
                         description="User must reset password on next login"
-                    ),
-                    coreapi.Field(
-                        name="badges",
-                        location='form',
-                        required=False,
-                        schema=coreschema.Array(items=coreschema.Integer(1)),
-                        description="Array of badges IDs that this user has"
                     )
                 ]
             case 'PATCH':
@@ -369,6 +584,62 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         description="User's locale"
                     ),
                     coreapi.Field(
+                        name='nationality',
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(80),
+                        description="This is the user's nationality."
+                    ),
+                    coreapi.Field(
+                        name='cpf',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(11),
+                        description="User's CPF"
+                    ),
+                    coreapi.Field(
+                        name='ctps',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(20),
+                        description="User's CTPS"
+                    ),
+                    coreapi.Field(
+                        name='phone_number',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(30),
+                        description="User's phone number"
+                    ),
+                    coreapi.Field(
+                        name='twitter_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(15),
+                        description="User's Twitter account username"
+                    ),
+                    coreapi.Field(
+                        name='facebook_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(50),
+                        description="User's Facebook account username"
+                    ),
+                    coreapi.Field(
+                        name='linkedin_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(60),
+                        description="User's LinkedIn account username"
+                    ),
+                    coreapi.Field(
+                        name='instagram_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(30),
+                        description="User's Instagram account username"
+                    ),
+                    coreapi.Field(
                         name="website",
                         location='form',
                         required=False,
@@ -432,11 +703,60 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         description="User must reset password on next login"
                     ),
                     coreapi.Field(
-                        name="badges",
+                        name='nationality',
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(80),
+                        description="This is the user's nationality."
+                    ),
+                    coreapi.Field(
+                        name='cpf',
                         location='form',
                         required=False,
-                        schema=coreschema.Array(items=coreschema.Integer(1)),
-                        description="Array of badges IDs that this user has"
+                        schema=coreschema.String(11),
+                        description="User's CPF"
+                    ),
+                    coreapi.Field(
+                        name='ctps',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(20),
+                        description="User's CTPS"
+                    ),
+                    coreapi.Field(
+                        name='phone_number',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(30),
+                        description="User's phone number"
+                    ),
+                    coreapi.Field(
+                        name='twitter_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(15),
+                        description="User's Twitter account username"
+                    ),
+                    coreapi.Field(
+                        name='facebook_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(50),
+                        description="User's Facebook account username"
+                    ),
+                    coreapi.Field(
+                        name='linkedin_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(60),
+                        description="User's LinkedIn account username"
+                    ),
+                    coreapi.Field(
+                        name='instagram_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(30),
+                        description="User's Instagram account username"
                     )
                 ]
             case 'PUT':
@@ -511,6 +831,62 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         description="User's locale"
                     ),
                     coreapi.Field(
+                        name='nationality',
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(80),
+                        description="This is the user's nationality."
+                    ),
+                    coreapi.Field(
+                        name='cpf',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(11),
+                        description="User's CPF"
+                    ),
+                    coreapi.Field(
+                        name='ctps',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(20),
+                        description="User's CTPS"
+                    ),
+                    coreapi.Field(
+                        name='phone_number',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(30),
+                        description="User's phone number"
+                    ),
+                    coreapi.Field(
+                        name='twitter_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(15),
+                        description="User's Twitter account username"
+                    ),
+                    coreapi.Field(
+                        name='facebook_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(50),
+                        description="User's Facebook account username"
+                    ),
+                    coreapi.Field(
+                        name='linkedin_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(60),
+                        description="User's LinkedIn account username"
+                    ),
+                    coreapi.Field(
+                        name='instagram_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(30),
+                        description="User's Instagram account username"
+                    ),
+                    coreapi.Field(
                         name="website",
                         location='form',
                         required=False,
@@ -574,11 +950,60 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         description="User must reset password on next login"
                     ),
                     coreapi.Field(
-                        name="badges",
+                        name='nationality',
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(80),
+                        description="This is the user's nationality."
+                    ),
+                    coreapi.Field(
+                        name='cpf',
                         location='form',
                         required=False,
-                        schema=coreschema.Array(items=coreschema.Integer(1)),
-                        description="Array of badges IDs that this user has"
+                        schema=coreschema.String(11),
+                        description="User's CPF"
+                    ),
+                    coreapi.Field(
+                        name='ctps',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(20),
+                        description="User's CTPS"
+                    ),
+                    coreapi.Field(
+                        name='phone_number',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(30),
+                        description="User's phone number"
+                    ),
+                    coreapi.Field(
+                        name='twitter_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(15),
+                        description="User's Twitter account username"
+                    ),
+                    coreapi.Field(
+                        name='facebook_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(50),
+                        description="User's Facebook account username"
+                    ),
+                    coreapi.Field(
+                        name='linkedin_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(60),
+                        description="User's LinkedIn account username"
+                    ),
+                    coreapi.Field(
+                        name='instagram_username',
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(30),
+                        description="User's Instagram account username"
                     )
                 ]
             case 'DELETE':
@@ -607,7 +1032,6 @@ class UserProfile(Base):
 
     not_found_id_str = "Profile ID not found"
     not_found_slug_str = "Profile slug not found"
-    not_found_slug_nor_id_str = "Neither ID nor slug found"
     not_found_profile_str = "User profile not found"
 
     schema = UserProfileSchema()
@@ -642,7 +1066,14 @@ class UserProfile(Base):
         secondary_color: str = request.data.get('secondary_color', None)
         banned: bool = request.data.get('banned', None)
         must_reset_password: bool = request.data.get('reset_password', None)
-        badges: list[int] = request.data.get('badges', None)
+        nationality: str = request.data.get('nationality', None)
+        cpf: str = request.data.get('cpf', None)
+        ctps: str = request.data.get('ctps', None)
+        phone_number: str = request.data.get('phone_number', None)
+        twitter_username: str = request.data.get('twitter_username', None)
+        facebook_username: str = request.data.get('facebook_username', None)
+        linkedin_username: str = request.data.get('linkedin_username', None)
+        instagram_username: str = request.data.get('instagram_username', None)
         formatted_birth_date: date | None = None
 
         # Username validations
@@ -795,30 +1226,74 @@ class UserProfile(Base):
             else:
                 return generate_error_response('Reset password must be a boolean')
 
-        # Badges validations
-        if badges and not isinstance(badges, list):
-            return generate_error_response('Badges must be an array of integers')
+        # Nationality validations
+        if not nationality and not bypass_required:
+            return generate_error_response('Nationality is required')
 
-        if badges:
+        if nationality and not isinstance(nationality, str):
+            return generate_error_response("Nationality must be a string")
+
+        if nationality and len(nationality) > 80:
+            return generate_error_response("Nationality must have a max length of 80 characters")
+
+        # CPF validations
+        if cpf and not isinstance(cpf, str):
+            return generate_error_response("CPF must be a string")
+
+        if cpf and len(cpf) > 11:
+            return generate_error_response("CPF must have a max length of 11 characters")
+
+        if cpf:
             try:
-                [isinstance(badge_id, int)
-                 for badge_id in [int(badge) for badge in badges]]
+                int(cpf)
             except ValueError:
-                return generate_error_response('All items in badges array must be integers')
+                return generate_error_response("CPF must be only numbers")
 
-            unexisting_ids = {int(badge_id) if not models.UserBadges.objects.all()
-                              .filter(pk=int(badge_id)).exists() else '' for badge_id in badges}
+        # CTPS validations
+        if ctps and not isinstance(ctps, str):
+            return generate_error_response("CTPS must be a string")
 
-            if '' in unexisting_ids:
-                unexisting_ids.remove('')
+        if ctps and len(ctps) > 20:
+            return generate_error_response("CTPS must have a max length of 20 characters")
 
-            if unexisting_ids:
-                response_singular = f'Please remove the following badge ID \
-                                    from array since it does not exist: {unexisting_ids}'
-                response_plural = f'Please remove the following badges \
-                                  IDs since they does not exist: {unexisting_ids}'
-                return generate_error_response(response_plural if len(unexisting_ids) > 1
-                                               else response_singular)
+        # Phone number validations
+        if phone_number and not isinstance(phone_number, str):
+            return generate_error_response("Phone number must be a string")
+
+        if phone_number and len(phone_number) > 30:
+            return generate_error_response("Phone number must have a max length of 30 characters")
+
+        # Twitter username validations
+        if twitter_username and not isinstance(twitter_username, str):
+            return generate_error_response("Twitter username must be a string")
+
+        if twitter_username and len(twitter_username) > 15:
+            return generate_error_response("Twitter username must have a max length of\
+                                            15 characters")
+
+        # Facebook username validations
+        if facebook_username and not isinstance(facebook_username, str):
+            return generate_error_response("Facebook username must be a string")
+
+        if facebook_username and len(facebook_username) > 50:
+            return generate_error_response("Facebook username must have a max length of\
+                                            50 characters")
+
+        # LinkedIn username validations
+        if linkedin_username and not isinstance(linkedin_username, str):
+            return generate_error_response("LinkedIn username must be a string")
+
+        if linkedin_username and len(linkedin_username) > 60:
+            return generate_error_response("LinkedIn username must have a max length of\
+                                            60 characters")
+
+        # Instagram username validations
+        if instagram_username and not isinstance(instagram_username, str):
+            return generate_error_response("Instagram username must be a string")
+
+        if instagram_username and len(instagram_username) > 30:
+            return generate_error_response("Instagram username must have a max \
+                                           length of 30 characters")
 
         # Data conversion and handling
         data: dict[str, user_model | str | int | list[int] | bool | date | None] = {
@@ -839,7 +1314,14 @@ class UserProfile(Base):
             'secondary_color': secondary_color,
             'banned': banned,
             'must_reset_password': must_reset_password,
-            'badges': badges,
+            'nationality': nationality,
+            'cpf': cpf,
+            'ctps': ctps,
+            'phone_number': phone_number,
+            'twitter_username': twitter_username,
+            'facebook_username': facebook_username,
+            'linkedin_username': linkedin_username,
+            'instagram_username': instagram_username
         }
 
         return (True, data)
@@ -867,14 +1349,18 @@ class UserProfile(Base):
             user_profile = models.UserProfile.objects.all().filter(pk=primary_key).first()
 
         if user_profile is not None:
+            data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                     "User Profile found")
             serializer = serializers.UserProfileSerializer(user_profile)
-            data = serializer.data
+            serializer_data = serializer.data
             try:
                 # type: ignore
-                data['image'] = f"/media{user_profile.image.path.split('/media')[1]}"
+                serializer_data['image'] = f"/media{user_profile.image.path.split('/media')[1]}"
             except IndexError:
-                data['image'] = None
-            return Response(data=data, status=status.HTTP_200_OK)
+                serializer_data['image'] = None
+
+            data['content'] = serializer_data
+            return Response(data=data, status=data.get('status', status.HTTP_200_OK))
 
         return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_profile_str)
 
@@ -918,20 +1404,22 @@ class UserProfile(Base):
                                      banned=profile_data.get(
                                          'banned', False),  # type: ignore
                                      must_reset_password=profile_data.get(
-                                         'must_reset_password', False)  # type: ignore
+                                         'must_reset_password', False),  # type: ignore
+                                     nationality=profile_data.get('nationality', ''),
+                                     cpf=profile_data.get('cpf', ''),
+                                     ctps=profile_data.get('ctps', ''),
+                                     phone_number=profile_data.get('phone_number', ''),
+                                     twitter_username=profile_data.get('twitter_username', ''),
+                                     facebook_username=profile_data.get('facebook_username', ''),
+                                     linkedin_username=profile_data.get('linkedin_username', ''),
+                                     instagram_username=profile_data.get('instagram_username', '')
                                      )
 
         if profile_data.get('image', None):  # TODO: Image posting is not working
             profile.image = profile_data.get('image')  # type: ignore
 
-        if profile_data.get('badges', None):
-            for badge_id in profile_data.get('badges', []):  # type: ignore
-                try:
-                    badge = models.UserBadges.objects.get(pk=badge_id)
-                    profile.badges.add(badge)
-                except Exception:  # pylint: disable=W0718
-                    continue
-
+        response_data = self.generate_basic_response_data(status.HTTP_201_CREATED,
+                                                          "User profile created successfully")
         data = serializers.UserProfileSerializer(profile, many=False).data
         serializer = serializers.UserProfileSerializer(data=data)
         if serializer.is_valid():
@@ -941,7 +1429,9 @@ class UserProfile(Base):
                 data['image'] = f"/media{profile.image.path.split('/media')[1]}"  # type: ignore
             except IndexError:
                 data['image'] = None
-            return Response(data, status=status.HTTP_201_CREATED)
+            response_data['content'] = data
+            return Response(response_data,
+                            status=response_data.get('status', status.HTTP_201_CREATED))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request):
@@ -1049,6 +1539,38 @@ class UserProfile(Base):
             must_reset_pass: bool = profile_data.get('must_reset_password', False)  # type: ignore
             user_profile.must_reset_password = must_reset_pass
 
+        if profile_data.get('nationality', None):
+            nationality: str = profile_data.get('nationality', None)  # type: ignore
+            user_profile.nationality = nationality
+
+        if profile_data.get('cpf', None):
+            cpf: str = profile_data.get('cpf', None)  # type: ignore
+            user_profile.cpf = cpf
+
+        if profile_data.get('ctps', None):
+            ctps: str = profile_data.get('ctps', None)  # type: ignore
+            user_profile.ctps = ctps
+
+        if profile_data.get('phone_number', None):
+            phone_number: str = profile_data.get('phone_number', None)  # type: ignore
+            user_profile.phone_number = phone_number
+
+        if profile_data.get('twitter_username', None):
+            twitter_username: str = profile_data.get('twitter_username', None)  # type: ignore
+            user_profile.twitter_username = twitter_username
+
+        if profile_data.get('facebook_username', None):
+            facebook_username: str = profile_data.get('facebook_username', None)  # type: ignore
+            user_profile.facebook_username = facebook_username
+
+        if profile_data.get('linkedin_username', None):
+            linkedin_username: str = profile_data.get('linkedin_username', None)  # type: ignore
+            user_profile.linkedin_username = linkedin_username
+
+        if profile_data.get('instagram_username', None):
+            instagram_username: str = profile_data.get('instagram_username', None)  # type: ignore
+            user_profile.instagram_username = instagram_username
+
         try:
             user_profile.clean_fields()
             user_profile.clean()
@@ -1060,14 +1582,16 @@ class UserProfile(Base):
 
         user_profile.save()
 
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "User Profile patched successfully")
         serializer = serializers.UserProfileSerializer(user_profile)
         data = serializer.data
         try:
             data['image'] = f"/media{user_profile.image.path.split('/media')[1]}"  # type: ignore
         except IndexError:
             data['image'] = None
-
-        return Response(data=data, status=status.HTTP_200_OK)
+        response_data['content'] = data
+        return Response(data=response_data, status=status.HTTP_200_OK)
 
     def put(self, request):
         """Put request"""
@@ -1130,31 +1654,34 @@ class UserProfile(Base):
                                      banned=profile_data.get(
                                          'banned', False),  # type: ignore
                                      must_reset_password=profile_data.get(
-                                         'must_reset_password', False)  # type: ignore
+                                         'must_reset_password', False),  # type: ignore
+                                     nationality=profile_data.get('nationality', ''),
+                                     cpf=profile_data.get('cpf', ''),
+                                     ctps=profile_data.get('ctps', ''),
+                                     phone_number=profile_data.get('phone_number', ''),
+                                     twitter_username=profile_data.get('twitter_username', ''),
+                                     facebook_username=profile_data.get('facebook_username', ''),
+                                     linkedin_username=profile_data.get('linkedin_username', ''),
+                                     instagram_username=profile_data.get('instagram_username', '')
                                      )
 
         if profile_data.get('image', None):
             profile.image = profile_data.get('image')  # type: ignore
 
-        if profile_data.get('badges', None):
-            for badge_id in profile_data.get('badges', []):  # type: ignore
-                try:
-                    badge = models.UserBadges.objects.get(pk=badge_id)
-                    profile.badges.add(badge)
-                except Exception:  # pylint: disable=W0718
-                    continue
-
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "User profile updated successfully")
         data = serializers.UserProfileSerializer(profile, many=False).data
         serializer = serializers.UserProfileSerializer(user_profile, data=data)
         if serializer.is_valid():
             serializer.save()
-            data = serializer.data
+            serializer_data = serializer.data
             try:
                 # type: ignore
-                data['image'] = f"/media{user_profile.image.path.split('/media')[1]}"
+                serializer_data['image'] = f"/media{user_profile.image.path.split('/media')[1]}"
             except IndexError:
-                data['image'] = None
-            return Response(data, status=status.HTTP_200_OK)
+                serializer_data['image'] = None
+            response_data['content'] = serializer_data
+            return Response(response_data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
@@ -1186,246 +1713,6 @@ class UserProfile(Base):
         return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_profile_str)
 
 
-# =================== Badges =================== #
-class BadgesSchema(AutoSchema):
-    """Schema for badges"""
-
-    def get_description(self, path: str, method: str) -> str:
-        authorization_info = """
-## Authorization:
-
-**Type:** API Key
-**Key:** "token"
-**Add to:** header
-"""
-        query_params_info = """
-## Query Parameters
-
-Inform PK if mentioning specific badge.
-
-"""
-        match method:
-            case 'GET':
-                responses = {
-                    "200": {
-                        'description': 'OK',
-                        'reason': 'Badge found'
-                    },
-                    "404": {
-                        'description': 'NOT FOUND',
-                        'reason': 'Bagde not found'
-                    }
-                }
-                return description_generator(title="Get all badges or a specific one",
-                                             description=query_params_info + authorization_info,
-                                             responses=responses)
-            case 'POST':
-                responses = {
-                    "201": {
-                        'description': 'CREATED',
-                        'reason': 'Badge successfully created'
-                    },
-                    "400": {
-                        'description': "BAD REQUEST",
-                        'reason': 'Invalid request body'
-                    }
-                }
-                return description_generator(title="Creates a badge",
-                                             description=authorization_info,
-                                             responses=responses)
-            case 'PUT':
-                responses = {
-                    "200": {
-                        'description': 'OK',
-                        'reason': 'Badge updated successfully'
-                    },
-                    "404": {
-                        'description': 'NOT FOUND',
-                        'reason': 'Badge ID not found'
-                    },
-                    "400": {
-                        'description': "BAD REQUEST",
-                        'reason': 'Invalid request body'
-                    }
-                }
-                return description_generator(title="Updates all data from a specific badge",
-                                             description=query_params_info + authorization_info,
-                                             responses=responses)
-            case 'DELETE':
-                responses = {
-                    "204": {
-                        'description': 'NO CONTENT',
-                        'reason': 'Badge successfully deleted'
-                    },
-                    "404": {
-                        'description': 'NOT FOUND',
-                        'reason': 'Badge ID not found'
-                    }
-                }
-                return description_generator(title="Deletes a badge",
-                                             description=query_params_info + authorization_info,
-                                             responses=responses)
-            case _:
-                return ''
-
-    def get_path_fields(self, path: str, method: str) -> list[coreapi.Field]:
-        match method:
-            case 'GET':
-                return [
-                    coreapi.Field(
-                        name="pk",
-                        location="query",
-                        required=False,
-                        schema=coreschema.Integer(minimum=1),
-                        description="Badge ID"
-                    )
-                ]
-            case 'POST':
-                return [
-                    coreapi.Field(
-                        name="name",
-                        location="form",
-                        required=True,
-                        schema=coreschema.String(20),
-                        description="Badge name"
-                    ), coreapi.Field(
-                        name="description",
-                        location='form',
-                        required=True,
-                        schema=coreschema.String(255),
-                        description="Badge description"
-                    ), coreapi.Field(
-                        name="color",
-                        location='form',
-                        required=True,
-                        schema=coreschema.String(7, format='#{0:06x}'),
-                        description="Badge color [HEX]"
-                    )
-                ]
-            case 'PUT':
-                return [
-                    coreapi.Field(
-                        name="pk",
-                        location="query",
-                        required=True,
-                        schema=coreschema.Integer(minimum=1),
-                        description="Badge ID"
-                    ),
-                    coreapi.Field(
-                        name="name",
-                        location="form",
-                        required=True,
-                        schema=coreschema.String(20),
-                        description="Badge name"
-                    ), coreapi.Field(
-                        name="description",
-                        location='form',
-                        required=True,
-                        schema=coreschema.String(255),
-                        description="Badge description"
-                    ), coreapi.Field(
-                        name="color",
-                        location='form',
-                        required=True,
-                        schema=coreschema.String(7, format='#{0:06x}'),
-                        description="Badge color [HEX]"
-                    )
-                ]
-            case 'DELETE':
-                return [
-                    coreapi.Field(
-                        name="pk",
-                        location="query",
-                        required=True,
-                        schema=coreschema.Integer(minimum=1),
-                        description="Badge ID"
-                    )
-                ]
-            case _:
-                return []
-
-
-class UserBadges(Base):
-    """Manage user badges"""
-
-    not_found_id_str = "Badge ID not found"
-
-    schema = BadgesSchema()
-
-    def get(self, request):
-        """Get request"""
-        primary_key = request.query_params.get('pk', None)
-
-        if (not primary_key) and (primary_key is not None):
-            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
-
-        if primary_key is None:
-            user_badges = models.UserBadges.objects.all()
-            serializer = serializers.UserBadgesSerializer(
-                user_badges, many=True)
-            return Response(data=serializer.data, status=status.HTTP_200_OK)
-
-        user_badge = models.UserBadges.objects.all().filter(pk=primary_key).first()
-        if user_badge is not None:
-            serializer = serializers.UserBadgesSerializer(user_badge)
-            return Response(data=serializer.data, status=status.HTTP_200_OK)
-        return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
-
-    def post(self, request):
-        """Post request"""
-        name = request.data.get('name', None)
-        description = request.data.get('description', None)
-        color = request.data.get('color', None)
-        badge = models.UserBadges(
-            name=name, description=description, color=color)
-        data = serializers.UserBadgesSerializer(badge, many=False).data
-
-        serializer = serializers.UserBadgesSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def put(self, request):
-        """Put request"""
-        primary_key = request.query_params.get('pk', None)
-
-        if not primary_key:
-            primary_key = request.data.get('pk', None)
-
-        if not primary_key:
-            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
-
-        user_badge = models.UserBadges.objects.all().filter(pk=primary_key).first()
-        if user_badge is None:
-            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
-
-        name = request.data.get('name', user_badge.name)
-        description = request.data.get('description', user_badge.description)
-        color = request.data.get('color', user_badge.color)
-        badge = models.UserBadges(
-            name=name, description=description, color=color)
-        data = serializers.UserBadgesSerializer(badge, many=False).data
-        serializer = serializers.UserBadgesSerializer(user_badge, data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request):
-        """Delete request"""
-        primary_key = request.query_params.get('pk', None)
-
-        if not primary_key:
-            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
-
-        user_badge = models.UserBadges.objects.all().filter(pk=primary_key).first()
-        if user_badge is not None:
-            user_badge.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
-
-
 # =================== Banned Users =================== #
 class BannedUsersSchema(AutoSchema):
     """Schema for banned users"""
@@ -1434,9 +1721,7 @@ class BannedUsersSchema(AutoSchema):
         authorization_info = """
 ## Authorization:
 
-**Type:** API Key
-**Key:** "token"
-**Add to:** header
+**Type:** Bearer
 """
         query_params_info = """
 ## Query Parameters
@@ -1669,3 +1954,492 @@ class BannedUsers(Base):
 
         return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
                                             self.not_found_slug_nor_id_str)
+
+
+# =================== User Management =================== #
+class UserManagementSchema(AutoSchema):
+    """Schema for user account"""
+
+    def get_description(self, path: str, method: str) -> str:
+        authorization_info = """
+## Authorization:
+
+**Type:** Bearer
+"""
+
+        match method:
+            case 'GET':
+                responses = {
+                    "200": {
+                        'description': 'OK',
+                        'reason': 'User account found'
+                    },
+                    "404": {
+                        'description': 'NOT FOUND',
+                        'reason': 'User account not found'
+                    }
+                }
+                return description_generator(title="Get a specific user account.",
+                                             description=authorization_info,
+                                             responses=responses)
+            case 'POST':
+                responses = {
+                    "201": {
+                        'description': 'CREATED',
+                        'reason': 'User account successfully created'
+                    },
+                    "400": {
+                        'description': "BAD REQUEST",
+                        'reason': 'Invalid request body'
+                    }
+                }
+                return description_generator(title="Create an user account",
+                                             description=authorization_info,
+                                             responses=responses)
+            case 'PATCH':
+                responses = {
+                    "200": {
+                        'description': 'OK',
+                        'reason': 'User account successfully updated'
+                    },
+                    "404": {
+                        'description': 'NOT FOUND',
+                        'reason': 'User account not found'
+                    },
+                    "400": {
+                        'description': "BAD REQUEST",
+                        'reason': 'Invalid request body'
+                    }
+                }
+                return description_generator(title="Update specific information from user account",
+                                             # noqa: E502
+                                             description=authorization_info,
+                                             responses=responses)
+            case 'PUT':
+                responses = {
+                    "200": {
+                        'description': 'OK',
+                        'reason': 'User account successfully updated'
+                    },
+                    "404": {
+                        'description': 'NOT FOUND',
+                        'reason': 'User account not found'
+                    },
+                    "400": {
+                        'description': "BAD REQUEST",
+                        'reason': 'Invalid request body'
+                    }
+                }
+                return description_generator(title="Update all data from user account",
+                                             # noqa: E502
+                                             description=authorization_info,
+                                             responses=responses)
+            case 'DELETE':
+                responses = {
+                    "204": {
+                        'description': 'NO CONTENT',
+                        'reason': 'User account successfully deleted'
+                    },
+                    "404": {
+                        'description': 'NOT FOUND',
+                        'reason': 'User account not found'
+                    }
+                }
+                return description_generator(title="Delete a specific user account",
+                                             description=authorization_info,
+                                             responses=responses)
+            case _:
+                return ''
+
+    def get_path_fields(self, path: str, method: str) -> list[coreapi.Field]:
+        match method:
+            case 'GET':
+                return [
+                    coreapi.Field(
+                        name="username",
+                        location="query",
+                        required=True,
+                        schema=coreschema.String(),
+                        description="User account's username"
+                    )
+                ]
+            case 'POST':
+                return [
+                    coreapi.Field(
+                        name="username",
+                        location="form",
+                        required=True,
+                        schema=coreschema.String(),
+                        description="User's account username"
+                    ),
+                    coreapi.Field(
+                        name="password",
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(2),
+                        description="User's password"
+                    ),
+                    coreapi.Field(
+                        name="email",
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(),
+                        description="Email address"
+                    ),
+                    coreapi.Field(
+                        name="name",
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(),
+                        description="User's Name"
+                    ),
+                    coreapi.Field(
+                        name="surname",
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(),
+                        description="User's last name"
+                    )
+                ]
+            case 'PATCH':
+                return [
+                    coreapi.Field(
+                        name="username",
+                        location="query",
+                        required=True,
+                        schema=coreschema.String(),
+                        description="User account's username"
+                    ),
+                    coreapi.Field(
+                        name="username",
+                        location="form",
+                        required=False,
+                        schema=coreschema.String(),
+                        description="User's account new username"
+                    ),
+                    coreapi.Field(
+                        name="password",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(2),
+                        description="User's password"
+                    ),
+                    coreapi.Field(
+                        name="email",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Email address"
+                    ),
+                    coreapi.Field(
+                        name="name",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="User's Name"
+                    ),
+                    coreapi.Field(
+                        name="surname",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="User's last name"
+                    )
+                ]
+            case 'PUT':
+                return [
+                    coreapi.Field(
+                        name="username",
+                        location="query",
+                        required=True,
+                        schema=coreschema.String(),
+                        description="User account's username"
+                    ),
+                    coreapi.Field(
+                        name="username",
+                        location="form",
+                        required=False,
+                        schema=coreschema.String(),
+                        description="User's account new username"
+                    ),
+                    coreapi.Field(
+                        name="password",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(2),
+                        description="User's password"
+                    ),
+                    coreapi.Field(
+                        name="email",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Email address"
+                    ),
+                    coreapi.Field(
+                        name="name",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="User's Name"
+                    ),
+                    coreapi.Field(
+                        name="surname",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="User's last name"
+                    )
+                ]
+            case 'DELETE':
+                return [
+                    coreapi.Field(
+                        name="username",
+                        location="query",
+                        required=True,
+                        schema=coreschema.String(),
+                        description="User account's username"
+                    )
+                ]
+            case _:
+                return []
+
+
+class UserManagement(Base):
+    """Manage user profile"""
+
+    not_found_str = "User account not found"
+
+    schema = UserManagementSchema()
+
+    def handle_user_data(self, request,
+                            # noqa
+                            bypass_required: bool = False) -> tuple[bool, dict[str, str | None] | \
+                                                                    Response]:
+        """Handle profile data"""
+        def generate_error_response(text: str) -> tuple[bool, Response]:
+            return (False, self.generate_basic_response(status.HTTP_400_BAD_REQUEST, text))
+
+        current_username = request.query_params.get('username', None)
+
+        # Required
+        username: str = request.data.get('username', None)
+        password: str = request.data.get('password', None)
+        email: str = request.data.get('email', None)
+        name: str = request.data.get('name', None)
+        surname: str = request.data.get('surname', None)
+
+        # Username validations
+        if not username and not bypass_required:
+            return generate_error_response('User username is required')
+
+        if not isinstance(username, str):
+            return generate_error_response('User username must be a string')
+
+        user: user_model | None = User.objects.all().filter(username=username).first()
+
+        if current_username is not None:
+            if user is not None and username != current_username:
+                return generate_error_response('This username already exist')
+        else:
+            if user is not None:
+                return generate_error_response('This username already exist')
+
+        # Password validations
+        if not password and not bypass_required:
+            return generate_error_response('Password is required')
+
+        if not isinstance(password, str):
+            return generate_error_response('Password must be a string')
+
+        # Email validations
+        if not email and not bypass_required:
+            return generate_error_response('Email is required')
+
+        if not isinstance(email, str):
+            return generate_error_response('Email must be a string')
+
+        # Name validations
+        if not name and not bypass_required:
+            return generate_error_response('Name is required')
+
+        if not isinstance(name, str):
+            return generate_error_response('Name must be a string')
+
+        # Surname validations
+        if not surname and not bypass_required:
+            return generate_error_response('Surname is required')
+
+        if not isinstance(surname, str):
+            return generate_error_response('Surname must be a string')
+
+        # Data conversion and handling
+        data: dict[str, str | None] = {
+            'username': username,
+            'password': password,
+            'email': email,
+            'name': name,
+            'surname': surname
+        }
+
+        return (True, data)
+
+    def get(self, request):
+        """Get request"""
+        username = request.query_params.get('username', None)
+
+        if username is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_str)
+
+        user_account = User.objects.all().filter(username=username).first()
+
+        if user_account is not None:
+            data = self.generate_basic_response_data(status.HTTP_200_OK, "User account found")
+            serializer = serializers.UserSerializer(user_account)
+            data['content'] = serializer.data
+            return Response(data=data, status=data.get('status', status.HTTP_200_OK))
+
+        return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_str)
+
+    def post(self, request):
+        """Post request"""
+        data_valid, data_or_response = self.handle_user_data(request)
+        if not data_valid:
+            return data_or_response
+
+        account_data = data_or_response
+
+        new_username = account_data.get('username', None)
+
+        account = User(username=new_username,
+                       email=account_data.get('email', ''),
+                       first_name=account_data.get('name', ''),
+                       last_name=account_data.get('surname', ''))
+
+        account.set_password(account_data.get('password', None))
+
+        response_data = self.generate_basic_response_data(status.HTTP_201_CREATED,
+                                                          "User account created successfully")
+        data = serializers.UserSerializer(account, many=False).data
+        serializer = serializers.UserSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            response_data['content'] = serializer.data
+            return Response(response_data,
+                            status=response_data.get('status', status.HTTP_201_CREATED))
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request):
+        """Patch request"""
+        username = request.query_params.get('username', None)
+
+        if username is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_str)
+
+        user_account = User.objects.all().filter(username=username).first()
+
+        if user_account is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_str)
+
+        data_valid, data_or_response = self.handle_user_data(
+            request, bypass_required=True)
+        if not data_valid:
+            return data_or_response
+
+        account_data = data_or_response
+
+        if account_data.get('username', None):
+            new_username: str = account_data.get('username', None)  # type: ignore
+            user_account.username = new_username  # type: ignore
+
+        if account_data.get('password', None):
+            password: str = account_data.get('password', None)  # type: ignore
+            if authenticate(request, username=username, password=password) is None:
+                user_account.set_password(password)
+
+        if account_data.get('email', None):
+            email: str = account_data.get('email', '')  # type: ignore
+            user_account.email = email  # type: ignore
+
+        if account_data.get('name', None):
+            name: str = account_data.get('name', 0)  # type: ignore
+            user_account.first_name = name  # type: ignore
+
+        if account_data.get('surname', None):
+            surname: str = account_data.get('surname', date.today())  # type: ignore
+            user_account.last_name = surname  # type: ignore
+
+        try:
+            user_account.clean_fields()  # type: ignore
+            user_account.clean()  # type: ignore
+        except ValidationError as err:
+            data = self.generate_basic_response_data(status.HTTP_400_BAD_REQUEST,
+                                                     'Patch data validation error')
+            data['errors'] = err
+            return Response(data=data, status=data.get('status'))
+
+        user_account.save()  # type: ignore
+
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "User Profile patched successfully")
+        serializer = serializers.UserSerializer(user_account)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        """Put request"""
+        username = request.query_params.get('username', None)
+
+        if username is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_str)
+
+        user_account = User.objects.all().filter(username=username).first()
+
+        if user_account is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_str)
+
+        data_valid, data_or_response = self.handle_user_data(request)
+        if not data_valid:
+            return data_or_response
+
+        account_data = data_or_response
+
+        new_username = account_data.get('username', None)
+
+        should_change_password = False
+
+        if authenticate(request,
+                        username=username,
+                        password=account_data.get('password', '')) is None:
+            should_change_password = True
+
+        account = User(username=new_username,
+                       email=account_data.get('email', ''),
+                       first_name=account_data.get('name', ''),
+                       last_name=account_data.get('surname', ''))
+
+        if should_change_password:
+            account.set_password(account_data.get('password', ''))
+
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "User account updated successfully")
+        data = serializers.UserSerializer(account, many=False).data
+        serializer = serializers.UserSerializer(user_account, data=data)
+        if serializer.is_valid():
+            serializer.save()
+            response_data['content'] = serializer.data
+            return Response(response_data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        """Delete request"""
+        username = request.query_params.get('username', None)
+
+        if username is not None:
+            user_account = User.objects.all().filter(username=username).first()
+
+            if user_account is not None:
+                user_account.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+
+        return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_str)

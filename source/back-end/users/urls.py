@@ -9,9 +9,13 @@ from . import views
 
 app_name = 'users'
 
+# localhost:8000/api/users/
 urlpatterns = [
-    # ========== Badges ========== #
-    path('badges/', views.UserBadges.as_view()),  # type: ignore
+    # ========== User Management ========== #
+    path("", views.UserManagement.as_view()),  # type: ignore
+
+    # ========== Auth ========== #
+    path("auth/", views.UserAuthentication.as_view()),  # type: ignore
 
     # ========== Bans ========== #
     path('bans/', views.BannedUsers.as_view()),  # type: ignore

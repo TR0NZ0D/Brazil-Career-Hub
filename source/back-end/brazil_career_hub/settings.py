@@ -27,21 +27,25 @@ SECRET_KEY = 'django-insecure-m*c&)8jt5gb19fq(bxtc1u1277cbrt=+*27gf@qfu-ly&uq%sz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '54.175.223.130', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    # --- Django Core --- #
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # --- Project Apps --- #
     'api',  # Base API app
     'api_admins',  # Administrators accounts for API management
     'users',  # User profile and account (prod clients)
+    'company',  # Company profile and account (prod clients)
+    # --- Other Libraries --- #
     'django_filters',
     'rest_framework',  # Toolkit for building web APIs
     'rest_framework_swagger',  # Swagger ui for API docs
@@ -58,7 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.locale.LocaleMiddleware'
 ]
 
 ROOT_URLCONF = 'brazil_career_hub.urls'
@@ -115,7 +119,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
-LANGUAGE_CODE = 'pt-BR'
+LANGUAGE_CODE = 'en'
 
 LANGUAGES = [
     ('pt-BR', 'Portuguese'),
@@ -162,6 +166,10 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'api.permissions.AuthenticateApiClient'
     ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication'
+    ],
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend'
     ]
@@ -179,7 +187,7 @@ SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
         "api_key": {
             "type": "apiKey",
-            "name": "token",
+            "name": "Authorization",
             "in": "header"
         }
     },
@@ -199,5 +207,7 @@ SWAGGER_SETTINGS = {
     ],
     'VALIDATOR_URL': '',
     'ACCEPT_HEADER_VERSION': version,
-    'CUSTOM_HEADERS': {}
+    'CUSTOM_HEADERS': {},
+    "api_version": version,
+    "api_path": "/api/"
 }

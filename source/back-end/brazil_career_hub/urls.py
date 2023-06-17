@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.views.generic import RedirectView
 from rest_framework_swagger.views import get_swagger_view  # type: ignore
 
 schema_url_patterns = [
@@ -24,7 +25,11 @@ schema_url_patterns = [
 swagger_view = get_swagger_view(title="Brazil Career Hub - API",
                                 patterns=schema_url_patterns)
 
+# localhost:8000/
 urlpatterns = [
+    # ========== Home screen ========== #
+    path('', RedirectView.as_view(pattern_name='swagger_docs', permanent=True)),
+
     # ========== API ========== #
     path('api/', include('api.urls')),
     path('api/docs/', swagger_view, name="swagger_docs"),  # type: ignore
