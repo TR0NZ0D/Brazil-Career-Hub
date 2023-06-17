@@ -1,7 +1,7 @@
 import { FC, FormEvent, useState } from 'react';
-import FieldMasker from '../../../utilities/FieldMasker';
-import GeneralValidator from '../../../utilities/GeneralValidator';
-import { languages, nationalities } from '../../../utilities/RelevantData';
+import FieldMasker from 'utilities/FieldMasker';
+import GeneralValidator from 'utilities/GeneralValidator';
+import { languages, nationalities } from 'utilities/RelevantData';
 import {
   Button,
   Checkbox,
@@ -17,16 +17,18 @@ import {
   TextField,
   Grid
 } from '@mui/material';
+import { UserAccount } from 'api/users/interfaces/user';
+import { createUserAccount } from 'api/users/user-requests';
 
 const UserForm: FC = () => {
 
   const [userName, setUserName] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [surname, setSurname] = useState<string>("");
-  const [age, setAge] = useState<number>(18);
+  const [age, setAge] = useState<number | string>("");
   const [gender, setGender] = useState<string>("");
   const [cpf, setCpf] = useState<string>("");
-  const [numberOfJobRegistration, setNumberOfJobRegistration] = useState<number>(0);
+  const [numberOfJobRegistration, setNumberOfJobRegistration] = useState<number | string>("");
   const [nationality, setNationality] = useState<string>("");
   const [languagesSpoken, setLanguagesSpoken] = useState<string[]>([]);
   const [email, setEmail] = useState<string>("");
@@ -34,6 +36,7 @@ const UserForm: FC = () => {
   const [portfolio, setPortfolio] = useState<string>("");
   const [socialMedia, setSocialMedia] = useState<string>("");
   const [contactPhone, setContactPhone] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
 
   const [userNameError, setUserNameError] = useState<boolean>(false);
   const [nameError, setNameError] = useState<boolean>(false);
@@ -41,6 +44,7 @@ const UserForm: FC = () => {
   const [cpfError, setCpfError] = useState<boolean>(false);
   const [numberOfJobRegistrationError, setNumberOfJobRegistrationError] = useState<boolean>(false);
   const [emailError, setEmailError] = useState<boolean>(false);
+  const [passwordError, setPasswordError] = useState<boolean>(false);
 
   function handleNotEmptyFieldsChange(val: string, setErrorCallback: (setVal: boolean) => void, minChar: number = 2) {
     if (val === undefined || val === null || val.length < minChar)
@@ -60,8 +64,11 @@ const UserForm: FC = () => {
       setLanguagesSpoken([...languagesSpoken, val]);
   }
 
-  function handleFormSubmit(e: FormEvent) {
+  async function handleFormSubmit(e: FormEvent) {
     e.preventDefault();
+
+    const user: UserAccount = { userName, password, email, name, surname };
+    // createUserAccount(user);
   }
 
   const languagesColumn1 = languages.slice(0, 31);
@@ -130,7 +137,13 @@ const UserForm: FC = () => {
           type="number"
           fullWidth
           value={age}
-          onChange={(e) => setAge(Number.parseInt(e.target.value))}
+          onChange={(e) => {
+            if (e.target.value === "")
+              setAge("");
+
+            else
+              setAge(Number.parseInt(e.target.value))
+          }}
         />
       </Grid>
 
@@ -315,6 +328,23 @@ const UserForm: FC = () => {
           fullWidth
           value={contactPhone}
           onChange={(e) => setContactPhone(e.target.value)}
+        />
+      </Grid>
+
+      <Grid item lg={6} md={6} sm={12}>
+        <TextField
+          required
+          id="password"
+          label="Password"
+          fullWidth
+          type="password"
+          value={password}
+          onChange={(e) => {
+            const text: string = e.target.value;
+            handleNotEmptyFieldsChange(text, setPasswordError, 5);
+            setPassword(e.target.value)
+          }}
+          helperText={passwordError ? "Your password must contain at least 5 chars" : ""}
         />
       </Grid>
 
