@@ -17,10 +17,29 @@ import {
   TextField,
   Grid
 } from '@mui/material';
-import { UserAccount } from 'api/users/interfaces/user';
+import UserAccount from 'models/User/UserAccount';
 import { createUserAccount } from 'api/users/user-requests';
 
-const UserForm: FC = () => {
+interface Props {
+  onSubmit: (
+    userName: string,
+    name: string,
+    surname: string,
+    age: number,
+    gender: string,
+    cpf: string,
+    numberOfJobRegistration: number,
+    email: string,
+    address: string,
+    nationality: string,
+    languages: string[],
+    portfolio: string,
+    socialMedia: string,
+    contact: string,
+    password: string) => void
+}
+
+const UserForm: FC<Props> = ({ onSubmit }: Props) => {
 
   const [userName, setUserName] = useState<string>("");
   const [name, setName] = useState<string>("");
@@ -46,7 +65,7 @@ const UserForm: FC = () => {
   const [emailError, setEmailError] = useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<boolean>(false);
 
-  function handleNotEmptyFieldsChange(val: string, setErrorCallback: (setVal: boolean) => void, minChar: number = 2) {
+  function handleNotEmptyFieldsChange(val: string, setErrorCallback: (setVal: boolean) => void, minChar: number = 2): void {
     if (val === undefined || val === null || val.length < minChar)
       setErrorCallback(true);
 
@@ -66,8 +85,10 @@ const UserForm: FC = () => {
 
   async function handleFormSubmit(e: FormEvent) {
     e.preventDefault();
+    onSubmit(userName, name, surname, age as number, gender, cpf,
+      numberOfJobRegistration as number, email, address, nationality, languages,
+      portfolio, socialMedia, contactPhone, password);
 
-    const user: UserAccount = { userName, password, email, name, surname };
     // createUserAccount(user);
   }
 

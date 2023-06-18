@@ -1,16 +1,16 @@
 import axios from 'axios';
-import { UserAccount } from './interfaces/user';
+import UserAccount from 'models/User/UserAccount';
 import { baseUrl } from '../../constants';
 
 function appendUserAccountToFormData(fData: FormData, user: UserAccount) {
   if (fData === undefined || fData === null)
     return;
 
-  fData.append("username", user.userName);
-  fData.append("password", user.password);
-  fData.append("email", user.email);
-  fData.append("name", user.name);
-  fData.append("surname", user.surname);
+  fData.append("username", user.userName!);
+  fData.append("password", user.password!);
+  fData.append("email", user.email!);
+  fData.append("name", user.name!);
+  fData.append("surname", user.surname!);
 }
 
 export function createUserAccount(user: UserAccount) {

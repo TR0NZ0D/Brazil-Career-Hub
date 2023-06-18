@@ -6,10 +6,39 @@ import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import UserForm from './components/UserForm';
 import CompanyForm from './components/CompanyForm';
+import UserAccount from 'models/User/UserAccount';
 
 const Signup: FC = () => {
 
   const [tabValue, setTabValue] = useState(0);
+  const [creatingAccount, setCreatingAccount] = useState<boolean>(false);
+
+  function handleCreateUserAccount(
+    userName: string,
+    name: string,
+    surname: string,
+    age: number,
+    gender: string,
+    cpf: string,
+    numberOfJobRegistration: number,
+    email: string,
+    address: string,
+    nationality: string,
+    languages: string[],
+    portfolio: string,
+    socialMedia: string,
+    contact: string,
+    password: string
+  ): void {
+    setCreatingAccount(true);
+
+    try {
+      const user: UserAccount = new UserAccount(userName, password, name, surname, email);
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <Grid container style={{ height: "100%" }}>
@@ -42,7 +71,7 @@ const Signup: FC = () => {
             </Typography>
 
             {tabValue === 0 &&
-              <UserForm />
+              <UserForm onSubmit={handleCreateUserAccount} />
             }
 
             {tabValue === 1 &&
