@@ -407,13 +407,6 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         description="User's CPF"
                     ),
                     coreapi.Field(
-                        name='ctps',
-                        location='form',
-                        required=False,
-                        schema=coreschema.String(20),
-                        description="User's CTPS"
-                    ),
-                    coreapi.Field(
                         name='phone_number',
                         location='form',
                         required=False,
@@ -598,13 +591,6 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         description="User's CPF"
                     ),
                     coreapi.Field(
-                        name='ctps',
-                        location='form',
-                        required=False,
-                        schema=coreschema.String(20),
-                        description="User's CTPS"
-                    ),
-                    coreapi.Field(
                         name='phone_number',
                         location='form',
                         required=False,
@@ -715,13 +701,6 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         required=False,
                         schema=coreschema.String(11),
                         description="User's CPF"
-                    ),
-                    coreapi.Field(
-                        name='ctps',
-                        location='form',
-                        required=False,
-                        schema=coreschema.String(20),
-                        description="User's CTPS"
                     ),
                     coreapi.Field(
                         name='phone_number',
@@ -845,13 +824,6 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         description="User's CPF"
                     ),
                     coreapi.Field(
-                        name='ctps',
-                        location='form',
-                        required=False,
-                        schema=coreschema.String(20),
-                        description="User's CTPS"
-                    ),
-                    coreapi.Field(
                         name='phone_number',
                         location='form',
                         required=False,
@@ -964,13 +936,6 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         description="User's CPF"
                     ),
                     coreapi.Field(
-                        name='ctps',
-                        location='form',
-                        required=False,
-                        schema=coreschema.String(20),
-                        description="User's CTPS"
-                    ),
-                    coreapi.Field(
                         name='phone_number',
                         location='form',
                         required=False,
@@ -1068,7 +1033,6 @@ class UserProfile(Base):
         must_reset_password: bool = request.data.get('reset_password', None)
         nationality: str = request.data.get('nationality', None)
         cpf: str = request.data.get('cpf', None)
-        ctps: str = request.data.get('ctps', None)
         phone_number: str = request.data.get('phone_number', None)
         twitter_username: str = request.data.get('twitter_username', None)
         facebook_username: str = request.data.get('facebook_username', None)
@@ -1249,13 +1213,6 @@ class UserProfile(Base):
             except ValueError:
                 return generate_error_response("CPF must be only numbers")
 
-        # CTPS validations
-        if ctps and not isinstance(ctps, str):
-            return generate_error_response("CTPS must be a string")
-
-        if ctps and len(ctps) > 20:
-            return generate_error_response("CTPS must have a max length of 20 characters")
-
         # Phone number validations
         if phone_number and not isinstance(phone_number, str):
             return generate_error_response("Phone number must be a string")
@@ -1316,7 +1273,6 @@ class UserProfile(Base):
             'must_reset_password': must_reset_password,
             'nationality': nationality,
             'cpf': cpf,
-            'ctps': ctps,
             'phone_number': phone_number,
             'twitter_username': twitter_username,
             'facebook_username': facebook_username,
@@ -1407,7 +1363,6 @@ class UserProfile(Base):
                                          'must_reset_password', False),  # type: ignore
                                      nationality=profile_data.get('nationality', ''),
                                      cpf=profile_data.get('cpf', ''),
-                                     ctps=profile_data.get('ctps', ''),
                                      phone_number=profile_data.get('phone_number', ''),
                                      twitter_username=profile_data.get('twitter_username', ''),
                                      facebook_username=profile_data.get('facebook_username', ''),
@@ -1547,10 +1502,6 @@ class UserProfile(Base):
             cpf: str = profile_data.get('cpf', None)  # type: ignore
             user_profile.cpf = cpf
 
-        if profile_data.get('ctps', None):
-            ctps: str = profile_data.get('ctps', None)  # type: ignore
-            user_profile.ctps = ctps
-
         if profile_data.get('phone_number', None):
             phone_number: str = profile_data.get('phone_number', None)  # type: ignore
             user_profile.phone_number = phone_number
@@ -1657,7 +1608,6 @@ class UserProfile(Base):
                                          'must_reset_password', False),  # type: ignore
                                      nationality=profile_data.get('nationality', ''),
                                      cpf=profile_data.get('cpf', ''),
-                                     ctps=profile_data.get('ctps', ''),
                                      phone_number=profile_data.get('phone_number', ''),
                                      twitter_username=profile_data.get('twitter_username', ''),
                                      facebook_username=profile_data.get('facebook_username', ''),

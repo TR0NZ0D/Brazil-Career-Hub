@@ -76,11 +76,6 @@ class UserProfile(models.Model):
                            blank=True,
                            max_length=11,
                            help_text="User's CPF")
-    ctps = models.CharField(verbose_name="CTPS",  # type: ignore
-                            null=True,
-                            blank=True,
-                            max_length=20,
-                            help_text="User's CTPS")
     phone_number = models.CharField(verbose_name="Phone Number",  # type: ignore
                                     null=True,
                                     blank=True,
