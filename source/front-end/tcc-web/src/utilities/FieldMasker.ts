@@ -2,7 +2,7 @@ class FieldMasker {
   static maskCpf(v: string) {
 
     if (v === null || v === "")
-      throw new Error("Invalid CPF")
+      return "";
 
     v = v.replace(/\D/g, "")
     if (v.length <= 11) {

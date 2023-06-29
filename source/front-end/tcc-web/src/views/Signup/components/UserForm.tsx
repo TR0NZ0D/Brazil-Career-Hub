@@ -1,4 +1,4 @@
-import { FC, FormEvent, useState } from 'react';
+import { FC, FormEvent, useState, useEffect } from 'react';
 import FieldMasker from 'utilities/FieldMasker';
 import GeneralValidator from 'utilities/GeneralValidator';
 import { languages, nationalities } from 'utilities/RelevantData';
@@ -17,8 +17,6 @@ import {
   TextField,
   Grid
 } from '@mui/material';
-import UserAccount from 'models/User/UserAccount';
-import { createUserAccount } from 'api/users/user-requests';
 
 interface Props {
   onSubmit: (
@@ -28,7 +26,6 @@ interface Props {
     age: number,
     gender: string,
     cpf: string,
-    numberOfJobRegistration: number,
     email: string,
     address: string,
     nationality: string,
@@ -47,7 +44,6 @@ const UserForm: FC<Props> = ({ onSubmit }: Props) => {
   const [age, setAge] = useState<number | string>("");
   const [gender, setGender] = useState<string>("");
   const [cpf, setCpf] = useState<string>("");
-  const [numberOfJobRegistration, setNumberOfJobRegistration] = useState<number | string>("");
   const [nationality, setNationality] = useState<string>("");
   const [languagesSpoken, setLanguagesSpoken] = useState<string[]>([]);
   const [email, setEmail] = useState<string>("");
@@ -57,13 +53,24 @@ const UserForm: FC<Props> = ({ onSubmit }: Props) => {
   const [contactPhone, setContactPhone] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
+  const [languagesColumn1, setLanguagesColumn1] = useState<string[]>([]);
+  const [languagesColumn2, setLanguagesColumn2] = useState<string[]>([]);
+  const [languagesColumn3, setLanguagesColumn3] = useState<string[]>([]);
+  const [languagesColumn4, setLanguagesColumn4] = useState<string[]>([]);
+
   const [userNameError, setUserNameError] = useState<boolean>(false);
   const [nameError, setNameError] = useState<boolean>(false);
   const [surnameError, setSurnameError] = useState<boolean>(false);
   const [cpfError, setCpfError] = useState<boolean>(false);
-  const [numberOfJobRegistrationError, setNumberOfJobRegistrationError] = useState<boolean>(false);
   const [emailError, setEmailError] = useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<boolean>(false);
+
+  useEffect(() => {
+    setLanguagesColumn1(languages.slice(0, 31));
+    setLanguagesColumn2(languages.slice(31, 62));
+    setLanguagesColumn3(languages.slice(62, 93));
+    setLanguagesColumn4(languages.slice(93, 123));
+  }, [languages])
 
   function handleNotEmptyFieldsChange(val: string, setErrorCallback: (setVal: boolean) => void, minChar: number = 2): void {
     if (val === undefined || val === null || val.length < minChar)
@@ -86,16 +93,9 @@ const UserForm: FC<Props> = ({ onSubmit }: Props) => {
   async function handleFormSubmit(e: FormEvent) {
     e.preventDefault();
     onSubmit(userName, name, surname, age as number, gender, cpf,
-      numberOfJobRegistration as number, email, address, nationality, languages,
+      email, address, nationality, languages,
       portfolio, socialMedia, contactPhone, password);
-
-    // createUserAccount(user);
   }
-
-  const languagesColumn1 = languages.slice(0, 31);
-  const languagesColumn2 = languages.slice(31, 62);
-  const languagesColumn3 = languages.slice(62, 93);
-  const languagesColumn4 = languages.slice(93, 123);
 
   return (
     <Grid container spacing={2} component="form" onSubmit={(e) => handleFormSubmit(e)}>
@@ -198,16 +198,6 @@ const UserForm: FC<Props> = ({ onSubmit }: Props) => {
           }}
           error={cpfError}
           helperText={cpfError ? "type a valid CPF" : ""}
-        />
-      </Grid>
-
-      <Grid item lg={6} md={6} sm={12}>
-        <TextField
-          id="job-id"
-          label="Number of your job registration"
-          fullWidth
-          value={numberOfJobRegistration}
-          onChange={(e) => setNumberOfJobRegistration(Number.parseInt(e.target.value))}
         />
       </Grid>
 
