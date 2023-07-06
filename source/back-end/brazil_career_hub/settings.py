@@ -156,7 +156,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS
 
-CORS_ALLOWED_ORIGINS = [f'https://{i}' for i in ALLOWED_HOSTS] \
+CORS_ALLOWED_ORIGINS = ['http://localhost:3000'] + [f'https://{i}' for i in ALLOWED_HOSTS] \
     + [f'http://{i}' for i in ALLOWED_HOSTS]
 
 # REST Framework
