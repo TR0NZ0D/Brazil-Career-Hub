@@ -1,10 +1,12 @@
-import Button from '@mui/material/Button';
+import Navbar from './components/Navbar/Navbar';
+import { ThemeProvider } from 'styled-components';
+import { theme } from './styles/theme';
 
 function App() {
   return (
-    <div className="App">
-      <Button>Hello</Button>
-    </div>
+    <ThemeProvider theme={theme}>
+      <Navbar />
+    </ThemeProvider>
   );
 }
 
