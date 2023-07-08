@@ -18,23 +18,22 @@ export async function getToken() {
   axios<TokenResponse>({
     method: "post",
     data: formData,
-    url: baseUrl + "/auth/token",
+    url: baseUrl + "/api/auth/token/",
     headers: {
-      username,
-      password,
+      username: username,
+      password: password,
       "Content-Type": "multipart/form-data",
     }
   })
     .then(resp => {
-      console.log(resp);
-      if (resp.status === 200) {
+      if (resp.status === 201) {
         return resp.data;
       }
 
-      return resp;
+      return undefined;
     })
-    .catch(resp => {
-      console.log(resp)
-      return resp;
+    .catch(error => {
+      console.log(error);
+      return undefined;
     })
 }
