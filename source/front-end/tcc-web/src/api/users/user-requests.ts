@@ -2,31 +2,29 @@ import axios from 'axios';
 import UserAccount from 'models/User/UserAccount';
 import { baseUrl } from '../../constants';
 
-function appendUserAccountToFormData(fData: FormData, user: UserAccount) {
-  if (fData === undefined || fData === null)
-    return;
-
-  fData.append("username", user.userName!);
-  fData.append("password", user.password!);
-  fData.append("email", user.email!);
-  fData.append("name", user.name!);
-  fData.append("surname", user.surname!);
+export async function getUserAccount(username: string, admToken: string) {
+  return await axios({
+    method: "get",
+    url: baseUrl + "/api/users?username=" + username,
+    headers: { "Authorization": "Bearer " + admToken }
+  })
 }
 
-export function createUserAccount(user: UserAccount) {
-  let formBody: FormData = new FormData();
-  appendUserAccountToFormData(formBody, user);
+export async function createUserAccount(user: UserAccount, admToken: string) {
 
-  axios({
+  return await axios({
     method: "post",
-    url: baseUrl + "/users",
-    data: formBody,
-    headers: { "Content-Type": "multipart/formData" }
+    url: baseUrl + "/api/users/",
+    data: {
+      "username": user.userName,
+      "password": user.password,
+      "email": user.email,
+      "name": user.name,
+      "surname": user.surname
+    },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + admToken
+    }
   })
-    .then(response => {
-
-    })
-    .catch(response => {
-      alert("Could not create your profile!");
-    })
 }

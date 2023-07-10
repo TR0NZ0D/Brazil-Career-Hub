@@ -15,7 +15,7 @@ export async function getToken() {
   formData.append("username", username);
   formData.append("password", password);
 
-  axios<TokenResponse>({
+  return await axios<TokenResponse>({
     method: "post",
     data: formData,
     url: baseUrl + "/api/auth/token/",
@@ -25,15 +25,4 @@ export async function getToken() {
       "Content-Type": "multipart/form-data",
     }
   })
-    .then(resp => {
-      if (resp.status === 201) {
-        return resp.data;
-      }
-
-      return undefined;
-    })
-    .catch(error => {
-      console.log(error);
-      return undefined;
-    })
 }

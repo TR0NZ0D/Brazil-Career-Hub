@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useState, useContext } from 'react';
 import Grid from '@mui/material/Grid';
 import Container from '@mui/material/Container';
 import Tabs from '@mui/material/Tabs';
@@ -8,16 +8,20 @@ import UserForm from './components/UserForm';
 import CompanyForm from './components/CompanyForm';
 import UserAccount from 'models/User/UserAccount';
 import { useNavigate } from 'react-router-dom';
-import { Box, CircularProgress } from '@mui/material';
+import { CircularProgress } from '@mui/material';
+import { AuthContext } from 'contexts/AuthContext';
+import { createUserAccount, getUserAccount } from 'api/users/user-requests';
 
 const Signup: FC = () => {
 
   const [tabValue, setTabValue] = useState(0);
   const [creatingAccount, setCreatingAccount] = useState<boolean>(false);
 
+  const { adminToken } = useContext(AuthContext);
+
   const navigate = useNavigate();
 
-  function handleCreateUserAccount(
+  async function handleCreateUserAccount(
     userName: string,
     name: string,
     surname: string,
@@ -32,17 +36,30 @@ const Signup: FC = () => {
     socialMedia: string,
     contact: string,
     password: string
-  ): void {
-    setCreatingAccount(true);
-
+  ) {
     try {
       setCreatingAccount(true);
-      const user: UserAccount = new UserAccount(userName, password, name, surname, email);
+
+      const userAcExists = await userAccountExists(userName!);
+      if (!userAcExists) {
+        const user: UserAccount = new UserAccount(userName, password, name, surname, email);
+        const resp = await createUserAccount(user, adminToken!);
+      }
+
       // navigate("/");
     } catch (error) {
       console.log(error);
     } finally {
-      // setCreatingAccount(false);
+      setCreatingAccount(false);
+    }
+  }
+
+  async function userAccountExists(username: string) {
+    try {
+      const response = await getUserAccount(username, adminToken!);
+      return response.status === 200;
+    } catch (error) {
+      return false;
     }
   }
 
