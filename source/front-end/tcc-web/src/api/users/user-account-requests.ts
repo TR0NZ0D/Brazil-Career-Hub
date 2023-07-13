@@ -11,7 +11,6 @@ export async function getUserAccount(username: string, admToken: string) {
 }
 
 export async function createUserAccount(user: UserAccount, admToken: string) {
-
   return await axios({
     method: "post",
     url: baseUrl + "/api/users/",
@@ -26,5 +25,13 @@ export async function createUserAccount(user: UserAccount, admToken: string) {
       "Content-Type": "application/json",
       "Authorization": "Bearer " + admToken
     }
+  })
+}
+
+export async function deleteUserAccount(username: string, admToken: string) {
+  return await axios({
+    method: "delete",
+    url: baseUrl + "/api/users?username=" + username,
+    headers: { "Authorization": "Bearer " + admToken }
   })
 }
