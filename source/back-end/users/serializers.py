@@ -7,9 +7,6 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
 
-from api.tools.constants import (DEFAULT_COVER_COLOR, DEFAULT_PRIMARY_COLOR,
-                                 DEFAULT_SECONDARY_COLOR, GENDERS)
-
 from . import models
 
 

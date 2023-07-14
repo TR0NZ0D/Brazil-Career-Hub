@@ -10,7 +10,7 @@ from typing import TypeAlias
 import coreapi  # type: ignore
 import coreschema  # type: ignore
 
-from django.contrib.auth import get_user_model, authenticate, login, logout
+from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.response import Response
@@ -1613,25 +1613,6 @@ class UserManagementSchema(AutoSchema):
                                              # noqa: E502
                                              description=authorization_info,
                                              responses=responses)
-
-                responses = {
-                    "200": {
-                        'description': 'OK',
-                        'reason': 'User account successfully updated'
-                    },
-                    "404": {
-                        'description': 'NOT FOUND',
-                        'reason': 'User account not found'
-                    },
-                    "400": {
-                        'description': "BAD REQUEST",
-                        'reason': 'Invalid request body'
-                    }
-                }
-                return description_generator(title="Update all data from user account",
-                                             # noqa: E502
-                                             description=authorization_info,
-                                             responses=responses)
             case 'DELETE':
                 responses = {
                     "204": {
@@ -1700,51 +1681,6 @@ class UserManagementSchema(AutoSchema):
                     )
                 ]
             case 'PATCH':
-                return [
-                    coreapi.Field(
-                        name="username",
-                        location="query",
-                        required=True,
-                        schema=coreschema.String(),
-                        description="User account's username"
-                    ),
-                    coreapi.Field(
-                        name="username",
-                        location="form",
-                        required=False,
-                        schema=coreschema.String(),
-                        description="User's account new username"
-                    ),
-                    coreapi.Field(
-                        name="password",
-                        location='form',
-                        required=False,
-                        schema=coreschema.String(2),
-                        description="User's password"
-                    ),
-                    coreapi.Field(
-                        name="email",
-                        location='form',
-                        required=False,
-                        schema=coreschema.String(),
-                        description="Email address"
-                    ),
-                    coreapi.Field(
-                        name="name",
-                        location='form',
-                        required=False,
-                        schema=coreschema.String(),
-                        description="User's Name"
-                    ),
-                    coreapi.Field(
-                        name="surname",
-                        location='form',
-                        required=False,
-                        schema=coreschema.String(),
-                        description="User's last name"
-                    )
-                ]
-
                 return [
                     coreapi.Field(
                         name="username",

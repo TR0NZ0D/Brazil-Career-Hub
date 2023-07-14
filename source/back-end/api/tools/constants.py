@@ -51,9 +51,9 @@ GENDERS = (
     ('NB', 'Non Binary')
 )
 
-DEFAULT_COVER_COLOR = "#1488ac"  # TODO: Change default color after defining color pallete
-DEFAULT_PRIMARY_COLOR = "#0b1524"  # TODO: Change default color after defining color pallete
-DEFAULT_SECONDARY_COLOR = "#c7c7c5"  # TODO: Change default color after defining color pallete
+DEFAULT_COVER_COLOR = "#1488ac"
+DEFAULT_PRIMARY_COLOR = "#0b1524"
+DEFAULT_SECONDARY_COLOR = "#c7c7c5"
 
 
 def __get_str_table(const: tuple[tuple[str, str], ...]) -> str:
