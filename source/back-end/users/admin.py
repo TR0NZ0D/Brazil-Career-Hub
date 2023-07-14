@@ -13,9 +13,17 @@ class ProfileAdmin(admin.ModelAdmin):
     list_display = ('tag', 'user', 'slug', 'age', 'banned', 'must_reset_password')
     list_display_links = ('tag', 'user')
     list_per_page = 35
-    list_filter = ('banned', 'must_reset_password', 'language', 'gender')
-    search_fields = ('slug', 'biography', 'company', 'locale', 'website')
+    list_filter = ('banned', 'must_reset_password', 'gender')
+    search_fields = ('slug', 'biography', 'company', 'locale', 'website', 'languages')
     readonly_fields = ('tag', 'slug', 'recovery_key')
+
+
+class LanguagesAdmin(admin.ModelAdmin):
+    """Admin model for profile"""
+    list_display = ('pk', 'language')
+    list_display_links = ('pk', 'language')
+    list_per_page = 35
+    search_fields = ('language',)
 
 
 class BannedUsersAdmin(admin.ModelAdmin):
@@ -30,3 +38,4 @@ class BannedUsersAdmin(admin.ModelAdmin):
 
 admin.site.register(models.UserProfile, ProfileAdmin)
 admin.site.register(models.BannedUsers, BannedUsersAdmin)
+admin.site.register(models.UserProfileLanguages, LanguagesAdmin)

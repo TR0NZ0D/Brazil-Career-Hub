@@ -42,8 +42,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
     email = serializers.SerializerMethodField()
     first_name = serializers.SerializerMethodField()
     last_name = serializers.SerializerMethodField()
-    language_display = serializers.CharField(source="get_language_display")
+    languages = serializers.SerializerMethodField()
     gender_display = serializers.CharField(source="get_gender_display")
+
+    def get_languages(self, obj) -> str:
+        """Get language string"""
+        return obj.languages.all().values_list('language')
 
     def get_username(self, obj) -> str:
         """Get user username string"""
@@ -66,7 +70,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = models.UserProfile
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'tag', 'age', 'birth_date',
                   'biography', 'company', 'locale', 'website', 'email_confirmed', 'slug',
-                  'recovery_key', 'language_display', 'gender_display', 'cover_color',
+                  'recovery_key', 'languages', 'gender_display', 'cover_color',
                   'primary_color', 'secondary_color', 'banned', 'cpf', 'must_reset_password',
                   'nationality', 'phone_number', 'twitter_username', 'facebook_username',
                   'linkedin_username', 'instagram_username']

@@ -19,8 +19,7 @@ from rest_framework.schemas.coreapi import AutoSchema
 from api.tools.api_tools import description_generator
 from api.tools.constants import (DEFAULT_COVER_COLOR, DEFAULT_PRIMARY_COLOR,
                                  DEFAULT_SECONDARY_COLOR, genders__str__,
-                                 genders_keys, supported_languages__str__,
-                                 supported_languages_keys)
+                                 genders_keys)
 from api.views import Base
 
 from . import models, serializers
@@ -217,10 +216,6 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
 
         choices_info = f"""
 
-## Supported languages
-
-{supported_languages__str__}
-
 ## Available genders
 
 {genders__str__}
@@ -344,11 +339,11 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         description="User's account username"
                     ),
                     coreapi.Field(
-                        name="language",
+                        name="languages",
                         location='form',
                         required=True,
-                        schema=coreschema.String(5),
-                        description="Supported language key"
+                        schema=coreschema.Array(coreschema.String(500)),
+                        description="The languages that the user speaks"
                     ),
                     coreapi.Field(
                         name="gender",
@@ -528,11 +523,11 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         description="User's account username"
                     ),
                     coreapi.Field(
-                        name="language",
+                        name="languages",
                         location='form',
                         required=True,
-                        schema=coreschema.String(5),
-                        description="Supported language key"
+                        schema=coreschema.Array(coreschema.String(500)),
+                        description="The languages that the user speaks"
                     ),
                     coreapi.Field(
                         name="gender",
@@ -761,11 +756,11 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         description="User's account username"
                     ),
                     coreapi.Field(
-                        name="language",
+                        name="languages",
                         location='form',
                         required=True,
-                        schema=coreschema.String(5),
-                        description="Supported language key"
+                        schema=coreschema.Array(coreschema.String(500)),
+                        description="The languages that the user speaks"
                     ),
                     coreapi.Field(
                         name="gender",
@@ -1013,7 +1008,7 @@ class UserProfile(Base):
 
         # Required
         username: str = request.data.get('user_username', None)
-        language: str = request.data.get('language', None)
+        languages: str = request.data.get('language', None)
         gender: str = request.data.get('gender', None)
 
         # Optionals
@@ -1051,16 +1046,6 @@ class UserProfile(Base):
 
         if user is None:
             return generate_error_response('This username does not exist')
-
-        # Language validations
-        if not language and not bypass_required:
-            return generate_error_response('Language is required')
-
-        if not isinstance(language, str):
-            return generate_error_response('Language must be a string')
-
-        if language not in supported_languages_keys:
-            return generate_error_response(f'Language {language} is not supported')
 
         # Gender validations
         if not gender and not bypass_required:
@@ -1253,9 +1238,9 @@ class UserProfile(Base):
                                            length of 30 characters")
 
         # Data conversion and handling
-        data: dict[str, user_model | str | int | list[int] | bool | date | None] = {
+        data: dict[str, user_model | str | int | list[int] | list[str] | bool | date | None] = {
             'user': user,
-            'language': language,
+            'languages': languages,
             'gender': gender,
             'birth_date': formatted_birth_date,
             'age': int(age),
@@ -1348,8 +1333,7 @@ class UserProfile(Base):
                                          'email_confirmed', False),  # type: ignore
                                      recovery_key=profile_data.get(
                                          'recovery_key', ''),
-                                     language=profile_data.get(
-                                         'language', 'pt-br'),
+                                     languages=profile_data.get('languages', None),
                                      gender=profile_data.get('gender', 'NI'),
                                      cover_color=profile_data.get(
                                          'cover_color', DEFAULT_COVER_COLOR),
@@ -1428,9 +1412,9 @@ class UserProfile(Base):
                 return self.generate_basic_response(status.HTTP_404_NOT_FOUND, 'User not found')
             user_profile.user = user
 
-        if profile_data.get('language', None):
-            language: str = profile_data.get('language', 'pt-br')  # type: ignore
-            user_profile.language = language
+        if profile_data.get('languages', None):
+            languages: str = profile_data.get('languages', None)  # type: ignore
+            user_profile.languages = languages
 
         if profile_data.get('gender', None):
             gender: str = profile_data.get('gender', 'NI')  # type: ignore
@@ -1593,8 +1577,7 @@ class UserProfile(Base):
                                          'email_confirmed', False),  # type: ignore
                                      recovery_key=profile_data.get(
                                          'recovery_key', ''),
-                                     language=profile_data.get(
-                                         'language', 'pt-br'),
+                                     languages=profile_data.get('languages', None),
                                      gender=profile_data.get('gender', 'NI'),
                                      cover_color=profile_data.get(
                                          'cover_color', DEFAULT_COVER_COLOR),
