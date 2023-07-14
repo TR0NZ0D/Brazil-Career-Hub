@@ -212,6 +212,7 @@ class UserProfile(models.Model):
             raise ValidationError(error_messages)
 
     def save(self, *args, **kwargs) -> None:
+        super().save(*args, **kwargs)
         if not self.slug:
             self.slug = str(
                 slugify(f'{self.user.get_username()}-{self.user.pk}'))

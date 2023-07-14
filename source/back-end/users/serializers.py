@@ -7,6 +7,9 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
 
+from api.tools.constants import (DEFAULT_COVER_COLOR, DEFAULT_PRIMARY_COLOR,
+                                 DEFAULT_SECONDARY_COLOR, GENDERS)
+
 from . import models
 
 
@@ -45,7 +48,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     languages = serializers.SerializerMethodField()
     gender_display = serializers.CharField(source="get_gender_display")
 
-    def get_languages(self, obj) -> str:
+    def get_languages(self, obj):
         """Get language string"""
         return obj.languages.all().values_list('language')
 
@@ -74,6 +77,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
                   'primary_color', 'secondary_color', 'banned', 'cpf', 'must_reset_password',
                   'nationality', 'phone_number', 'twitter_username', 'facebook_username',
                   'linkedin_username', 'instagram_username']
+
+
+class CreateUserProfileSerializer(serializers.ModelSerializer):
+    """Serializer for creating user profile"""
+
+    class Meta:
+        """Meta data for user profile serializer"""
+        model = models.UserProfile
+        fields = '__all__'
 
 
 class UserSerializer(serializers.ModelSerializer):
