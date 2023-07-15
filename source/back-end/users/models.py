@@ -12,10 +12,22 @@ from django.utils.text import slugify
 
 from api.tools.api_tools import resize_image
 from api.tools.constants import (DEFAULT_COVER_COLOR, DEFAULT_PRIMARY_COLOR,
-                                 DEFAULT_SECONDARY_COLOR, GENDERS,
-                                 SUPPORTED_LANGUAGES)
+                                 DEFAULT_SECONDARY_COLOR, GENDERS)
 
 User = get_user_model()
+
+
+class UserProfileLanguages(models.Model):
+    language = models.CharField(verbose_name="Language",  # type: ignore
+                                max_length=500)
+
+    def __str__(self) -> str:
+        return self.language
+
+    class Meta:
+        """Meta data for user profile"""
+        verbose_name = 'Language'
+        verbose_name_plural = "Languages"
 
 
 class UserProfile(models.Model):
@@ -132,12 +144,8 @@ class UserProfile(models.Model):
                                     editable=False,
                                     help_text="This is the user's recovery key \
                                         used in password and account recovery process.")
-    language = models.CharField(verbose_name="Language",  # type: ignore
-                                max_length=5,
-                                choices=SUPPORTED_LANGUAGES,
-                                default='pt-br',
-                                help_text="This is the user's language, \
-                                    can be used to communicate and / or translate the website")
+    languages = models.ManyToManyField(UserProfileLanguages,
+                                       blank=True)
     gender = models.CharField(verbose_name="Gender",  # type: ignore
                               max_length=2,
                               choices=GENDERS,
@@ -204,6 +212,7 @@ class UserProfile(models.Model):
             raise ValidationError(error_messages)
 
     def save(self, *args, **kwargs) -> None:
+        super().save(*args, **kwargs)
         if not self.slug:
             self.slug = str(
                 slugify(f'{self.user.get_username()}-{self.user.pk}'))
