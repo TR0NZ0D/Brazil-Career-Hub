@@ -13,4 +13,6 @@ app_name = 'company'
 urlpatterns = [
     # ========== Company Account ========== #
     path('', views.CompanyAccount.as_view()),  # type: ignore
+    # ========== Company Profile ========== #
+    path('profile/', views.CompanyProfile.as_view()),  # type: ignore
 ]
