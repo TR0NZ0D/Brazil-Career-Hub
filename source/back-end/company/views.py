@@ -10,7 +10,10 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.schemas.coreapi import AutoSchema
 
-from api.tools.constants import (registration_status__str__, legal_nature__str__)
+from tr0nz0d.tools.cnpj import CNPJ
+from django.core.exceptions import ValidationError
+
+from api.tools.constants import (registration_status__str__, legal_nature__str__, registration_status_keys, legal_nature_keys)
 from api.tools.api_tools import description_generator
 from api.views import Base
 
@@ -134,7 +137,7 @@ Inform PK or slug if mentioning specific company account, PK will prevail if bot
             case 'POST':
                 return [
                     coreapi.Field(
-                        name="cpnj",
+                        name="cnpj",
                         location="form",
                         required=True,
                         schema=coreschema.String(15),
@@ -193,7 +196,7 @@ Inform PK or slug if mentioning specific company account, PK will prevail if bot
                         description="Company Account slug"
                     ),
                     coreapi.Field(
-                        name="cpnj",
+                        name="cnpj",
                         location="form",
                         required=False,
                         schema=coreschema.String(15),
@@ -265,6 +268,58 @@ class CompanyAccount(Base):
     not_found_slug_str = "Company account slug not found"
     not_found_account_str = "Company account not found"
 
+    def handle_account_data(self, request, bypass_required):
+        
+        def generate_error_response(text:str):
+            return (False, self.generate_basic_response(status.HTTP_400_BAD_REQUEST, text))
+        # Required
+        cnpj = request.data.get("cnpj", None)
+        corporate = request.data.get("corporate_name", None)
+        fantasy = request.data.get("fantasy_name", None)
+        cnae = request.data.get("cnae", None)
+        # Optionals
+        registration = request.data.get("registration_status", "1")
+        legal_nature = request.data.get("legal_nature", "EI")
+        if not cnpj and not bypass_required:
+            return generate_error_response("CNPJ is required")
+        if cnpj and not CNPJ().validar(str(cnpj)):
+            return generate_error_response("CNPJ is invalid")
+        if cnpj and models.CompanyAccountModel.objects.filter(cnpj=cnpj).exists():
+            return generate_error_response("CNPJ is already registered")
+        if not corporate and not bypass_required:
+            return generate_error_response("Corporate name is required")
+        if corporate and len(corporate) > 100:
+            return generate_error_response("Corporate name must up to 100 characters")
+        if not fantasy and not bypass_required:
+            return generate_error_response("Fantasy name is required")
+        if fantasy and len(fantasy) > 60:
+            return generate_error_response("Fantasy name must up to 60 characters")
+        if not cnae and not bypass_required:
+            return generate_error_response("CNAE is required")
+        if cnae:
+            try:
+                cnae = int(cnae)
+            except ValueError:
+                return generate_error_response("CNAE must be an integer")
+        if registration and not isinstance(registration, str):
+            return generate_error_response("Registration status must be a String")
+        if registration and registration not in registration_status_keys:
+            return generate_error_response(f"Registration status {registration} is not available")
+        if legal_nature and not isinstance(legal_nature, str):
+            return generate_error_response("Legal nature must be a String")
+        if legal_nature and legal_nature not in legal_nature_keys:
+            return generate_error_response(f"Legal nature {legal_nature} is not available")
+        data = {
+            "cnpj" : cnpj,
+            "corporate" : corporate,
+            "fantasy" : fantasy,
+            "cnae" : cnae,
+            "registration" : registration,
+            "legal_nature" : legal_nature
+        }
+
+        return (True, data)
+
     def get(self, request):
         """Get request"""
         primary_key = request.query_params.get('pk', None)
@@ -298,10 +353,89 @@ class CompanyAccount(Base):
         return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_account_str)
     
     def post(self, request): 
-        pass
-    
+        data_valid, data_or_response = self.handle_account_data(request, False)
+        if not data_valid:
+            return data_or_response
+        account_data = data_or_response
+        cnpj = account_data.get("cnpj", None)
+        corporate = account_data.get("corporate", None)
+        fantasy = account_data.get("fantasy", None)
+        cnae = account_data.get("cnae", None)
+        registration = account_data.get("registration", "1")
+        legal_nature = account_data.get("legal_nature", "EI")
+
+        account = models.CompanyAccountModel(
+            cnpj=cnpj,
+            corporate_name=corporate,
+            registration_status=registration,
+            fantasy_name=fantasy,
+            cnae=cnae,
+            legal_nature=legal_nature
+        )
+        response_data = self.generate_basic_response_data(status.HTTP_201_CREATED, "Company account created successfully")
+        data = serializers.createCompanyAccountSerializer(account, many=False).data
+        serializer = serializers.createCompanyAccountSerializer(data=data)
+        if serializer.is_valid():
+            account.save()
+            data = serializers.CompanyAccountSerializer(account, many=False).data
+            response_data["content"] = data
+            return Response(response_data, status=response_data.get("status", status.HTTP_201_CREATED))
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+              
     def patch(self, request): 
-        pass
+        primary_key = request.query_params.get('pk', None)
+        if primary_key is None:
+            slug = request.query_params.get('slug', None)
+            if slug is None:
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_slug_nor_id_str)
+            if not slug:
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_slug_str)
+            company_account = models.CompanyAccountModel.objects.all().filter(slug=slug).first()
+        else:
+            if not primary_key:
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_id_str)
+            company_account = models.CompanyAccountModel.objects.all() \
+                .filter(pk=primary_key).first()
+        if company_account is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_account_str)
+        data_valid, data_or_response = self.handle_account_data(request, True)
+        if not data_valid:
+            return data_or_response
+        account_data = data_or_response
+        
+        if account_data.get("cnpj", None):
+            cnpj = account_data.get("cnpj", None)
+            company_account.cnpj = cnpj
+        if account_data.get("corporate", None):
+            corporate = account_data.get("corporate", None)
+            company_account.corporate_name = corporate
+        if account_data.get("fantasy", None):
+            fantasy = account_data.get("fantasy", None)
+            company_account.fantasy_name = fantasy
+        if account_data.get("cnae", None):
+            cnae = account_data.get("cnae", None)
+            company_account.cnae = cnae
+        if account_data.get("registration", None):
+            registration = account_data.get("registration", "1")
+            company_account.registration_status = registration
+        if account_data.get("legal_nature", None):
+            legal_nature = account_data.get("legal_nature", "EI")
+            company_account.legal_nature = legal_nature
+        try:
+            company_account.clean_fields()
+            company_account.clean()
+        except ValidationError as error:
+            data = self.generate_basic_response_data(status.HTTP_400_BAD_REQUEST, "Patch data validation error")
+            data["errors"] = error
+            return Response(data=data,status=data.get("status"))
+        company_account.save()
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK, "Company account patched successfully")
+        serializer = serializers.CompanyAccountSerializer(company_account)
+        response_data["content"] = serializer.data
+        return Response(data=response_data, status=status.HTTP_200_OK)
     
     def delete(self, request): 
         primary_key = request.query_params.get('pk', None)

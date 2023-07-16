@@ -20,6 +20,11 @@ class CompanyAccountSerializer(serializers.ModelSerializer):
         fields = ['id', 'cnpj', 'corporate_name', 'registration_status_display', 'fantasy_name',
                   'cnae', 'legal_nature_display', 'slug']
 
+class createCompanyAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CompanyAccountModel
+        fields = "__all__"
+
 
 class CompanyProfileSerializer(serializers.ModelSerializer):
 
