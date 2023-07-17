@@ -67,3 +67,85 @@ class CompanyAccountModel(models.Model):
         """Meta class for company account model"""
         verbose_name = 'Company Account'
         verbose_name_plural = 'Company Accounts'
+
+
+class CompanyAddress(models.Model):
+    title = models.CharField(verbose_name="Title", 
+                             max_length=255)
+    address = models.CharField(verbose_name="Address", 
+                               max_length=255)
+    number = models.PositiveIntegerField(verbose_name="Number", 
+                                         blank=True,
+                                         null=True)
+    
+    def __str__(self) -> str:
+        return self.title
+
+    class Meta:
+        """Meta class for company account model"""
+        verbose_name = 'Company Address'
+        verbose_name_plural = 'Company Addresses'
+
+
+class CompanySocialMedia(models.Model):
+    title = models.CharField(verbose_name="Title", 
+                             max_length=255)
+    url = models.URLField(verbose_name="Website URL")
+    username = models.CharField(verbose_name="Company's username", 
+                                max_length=255)
+    
+    def __str__(self) -> str:
+        return self.title
+
+    class Meta:
+        """Meta class for company account model"""
+        verbose_name = 'Company Social media Account'
+        verbose_name_plural = 'Company Social media Accounts'
+
+
+class CompanyProfileModel(models.Model):
+    company_account = models.OneToOneField(CompanyAccountModel,  # type: ignore
+                                           verbose_name="Company Account",
+                                           on_delete=models.CASCADE,
+                                           help_text=(
+                                               "The company account related to this profile"),
+                                           error_messages={"unique": "Company already has a profile."})
+    address = models.ManyToManyField(CompanyAddress, 
+                                     blank=True, 
+                                     verbose_name="Address")
+    contact = models.CharField(verbose_name="Contact",
+                               max_length=255,
+                               null=True,
+                               blank=True,
+                               help_text="The company contact information i.e. an email or phone number.")
+    creation_date = models.DateField(verbose_name="Creation Date",  # type: ignore
+                                     auto_now=False,
+                                     auto_now_add=False,
+                                     blank=True,
+                                     null=True,
+                                     help_text="This is the company's creation date")
+    financial_capital = models.FloatField(verbose_name="Financial capital",  # type: ignore
+                                          null=True,
+                                          blank=True)
+    employees = models.PositiveIntegerField(verbose_name="Company's employee number",  # type: ignore
+                                    null=True,
+                                    blank=True)
+    site_url = models.URLField(verbose_name="Company's website URL",
+                               blank=True,
+                               null=True)
+    social_media = models.ManyToManyField(CompanySocialMedia,
+                                          blank=True,
+                                          verbose_name="Company's social media accounts")
+    
+    def __str__(self) -> str:
+        return f"{self.company_account.fantasy_name}'s company profile"
+
+    class Meta:
+        """Meta class for company account model"""
+        verbose_name = 'Company Profile'
+        verbose_name_plural = 'Company Profiles'
+
+
+
+
+    
