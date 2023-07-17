@@ -1,4 +1,4 @@
-﻿asgiref==3.7.2
+asgiref==3.7.2
 astroid==2.15.5
 attrs==23.1.0
 autopep8==2.0.2
@@ -35,7 +35,7 @@ mypy-extensions==1.0.0
 mysqlclient==2.2.0
 openapi==1.1.0
 openapi-codec==1.3.2
-Pillow==9.5.0
+Pillow==10.0.0
 platformdirs==3.8.1
 pycodestyle==2.10.0
 pycparser==2.21
