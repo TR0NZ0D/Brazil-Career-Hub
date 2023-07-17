@@ -12,6 +12,8 @@ from rest_framework.schemas.coreapi import AutoSchema
 
 from tr0nz0d.tools.cnpj import CNPJ
 from django.core.exceptions import ValidationError
+import json
+from datetime import date
 
 from api.tools.constants import (registration_status__str__, legal_nature__str__, registration_status_keys, legal_nature_keys)
 from api.tools.api_tools import description_generator
@@ -577,7 +579,7 @@ Inform PK or slug if mentioning specific company account, PK will prevail if bot
                         location='form',
                         required=False,
                         schema=coreschema.Array(coreschema.String(255)),
-                        description="Company's address list (Array should contain two strings and an integer)"
+                        description="Company's address list (JSON should contain two strings and an integer)"
                     ),
                     coreapi.Field(
                         name="contact",
@@ -619,7 +621,7 @@ Inform PK or slug if mentioning specific company account, PK will prevail if bot
                         location='form',
                         required=False,
                         schema=coreschema.Array(coreschema.String(255)),
-                        description="Company's social media list (Array should contain three Strings)"
+                        description="Company's social media list (JSON should contain three Strings)"
                     )
                 ]
             case 'PATCH':
@@ -643,7 +645,7 @@ Inform PK or slug if mentioning specific company account, PK will prevail if bot
                         location='form',
                         required=False,
                         schema=coreschema.Array(coreschema.String(255)),
-                        description="Company's address list (Array should contain two strings and an integer)"
+                        description="Company's address list (JSON should contain two strings and an integer)"
                     ),
                     coreapi.Field(
                         name="contact",
@@ -685,7 +687,7 @@ Inform PK or slug if mentioning specific company account, PK will prevail if bot
                         location='form',
                         required=False,
                         schema=coreschema.Array(coreschema.String(255)),
-                        description="Company's social media list (Array should contain three Strings)"
+                        description="Company's social media list (JSON should contain three Strings)"
                     )
                 ]
             case 'DELETE':
@@ -707,6 +709,137 @@ class CompanyProfile(Base):
     not_found_id_str = "Company profile ID not found"
     not_found_account_str = "Company profile not found"
 
+    def handle_account_data(self, request, bypass_required):
+        
+        def generate_error_response(text:str):
+            return (False, self.generate_basic_response(status.HTTP_400_BAD_REQUEST, text))
+        # Required
+        company_pk = request.data.get("company_id", None)
+        # Optionals
+        address = request.data.get("address", None)
+        contact = request.data.get("contact", None)
+        creation_date = request.data.get("creation_date", None)
+        financial_capital = request.data.get("financial_capital", None)
+        employees = request.data.get("employees", None)
+        site_url = request.data.get("site_url", None)
+        social_media = request.data.get("social_media", None)
+        if not company_pk and not bypass_required:
+            return generate_error_response("Company account primary key is required")
+        if company_pk and not models.CompanyAccountModel.objects.filter(pk=company_pk).exists():
+            return generate_error_response("Company account not found")
+        company_obj = models.CompanyAccountModel.objects.filter(pk=company_pk).first()
+        if address:
+            address_list = []
+            try:
+                for address_json in address:
+                    address_list.append(address_json)
+            except Exception as e:
+                return generate_error_response(f"Could not parse address JSON: {e}")
+        else:
+            address_list = None
+        if contact and not isinstance(contact, str):
+            return generate_error_response("Contact should be a String")
+        if creation_date and not isinstance(creation_date, str):
+            return generate_error_response("Creation date should be a String")
+        if creation_date:
+            try:
+                formatted_creation_date = date.fromisoformat(creation_date)
+            except ValueError:
+                return generate_error_response("Creation date must follow the iso 8601 format (yyyy-mm-dd)")
+        else: 
+            formatted_creation_date = None
+        if financial_capital and not isinstance(financial_capital, float):
+            return generate_error_response("Financial capital should be a float")
+        if employees and not isinstance(employees, int):
+            return generate_error_response("Employee number should be an integer")
+        if site_url and not isinstance(site_url, str):
+            return generate_error_response("Site URL should be a String")
+        if site_url and not str(site_url).startswith("http"):
+            return generate_error_response("Site URL is not valid")
+        if social_media:
+            social_list = []
+            try:
+                for social in social_media:
+                    social_list.append(social)                
+            except Exception as e:
+                return generate_error_response(f"Could not parse social media JSON: {e}")
+        else:
+            social_list = None
+        data = {
+            "company": company_obj,
+            "address": address_list,
+            "contact": contact,
+            "creation_date": formatted_creation_date,
+            "financial_capital": financial_capital,
+            "employees": employees,
+            "site_url": site_url,
+            "social_media": social_list
+        }
+        return (True, data)
+
+    def generateManyToMany(self, profile_data, profile, just_address=False, just_social=False):
+        address_dict = profile_data.get("address", None)
+        if address_dict is not None and not just_social:
+            addresses_obj = []
+            has_address_errors = False
+            for addressV in address_dict:
+                title = addressV.get("title", None)
+                address = addressV.get("address", None)
+                number = addressV.get("number", None)
+                if title is None or address is None or number is None:
+                    has_address_errors = True
+                    continue
+                if not isinstance(title, str) or not isinstance(address, str):
+                    has_address_errors = True
+                    continue
+                try:
+                    number = int(number)
+                except ValueError:
+                    has_address_errors = True
+                    continue
+                addr_obj = models.CompanyAddress.objects.create(
+                    title=title,
+                    address=address,
+                    number=number
+                )
+                addresses_obj.append(addr_obj)
+            if has_address_errors:
+                return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, 
+                                                    'Issues when creating addresses from JSON. Ensure that the JSON has the format: \
+                                                        [{"title":String,"address":String,"number":int}]')
+            if addresses_obj:
+                for addr in addresses_obj:
+                    profile.address.add(addr)
+                profile.save()
+        social_media_dict = profile_data.get("social_media", None)
+        if social_media_dict is not None and not just_address:
+            social_medias_obj = []
+            has_smedia_errors = False
+            for smediaV in social_media_dict:
+                title = smediaV.get("title", None)
+                url = smediaV.get("url", None)
+                username = smediaV.get("username", None)
+                if title is None or url is None or username is None:
+                    has_smedia_errors = True
+                    continue
+                if not isinstance(title, str) or not isinstance(url, str) or not isinstance(username, str):
+                    has_smedia_errors = True
+                    continue
+                smedia_obj = models.CompanySocialMedia.objects.create(
+                    title=title,
+                    url=url,
+                    username=username
+                )
+                social_medias_obj.append(smedia_obj)
+            if has_smedia_errors:
+                return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, 
+                                                    'Issues when creating social medias from JSON. Ensure that the JSON has the format: \
+                                                        [{"title":String,"url":String,"username":String}]')
+            if social_medias_obj:
+                for smedia in social_medias_obj:
+                    profile.social_media.add(smedia)
+                profile.save()
+
     def get(self, request, *args, **kwargs):
         pk = request.query_params.get("pk", None)
         if not pk:
@@ -720,10 +853,92 @@ class CompanyProfile(Base):
         return Response(data=response_data, status=status.HTTP_200_OK)
     
     def post(self, request): 
-        pass
-    
+        data_valid, data_or_response = self.handle_account_data(request, False)
+        if not data_valid:
+            return data_or_response
+        profile_data = data_or_response
+        company_obj = profile_data.get("company", None) 
+        contact = profile_data.get("contact", None)
+        creation_date = profile_data.get("creation_date", None)
+        financial_capital = profile_data.get("financial_capital", None)
+        employees = profile_data.get("employees", None)
+        site_url = profile_data.get("site_url", None)
+
+        if company_obj is None:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, "Company account not found")
+        if not isinstance(company_obj, models.CompanyAccountModel):
+            return self.generate_basic_response(status.HTTP_500_INTERNAL_SERVER_ERROR, "Account with invalid type")
+        
+        profile = models.CompanyProfileModel(
+            company_account=company_obj,
+            contact=contact,
+            creation_date=creation_date,
+            financial_capital=financial_capital,
+            employees=employees,
+            site_url=site_url
+        )
+        response_data = self.generate_basic_response_data(status.HTTP_201_CREATED, "Company profile created successfully")
+        data = serializers.createCompanyProfileSerializer(profile, many=False).data
+        serializer = serializers.createCompanyProfileSerializer(data=data)
+        if serializer.is_valid():
+            profile.save()
+            self.generateManyToMany(profile_data, profile)
+            data = serializers.CompanyProfileSerializer(profile, many=False).data
+            response_data["content"] = data
+            return Response(response_data, status=response_data.get("status", status.HTTP_201_CREATED))
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
     def patch(self, request): 
-        pass
+        pk = request.query_params.get("pk", None)
+        if not pk:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
+        company_profile = models.CompanyProfileModel.objects.filter(pk=pk).first()
+        if company_profile is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_account_str)
+        data_valid, data_or_response = self.handle_account_data(request, True)
+        if not data_valid:
+            return data_or_response
+        profile_data = data_or_response
+        
+        if profile_data.get("company", None):
+            company_obj = profile_data.get("company", None) 
+            company_profile.company_account = company_obj
+        if profile_data.get("contact", None):
+            contact = profile_data.get("contact", None)
+            company_profile.contact = contact
+        if profile_data.get("creation_date", None):
+            creation_date = profile_data.get("creation_date", None)
+            company_profile.creation_date = creation_date
+        if profile_data.get("financial_capital", None):
+            financial_capital = profile_data.get("financial_capital", None)
+            company_profile.financial_capital = financial_capital
+        if profile_data.get("employees", None):
+            employees = profile_data.get("employees", None)
+            company_profile.employees = employees
+        if profile_data.get("site_url", None):
+            site_url = profile_data.get("site_url", None)
+            company_profile.site_url = site_url 
+        if profile_data.get("address", None):
+            company_profile.address.clear()
+            company_profile.save()
+            self.generateManyToMany(profile_data, company_profile, just_address=True)
+        if profile_data.get("social_media", None):
+            company_profile.social_media.clear()
+            company_profile.save()
+            self.generateManyToMany(profile_data, company_profile, just_social=True)
+        company_profile.save()
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK, "Company profile patched successfully")
+        serializer = serializers.CompanyProfileSerializer(company_profile)
+        response_data["content"] = serializer.data
+        return Response(data=response_data, status=status.HTTP_200_OK)
+
+
+
+
+        
+        
     
     def delete(self, request): 
         pk = request.query_params.get("pk", None)

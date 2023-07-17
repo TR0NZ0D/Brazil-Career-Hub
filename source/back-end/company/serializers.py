@@ -71,3 +71,8 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
         fields = ['cnpj', 'corporate_name', 'registration_status_display', 'fantasy_name',
                   'cnae', 'legal_nature_display', 'slug', "id", "company_account", "addresses", 
                   "contact", "creation_date", "financial_capital", "employees", "site_url", "social_medias"]
+
+class createCompanyProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CompanyProfileModel
+        fields = "__all__"
