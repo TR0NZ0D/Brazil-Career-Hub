@@ -29,26 +29,13 @@ const Signup: FC = () => {
             <Tab label="I wanna hire!" />
           </Tabs>
 
-          <Container style={{ padding: "4% 2% 2% 2%" }}>
-            <Typography
-              variant="h5"
-              gutterBottom
-              style={{
-                marginBottom: "3%",
-                fontWeight: "bolder"
-              }}
-            >
-              Sign Up
-            </Typography>
+          {tabValue === 0 &&
+            <UserForm />
+          }
 
-            {tabValue === 0 &&
-              <UserForm />
-            }
-
-            {tabValue === 1 &&
-              <CompanyForm />
-            }
-          </Container>
+          {tabValue === 1 &&
+            <CompanyForm />
+          }
         </Container>
       </Grid>
 
