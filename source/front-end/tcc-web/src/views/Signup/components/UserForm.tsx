@@ -399,7 +399,7 @@ const UserForm: FC = () => {
             </Grid>
 
             <Grid item lg={6} md={6} sm={12}>
-              <FormControl fullWidth>
+              <FormControl fullWidth required>
                 <InputLabel id="nationality-select-label">Nationality</InputLabel>
                 <Select
                   labelId="nationality-select-label"
@@ -513,17 +513,18 @@ const UserForm: FC = () => {
 
             <Grid item lg={6} md={6} sm={12}>
               <TextField
-                required
                 id="password"
                 label="Password"
-                fullWidth
                 type="password"
+                required
+                fullWidth
                 value={password}
                 onChange={(e) => {
                   const text: string = e.target.value;
                   handleNotEmptyFieldsChange(text, setPasswordError, 5);
                   setPassword(e.target.value)
                 }}
+                error={passwordError}
                 helperText={passwordError ? "Your password must contain at least 5 chars" : ""}
               />
             </Grid>
