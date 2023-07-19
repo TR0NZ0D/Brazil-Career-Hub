@@ -47,8 +47,11 @@ const UserForm: FC = () => {
   const [languagesSpoken, setLanguagesSpoken] = useState<string[]>([]);
   const [email, setEmail] = useState<string>("");
   const [address, setAddress] = useState<string>("");
-  const [portfolio, setPortfolio] = useState<string>("");
-  const [socialMedia, setSocialMedia] = useState<string>("");
+  const [linkedin, setLinkedin] = useState<string | undefined>(undefined);
+  const [website, setWebsite] = useState<string | undefined>(undefined);
+  const [instagram, setInstagram] = useState<string | undefined>(undefined);
+  const [facebook, setFacebook] = useState<string | undefined>(undefined);
+  const [twitter, setTwitter] = useState<string | undefined>(undefined);
   const [contactPhone, setContactPhone] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
@@ -91,27 +94,10 @@ const UserForm: FC = () => {
 
   async function handleFormSubmit(e: any) {
     e.preventDefault();
-    handleCreateUserAccount(userName, name, surname, age as number, gender, cpf,
-      email, address, nationality, languages,
-      portfolio, socialMedia, contactPhone, password);
+    handleCreateUserAccount();
   }
 
-  async function handleCreateUserAccount(
-    userName: string,
-    name: string,
-    surname: string,
-    age: number,
-    gender: string,
-    cpf: string,
-    email: string,
-    address: string,
-    nationality: string,
-    languages: string[],
-    portfolio: string,
-    socialMedia: string,
-    contact: string,
-    password: string
-  ) {
+  async function handleCreateUserAccount() {
     try {
       setCreatingAccount(true);
 
@@ -123,7 +109,8 @@ const UserForm: FC = () => {
         resp = await createUserAccount(user, adminToken!);
 
         if (resp.status === 201) {
-          const socialLife: SocialAccount = new SocialAccount();
+          const socialLife: SocialAccount = new SocialAccount(linkedin, twitter,
+            facebook, instagram, website);
           const userProfile: UserProfile = new UserProfile(userName, languages, "NI", "2000-01-01",
             nationality, socialLife);
 
@@ -480,24 +467,49 @@ const UserForm: FC = () => {
                 })}
               </FormGroup>
             </Grid>
-
             <Grid item lg={6} md={6} sm={12}>
               <TextField
-                id="portfolio"
-                label="Website for your portfolio"
+                id="linkedin"
+                label="Linkedin"
                 fullWidth
-                value={portfolio}
-                onChange={(e) => setPortfolio(e.target.value)}
+                value={linkedin}
+                onChange={(e) => setLinkedin(e.target.value)}
               />
             </Grid>
-
             <Grid item lg={6} md={6} sm={12}>
               <TextField
-                id="social-media"
-                label="Social media"
+                id="website"
+                label="Website"
                 fullWidth
-                value={socialMedia}
-                onChange={(e) => setSocialMedia(e.target.value)}
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+              />
+            </Grid>
+            <Grid item lg={6} md={6} sm={12}>
+              <TextField
+                id="instagram"
+                label="Instagram"
+                fullWidth
+                value={instagram}
+                onChange={(e) => setInstagram(e.target.value)}
+              />
+            </Grid>
+            <Grid item lg={6} md={6} sm={12}>
+              <TextField
+                id="facebook"
+                label="Facebook"
+                fullWidth
+                value={facebook}
+                onChange={(e) => setFacebook(e.target.value)}
+              />
+            </Grid>
+            <Grid item lg={6} md={6} sm={12}>
+              <TextField
+                id="twitter"
+                label="Twitter"
+                fullWidth
+                value={twitter}
+                onChange={(e) => setTwitter(e.target.value)}
               />
             </Grid>
 
