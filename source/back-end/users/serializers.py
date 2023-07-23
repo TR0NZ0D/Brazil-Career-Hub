@@ -69,7 +69,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         """Meta data for user profile serializer"""
         model = models.UserProfile
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'tag', 'age', 'birth_date',
-                  'biography', 'company', 'locale', 'website', 'email_confirmed', 'slug',
+                  'biography', 'locale', 'website', 'email_confirmed', 'slug',
                   'recovery_key', 'languages', 'gender_display', 'cover_color',
                   'primary_color', 'secondary_color', 'banned', 'cpf', 'must_reset_password',
                   'nationality', 'phone_number', 'twitter_username', 'facebook_username',
