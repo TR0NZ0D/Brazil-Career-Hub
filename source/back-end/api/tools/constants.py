@@ -18,7 +18,7 @@ __environments = {
     }
 }
 
-CURRENT_VERSION = '0.0.2'
+CURRENT_VERSION = '0.1.0'
 ENVIRONMENT = __environments.get(1, {})
 
 SUPPORTED_LANGUAGES = (
