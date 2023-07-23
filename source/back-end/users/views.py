@@ -9,8 +9,7 @@ from typing import TypeAlias
 
 import coreapi  # type: ignore
 import coreschema  # type: ignore
-
-from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth import authenticate, get_user_model
 from django.core.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.response import Response

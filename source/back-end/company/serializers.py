@@ -20,6 +20,7 @@ class CompanyAccountSerializer(serializers.ModelSerializer):
         fields = ['id', 'cnpj', 'corporate_name', 'registration_status_display', 'fantasy_name',
                   'cnae', 'legal_nature_display', 'slug']
 
+
 class createCompanyAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CompanyAccountModel
@@ -40,10 +41,10 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
 
     def get_addresses(self, obj):
         return obj.address.all().values()
-    
+
     def get_social_medias(self, obj):
         return obj.social_media.all().values()
-    
+
     def get_cnpj(self, obj):
         return obj.company_account.cnpj
 
@@ -65,12 +66,12 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
     def get_slug(self, obj):
         return obj.company_account.slug
 
-    
     class Meta:
         model = models.CompanyProfileModel
         fields = ['cnpj', 'corporate_name', 'registration_status_display', 'fantasy_name',
-                  'cnae', 'legal_nature_display', 'slug', "id", "company_account", "addresses", 
+                  'cnae', 'legal_nature_display', 'slug', "id", "company_account", "addresses",
                   "contact", "creation_date", "financial_capital", "employees", "site_url", "social_medias"]
+
 
 class createCompanyProfileSerializer(serializers.ModelSerializer):
     class Meta:

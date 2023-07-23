@@ -3,24 +3,24 @@ company/views.py
 
 Created by: Gabriel Menezes de Antonio
 """
+from datetime import date
+
 import coreapi  # type: ignore
 import coreschema  # type: ignore
 
+from django.core.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.schemas.coreapi import AutoSchema
-
 from tr0nz0d.tools.cnpj import CNPJ
-from django.core.exceptions import ValidationError
-import json
-from datetime import date
 
-from api.tools.constants import (registration_status__str__, legal_nature__str__, registration_status_keys, legal_nature_keys)
 from api.tools.api_tools import description_generator
+from api.tools.constants import (legal_nature__str__, legal_nature_keys,
+                                 registration_status__str__,
+                                 registration_status_keys)
 from api.views import Base
 
-from . import models
-from . import serializers
+from . import models, serializers
 
 
 # =================== Company Account =================== #
@@ -271,8 +271,8 @@ class CompanyAccount(Base):
     not_found_account_str = "Company account not found"
 
     def handle_account_data(self, request, bypass_required):
-        
-        def generate_error_response(text:str):
+
+        def generate_error_response(text: str):
             return (False, self.generate_basic_response(status.HTTP_400_BAD_REQUEST, text))
         # Required
         cnpj = request.data.get("cnpj", None)
@@ -312,12 +312,12 @@ class CompanyAccount(Base):
         if legal_nature and legal_nature not in legal_nature_keys:
             return generate_error_response(f"Legal nature {legal_nature} is not available")
         data = {
-            "cnpj" : cnpj,
-            "corporate" : corporate,
-            "fantasy" : fantasy,
-            "cnae" : cnae,
-            "registration" : registration,
-            "legal_nature" : legal_nature
+            "cnpj": cnpj,
+            "corporate": corporate,
+            "fantasy": fantasy,
+            "cnae": cnae,
+            "registration": registration,
+            "legal_nature": legal_nature
         }
 
         return (True, data)
@@ -353,8 +353,8 @@ class CompanyAccount(Base):
             return Response(data=response_data, status=status.HTTP_200_OK)
 
         return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_account_str)
-    
-    def post(self, request): 
+
+    def post(self, request):
         data_valid, data_or_response = self.handle_account_data(request, False)
         if not data_valid:
             return data_or_response
@@ -383,8 +383,8 @@ class CompanyAccount(Base):
             response_data["content"] = data
             return Response(response_data, status=response_data.get("status", status.HTTP_201_CREATED))
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-              
-    def patch(self, request): 
+
+    def patch(self, request):
         primary_key = request.query_params.get('pk', None)
         if primary_key is None:
             slug = request.query_params.get('slug', None)
@@ -407,7 +407,7 @@ class CompanyAccount(Base):
         if not data_valid:
             return data_or_response
         account_data = data_or_response
-        
+
         if account_data.get("cnpj", None):
             cnpj = account_data.get("cnpj", None)
             company_account.cnpj = cnpj
@@ -432,14 +432,14 @@ class CompanyAccount(Base):
         except ValidationError as error:
             data = self.generate_basic_response_data(status.HTTP_400_BAD_REQUEST, "Patch data validation error")
             data["errors"] = error
-            return Response(data=data,status=data.get("status"))
+            return Response(data=data, status=data.get("status"))
         company_account.save()
         response_data = self.generate_basic_response_data(status.HTTP_200_OK, "Company account patched successfully")
         serializer = serializers.CompanyAccountSerializer(company_account)
         response_data["content"] = serializer.data
         return Response(data=response_data, status=status.HTTP_200_OK)
-    
-    def delete(self, request): 
+
+    def delete(self, request):
         primary_key = request.query_params.get('pk', None)
 
         if primary_key is None:
@@ -483,7 +483,7 @@ class CompanyProfileSchema(AutoSchema):
 Inform PK or slug if mentioning specific company account, PK will prevail if both fields are sent
 
 """
-        
+
         match method:
             case 'GET':
                 responses = {
@@ -703,6 +703,7 @@ Inform PK or slug if mentioning specific company account, PK will prevail if bot
             case _:
                 return []
 
+
 class CompanyProfile(Base):
     schema = CompanyProfileSchema()
 
@@ -710,8 +711,8 @@ class CompanyProfile(Base):
     not_found_account_str = "Company profile not found"
 
     def handle_account_data(self, request, bypass_required):
-        
-        def generate_error_response(text:str):
+
+        def generate_error_response(text: str):
             return (False, self.generate_basic_response(status.HTTP_400_BAD_REQUEST, text))
         # Required
         company_pk = request.data.get("company_id", None)
@@ -746,7 +747,7 @@ class CompanyProfile(Base):
                 formatted_creation_date = date.fromisoformat(creation_date)
             except ValueError:
                 return generate_error_response("Creation date must follow the iso 8601 format (yyyy-mm-dd)")
-        else: 
+        else:
             formatted_creation_date = None
         if financial_capital and not isinstance(financial_capital, float):
             return generate_error_response("Financial capital should be a float")
@@ -760,7 +761,7 @@ class CompanyProfile(Base):
             social_list = []
             try:
                 for social in social_media:
-                    social_list.append(social)                
+                    social_list.append(social)
             except Exception as e:
                 return generate_error_response(f"Could not parse social media JSON: {e}")
         else:
@@ -777,7 +778,7 @@ class CompanyProfile(Base):
         }
         return (True, data)
 
-    def generateManyToMany(self, profile_data, profile, just_address=False, just_social=False):
+    def generateManyToMany(self, profile_data, profile, just_address=False, just_social=False) -> Response | None:
         address_dict = profile_data.get("address", None)
         if address_dict is not None and not just_social:
             addresses_obj = []
@@ -804,13 +805,14 @@ class CompanyProfile(Base):
                 )
                 addresses_obj.append(addr_obj)
             if has_address_errors:
-                return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, 
+                return self.generate_basic_response(status.HTTP_400_BAD_REQUEST,
                                                     'Issues when creating addresses from JSON. Ensure that the JSON has the format: \
                                                         [{"title":String,"address":String,"number":int}]')
             if addresses_obj:
                 for addr in addresses_obj:
                     profile.address.add(addr)
                 profile.save()
+
         social_media_dict = profile_data.get("social_media", None)
         if social_media_dict is not None and not just_address:
             social_medias_obj = []
@@ -832,13 +834,15 @@ class CompanyProfile(Base):
                 )
                 social_medias_obj.append(smedia_obj)
             if has_smedia_errors:
-                return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, 
+                return self.generate_basic_response(status.HTTP_400_BAD_REQUEST,
                                                     'Issues when creating social medias from JSON. Ensure that the JSON has the format: \
                                                         [{"title":String,"url":String,"username":String}]')
             if social_medias_obj:
                 for smedia in social_medias_obj:
                     profile.social_media.add(smedia)
                 profile.save()
+
+        return None
 
     def get(self, request, *args, **kwargs):
         pk = request.query_params.get("pk", None)
@@ -851,13 +855,13 @@ class CompanyProfile(Base):
         response_data = self.generate_basic_response_data(status.HTTP_200_OK, "")
         response_data["content"] = serializer.data
         return Response(data=response_data, status=status.HTTP_200_OK)
-    
-    def post(self, request): 
+
+    def post(self, request):
         data_valid, data_or_response = self.handle_account_data(request, False)
         if not data_valid:
             return data_or_response
         profile_data = data_or_response
-        company_obj = profile_data.get("company", None) 
+        company_obj = profile_data.get("company", None)
         contact = profile_data.get("contact", None)
         creation_date = profile_data.get("creation_date", None)
         financial_capital = profile_data.get("financial_capital", None)
@@ -868,7 +872,7 @@ class CompanyProfile(Base):
             return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, "Company account not found")
         if not isinstance(company_obj, models.CompanyAccountModel):
             return self.generate_basic_response(status.HTTP_500_INTERNAL_SERVER_ERROR, "Account with invalid type")
-        
+
         profile = models.CompanyProfileModel(
             company_account=company_obj,
             contact=contact,
@@ -886,11 +890,10 @@ class CompanyProfile(Base):
             data = serializers.CompanyProfileSerializer(profile, many=False).data
             response_data["content"] = data
             return Response(response_data, status=response_data.get("status", status.HTTP_201_CREATED))
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-    def patch(self, request): 
+    def patch(self, request):
         pk = request.query_params.get("pk", None)
         if not pk:
             return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)
@@ -901,9 +904,9 @@ class CompanyProfile(Base):
         if not data_valid:
             return data_or_response
         profile_data = data_or_response
-        
+
         if profile_data.get("company", None):
-            company_obj = profile_data.get("company", None) 
+            company_obj = profile_data.get("company", None)
             company_profile.company_account = company_obj
         if profile_data.get("contact", None):
             contact = profile_data.get("contact", None)
@@ -919,7 +922,7 @@ class CompanyProfile(Base):
             company_profile.employees = employees
         if profile_data.get("site_url", None):
             site_url = profile_data.get("site_url", None)
-            company_profile.site_url = site_url 
+            company_profile.site_url = site_url
         if profile_data.get("address", None):
             company_profile.address.clear()
             company_profile.save()
@@ -934,13 +937,7 @@ class CompanyProfile(Base):
         response_data["content"] = serializer.data
         return Response(data=response_data, status=status.HTTP_200_OK)
 
-
-
-
-        
-        
-    
-    def delete(self, request): 
+    def delete(self, request):
         pk = request.query_params.get("pk", None)
         if not pk:
             return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_id_str)

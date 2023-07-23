@@ -7,7 +7,7 @@ Created by: Gabriel Menezes de Antonio
 from django.db import models
 from django.utils.text import slugify
 
-from api.tools.constants import REGISTRATION_STATUS, LEGAL_NATURE
+from api.tools.constants import LEGAL_NATURE, REGISTRATION_STATUS
 
 
 class CompanyAccountModel(models.Model):
@@ -70,14 +70,14 @@ class CompanyAccountModel(models.Model):
 
 
 class CompanyAddress(models.Model):
-    title = models.CharField(verbose_name="Title", 
+    title = models.CharField(verbose_name="Title",
                              max_length=255)
-    address = models.CharField(verbose_name="Address", 
+    address = models.CharField(verbose_name="Address",
                                max_length=255)
-    number = models.PositiveIntegerField(verbose_name="Number", 
+    number = models.PositiveIntegerField(verbose_name="Number",
                                          blank=True,
                                          null=True)
-    
+
     def __str__(self) -> str:
         return self.title
 
@@ -88,12 +88,12 @@ class CompanyAddress(models.Model):
 
 
 class CompanySocialMedia(models.Model):
-    title = models.CharField(verbose_name="Title", 
+    title = models.CharField(verbose_name="Title",
                              max_length=255)
     url = models.URLField(verbose_name="Website URL")
-    username = models.CharField(verbose_name="Company's username", 
+    username = models.CharField(verbose_name="Company's username",
                                 max_length=255)
-    
+
     def __str__(self) -> str:
         return self.title
 
@@ -110,8 +110,8 @@ class CompanyProfileModel(models.Model):
                                            help_text=(
                                                "The company account related to this profile"),
                                            error_messages={"unique": "Company already has a profile."})
-    address = models.ManyToManyField(CompanyAddress, 
-                                     blank=True, 
+    address = models.ManyToManyField(CompanyAddress,
+                                     blank=True,
                                      verbose_name="Address")
     contact = models.CharField(verbose_name="Contact",
                                max_length=255,
@@ -128,15 +128,15 @@ class CompanyProfileModel(models.Model):
                                           null=True,
                                           blank=True)
     employees = models.PositiveIntegerField(verbose_name="Company's employee number",  # type: ignore
-                                    null=True,
-                                    blank=True)
+                                            null=True,
+                                            blank=True)
     site_url = models.URLField(verbose_name="Company's website URL",
                                blank=True,
                                null=True)
     social_media = models.ManyToManyField(CompanySocialMedia,
                                           blank=True,
                                           verbose_name="Company's social media accounts")
-    
+
     def __str__(self) -> str:
         return f"{self.company_account.fantasy_name}'s company profile"
 
@@ -144,8 +144,3 @@ class CompanyProfileModel(models.Model):
         """Meta class for company account model"""
         verbose_name = 'Company Profile'
         verbose_name_plural = 'Company Profiles'
-
-
-
-
-    
