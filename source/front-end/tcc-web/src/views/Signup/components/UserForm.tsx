@@ -43,8 +43,9 @@ const UserForm: FC = () => {
   const [name, setName] = useState<string>("");
   const [surname, setSurname] = useState<string>("");
   const [birthDate, setBirthDate] = useState<Dayjs | null>();
-  const [gender, setGender] = useState<string>("");
+  const [gender, setGender] = useState<"NI" | "M" | "F" | "NB">("NI");
   const [cpf, setCpf] = useState<string>("");
+  const [biography, setBiography] = useState<string | undefined>();
   const [nationality, setNationality] = useState<string>("");
   const [languagesSpoken, setLanguagesSpoken] = useState<string[]>([]);
   const [email, setEmail] = useState<string>("");
@@ -113,8 +114,8 @@ const UserForm: FC = () => {
         if (resp.status === 201) {
           const socialLife: SocialAccount = new SocialAccount(linkedin, twitter,
             facebook, instagram, website);
-          const userProfile: UserProfile = new UserProfile(userName, languagesSpoken, "NI", birthDate!,
-            nationality, socialLife);
+          const userProfile: UserProfile = new UserProfile(userName, languagesSpoken, gender, birthDate!,
+            nationality, socialLife, biography, "", cpf, contactPhone);
 
           try {
             resp = await createUserProfile(userProfile, adminToken!);
@@ -329,11 +330,12 @@ const UserForm: FC = () => {
                   defaultValue="Male"
                   name="sex-radio-buttons-group"
                   value={gender}
-                  onChange={(e) => setGender(e.target.value)}
+                  onChange={(e) => setGender(e.target.value as "NI" | "M" | "F" | "NB")}
                 >
-                  <FormControlLabel value="Female" control={<Radio />} label="Female" />
-                  <FormControlLabel value="Male" control={<Radio />} label="Male" />
-                  <FormControlLabel value="Other" control={<Radio />} label="Other" />
+                  <FormControlLabel value="NI" control={<Radio />} label="I Prefer Not To Inform" />
+                  <FormControlLabel value="M" control={<Radio />} label="Male" />
+                  <FormControlLabel value="F" control={<Radio />} label="Female" />
+                  <FormControlLabel value="NB" control={<Radio />} label="Non Binary" />
                 </RadioGroup>
               </FormControl>
             </Grid>
@@ -464,6 +466,19 @@ const UserForm: FC = () => {
                 })}
               </FormGroup>
             </Grid>
+
+            <Grid item lg={12} md={12} sm={12}>
+              <TextField
+                id="biography"
+                label="Write your biography"
+                fullWidth
+                multiline
+                rows={10}
+                value={biography}
+                onChange={(e) => setBiography(e.target.value)}
+              />
+            </Grid>
+
             <Grid item lg={6} md={6} sm={12}>
               <TextField
                 id="linkedin"
