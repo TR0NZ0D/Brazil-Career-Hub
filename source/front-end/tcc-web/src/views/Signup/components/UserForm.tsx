@@ -19,7 +19,8 @@ import {
   TextField,
   Grid,
   CircularProgress,
-  Container
+  Container,
+  Modal
 } from '@mui/material';
 import UserAccount from 'models/User/UserAccount';
 import { createUserAccount, deleteUserAccount, getUserAccount } from 'api/users/user-account-requests';
@@ -157,6 +158,53 @@ const UserForm: FC = () => {
 
   return (
     <>
+      <Modal open={errorCreatingAccount !== ""} onClose={() => setErrorCreatingAccount("")} >
+        <Grid
+          container
+          item
+          lg={5}
+          md={8}
+          sm={8}
+          xs={10}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          style={{
+            borderRadius: 10,
+            backgroundColor: "#f7f6f6",
+            padding: "5% 5%",
+            margin: "5% auto",
+          }}
+        >
+          <ErrorIcon style={{ fill: "#FAB91A", fontSize: 40, marginBottom: "3%" }} />
+          <Typography gutterBottom>An error happened while creating your account: {errorCreatingAccount}...</Typography>
+
+          <Grid
+            container
+            item
+            display="flex"
+            style={{
+              marginTop: "2%"
+            }}
+          >
+            <Button
+              variant='contained'
+              color="primary"
+              style={{ marginRight: "2%" }}
+              onClick={(e) => handleFormSubmit(e)}
+            >
+              Retry
+            </Button>
+            <Button
+              variant='outlined'
+              onClick={() => setErrorCreatingAccount("")}
+            >
+              Cancel
+            </Button>
+          </Grid>
+        </Grid>
+      </Modal>
+
       {creatingAccount &&
         <Grid container justifyContent="center" alignItems="center" display="flex">
           <Grid
@@ -187,56 +235,13 @@ const UserForm: FC = () => {
         </Grid>
       }
 
-      {errorCreatingAccount !== "" &&
+      {/* {errorCreatingAccount !== "" &&
         <Grid container justifyContent="center" alignItems="center" display="flex">
-          <Grid
-            container
-            item
-            xs={8}
-            md={8}
-            sm={8}
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            style={{
-              borderRadius: 10,
-              backgroundColor: "#f7f6f6",
-              padding: "5% 13%",
-              margin: "5% auto"
-            }}
-          >
-
-            <ErrorIcon style={{ fill: "#FAB91A", fontSize: 40, marginBottom: "3%" }} />
-            <Typography gutterBottom>An error happened while creating your account: {errorCreatingAccount}...</Typography>
-
-            <Grid
-              container
-              item
-              display="flex"
-              style={{
-                marginTop: "2%"
-              }}
-            >
-              <Button
-                variant='contained'
-                color="primary"
-                style={{ marginRight: "2%" }}
-                onClick={(e) => handleFormSubmit(e)}
-              >
-                Retry
-              </Button>
-              <Button
-                variant='outlined'
-                onClick={() => setErrorCreatingAccount("")}
-              >
-                Cancel
-              </Button>
-            </Grid>
-          </Grid>
+          
         </Grid>
-      }
+      } */}
 
-      {!creatingAccount && errorCreatingAccount === "" &&
+      {!creatingAccount &&
         <Container style={{ padding: "4% 4% 4% 4%" }}>
 
           <Grid container spacing={2} component="form" onSubmit={(e) => handleFormSubmit(e)}>
