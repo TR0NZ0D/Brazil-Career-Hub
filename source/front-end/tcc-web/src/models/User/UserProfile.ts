@@ -17,17 +17,12 @@ class UserProfile extends User {
 
   constructor(userName: string, public languagesSpoken: string[], gender: "NI" | "M" | "F" | "NB", birthDate: Dayjs,
     nationality: string, public socialAccount: SocialAccount, public biography?: string, public company?: string,
-    public cpf?: string, public phone?: string) {
+    public cpf?: string, public phone?: string, public address?: string) {
     super(userName);
     this.languages = languagesSpoken;
     this.gender = gender;
     this.birthDate = birthDate;
     this.nationality = nationality;
-    this.socialAccount = socialAccount;
-    this.biography = biography;
-    this.company = company;
-    this.cpf = cpf;
-    this.phone = phone;
   }
 
   public get languages(): string[] {
@@ -63,12 +58,12 @@ class UserProfile extends User {
       user_username: this.userName,
       languages: this.languages,
       gender: this.gender,
-      locale: this.nationality,
       nationality: this.nationality,
       birth_date: `${this.birthDate.year()}-${appendZeroToNumber(this.birthDate.month() + 1)}-${appendZeroToNumber(this.birthDate.date())}`,
+      locale: this.address !== undefined ? this.address : null,
       biography: this.biography !== undefined ? this.biography : null,
       company: this.company !== undefined ? this.company : null,
-      cpf: this.cpf !== undefined ? this.cpf : null,
+      cpf: this.cpf !== undefined ? this.cpf.replaceAll('.', '').replaceAll('-', '') : null,
       phone_number: this.phone !== undefined ? this.phone : null,
       twitter_username: this.socialAccount.twitter !== undefined ? this.socialAccount.twitter : null,
       facebook_username: this.socialAccount.facebook !== undefined ? this.socialAccount.facebook : null,

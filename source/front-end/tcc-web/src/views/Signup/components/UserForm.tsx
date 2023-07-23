@@ -31,6 +31,7 @@ import { useNavigate } from 'react-router-dom';
 import { AxiosResponse } from 'axios';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs, { Dayjs } from 'dayjs';
+import { debounce } from 'lodash';
 
 const UserForm: FC = () => {
 
@@ -65,11 +66,6 @@ const UserForm: FC = () => {
   const [languagesColumn4, setLanguagesColumn4] = useState<string[]>([]);
 
   const [userNameError, setUserNameError] = useState<string>("");
-  const [nameError, setNameError] = useState<boolean>(false);
-  const [surnameError, setSurnameError] = useState<boolean>(false);
-  const [cpfError, setCpfError] = useState<boolean>(false);
-  const [emailError, setEmailError] = useState<boolean>(false);
-  const [passwordError, setPasswordError] = useState<boolean>(false);
 
   useEffect(() => {
     setLanguagesColumn1(languages.slice(0, 31));
@@ -77,14 +73,6 @@ const UserForm: FC = () => {
     setLanguagesColumn3(languages.slice(62, 93));
     setLanguagesColumn4(languages.slice(93, 123));
   }, [languages])
-
-  function handleNotEmptyFieldsChange(val: string, setErrorCallback: (setVal: boolean) => void, minChar: number = 2): void {
-    if (val === undefined || val === null || val.length < minChar)
-      setErrorCallback(true);
-
-    else
-      setErrorCallback(false);
-  }
 
   function handleLanguagesChange(val: string) {
     if (languagesSpoken.includes(val)) {
@@ -116,13 +104,13 @@ const UserForm: FC = () => {
           const socialLife: SocialAccount = new SocialAccount(linkedin, twitter,
             facebook, instagram, website);
           const userProfile: UserProfile = new UserProfile(userName, languagesSpoken, gender, birthDate!,
-            nationality, socialLife, biography, "", cpf, contactPhone);
+            nationality, socialLife, biography, "", cpf, contactPhone, address);
 
           try {
             resp = await createUserProfile(userProfile, adminToken!);
             navigate("/");
           } catch (error: any) {
-            await showErrorAndResetAccount(error!.response.data.message);
+            await showErrorAndResetAccount(error!.response.data);
           }
         }
 
@@ -135,15 +123,23 @@ const UserForm: FC = () => {
 
 
     } catch (error: any) {
-      console.log(error);
       setErrorCreatingAccount(error!.response.data.message)
     } finally {
       setCreatingAccount(false);
     }
   }
 
-  async function showErrorAndResetAccount(error: string) {
-    setErrorCreatingAccount(error);
+  async function showErrorAndResetAccount(error: any) {
+    let errorMessage: string = "";
+    Object.entries(error)
+      .forEach(([key, value]) => {
+        if (errorMessage === "")
+          errorMessage = `[${key as string}: ${value as string}]`;
+
+        else
+          errorMessage += `, [${key as string}: ${value as string}]`;
+      })
+    setErrorCreatingAccount(errorMessage);
     await deleteUserAccount(userName, adminToken!);
   }
 
@@ -155,6 +151,24 @@ const UserForm: FC = () => {
       return false;
     }
   }
+
+  function showHelperText(value: string, minChar: number): boolean {
+    if (value === "" || value.length > minChar)
+      return false;
+
+    return true;
+  }
+
+  const handleInputChange = debounce((setFunction: (setVal: string) => void, element: HTMLInputElement, masker?: (text: string) => string) => {
+    let value: string = element.value;
+
+    if (masker) {
+      value = masker(value)
+      element.value = value;
+    }
+
+    setFunction(value);
+  }, 100);
 
   return (
     <>
@@ -177,7 +191,7 @@ const UserForm: FC = () => {
           }}
         >
           <ErrorIcon style={{ fill: "#FAB91A", fontSize: 40, marginBottom: "3%" }} />
-          <Typography gutterBottom>An error happened while creating your account: {errorCreatingAccount}...</Typography>
+          <Typography gutterBottom>An error happened while creating your account: {errorCreatingAccount}</Typography>
 
           <Grid
             container
@@ -235,12 +249,6 @@ const UserForm: FC = () => {
         </Grid>
       }
 
-      {/* {errorCreatingAccount !== "" &&
-        <Grid container justifyContent="center" alignItems="center" display="flex">
-          
-        </Grid>
-      } */}
-
       {!creatingAccount &&
         <Container style={{ padding: "4% 4% 4% 4%" }}>
 
@@ -263,20 +271,19 @@ const UserForm: FC = () => {
                 required
                 id="username"
                 label="Username"
+                variant="outlined"
                 fullWidth
-                value={userName}
                 onChange={(e) => {
-                  const text: string = e.target.value;
-                  setUserName(text);
+                  handleInputChange(setUserName, e.target as HTMLInputElement)
 
-                  if (text.length <= 2)
-                    setUserNameError("username must have at least 2 chars");
+                  if (e.target.value.length < 3)
+                    setUserNameError("username must have at least 2 chars")
 
                   else
-                    setUserNameError("");
+                    setUserNameError("")
                 }}
-                helperText={userNameError}
-                error={userNameError !== ""}
+                helperText={userNameError !== "" && userNameError}
+                error={userName !== "" && userName.length < 3}
               />
             </Grid>
 
@@ -286,14 +293,9 @@ const UserForm: FC = () => {
                 id="name"
                 label="Name"
                 fullWidth
-                value={name}
-                onChange={(e) => {
-                  const text: string = e.target.value;
-                  setName(text);
-                  handleNotEmptyFieldsChange(text, setNameError);
-                }}
-                helperText={nameError ? "name must have at least 2 chars" : ""}
-                error={nameError}
+                onChange={(e) => handleInputChange(setName, e.target as HTMLInputElement)}
+                helperText={showHelperText(name, 2) && "name must have at least 2 chars"}
+                error={showHelperText(name, 2)}
               />
             </Grid>
 
@@ -303,14 +305,9 @@ const UserForm: FC = () => {
                 id="surname"
                 label="Surname"
                 fullWidth
-                value={surname}
-                onChange={(e) => {
-                  const text: string = e.target.value;
-                  setSurname(text);
-                  handleNotEmptyFieldsChange(text, setSurnameError);
-                }}
-                helperText={surnameError ? "surname must have at least 2 chars" : ""}
-                error={surnameError}
+                onChange={(e) => handleInputChange(setSurname, e.target as HTMLInputElement)}
+                helperText={showHelperText(surname, 2) && "surname must have at least 2 chars"}
+                error={showHelperText(surname, 2)}
               />
             </Grid>
 
@@ -350,14 +347,13 @@ const UserForm: FC = () => {
                 id="CPF"
                 label="CPF"
                 fullWidth
-                value={cpf}
                 onChange={(e) => {
-                  const text: string = FieldMasker.maskCpf(e.target.value);
-                  setCpf(text);
-                  setCpfError(!GeneralValidator.validateCpf(text));
+                  e.target.value = FieldMasker.maskCpf(e.target.value);
+                  handleInputChange(setCpf, e.target as HTMLInputElement)
                 }}
-                error={cpfError}
-                helperText={cpfError ? "type a valid CPF" : ""}
+                helperText={cpf !== "" && !GeneralValidator.validateCpf(cpf) && "Type a valid CPF"}
+                error={cpf !== "" && !GeneralValidator.validateCpf(cpf)}
+                inputProps={{ maxLength: 14 }}
               />
             </Grid>
 
@@ -368,14 +364,9 @@ const UserForm: FC = () => {
                 label="E-mail"
                 type="email"
                 fullWidth
-                value={email}
-                onChange={(e) => {
-                  const text: string = e.target.value;
-                  setEmailError(!GeneralValidator.validateEmail(text));
-                  setEmail(e.target.value);
-                }}
-                error={emailError}
-                helperText={emailError ? "type a valid e-mail" : ""}
+                onChange={(e) => handleInputChange(setEmail, e.target as HTMLInputElement)}
+                helperText={email !== "" && !GeneralValidator.validateEmail(email) && "type a valid e-mail"}
+                error={email !== "" && !GeneralValidator.validateEmail(email)}
               />
             </Grid>
 
@@ -384,8 +375,7 @@ const UserForm: FC = () => {
                 id="address"
                 label="Address"
                 fullWidth
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
+                onChange={(e) => handleInputChange(setAddress, e.target as HTMLInputElement)}
               />
             </Grid>
 
@@ -479,8 +469,7 @@ const UserForm: FC = () => {
                 fullWidth
                 multiline
                 rows={10}
-                value={biography}
-                onChange={(e) => setBiography(e.target.value)}
+                onChange={(e) => handleInputChange(setBiography, e.target as HTMLInputElement)}
               />
             </Grid>
 
@@ -489,17 +478,16 @@ const UserForm: FC = () => {
                 id="linkedin"
                 label="Linkedin"
                 fullWidth
-                value={linkedin}
-                onChange={(e) => setLinkedin(e.target.value)}
+                onChange={(e) => handleInputChange(setLinkedin, e.target as HTMLInputElement)}
               />
             </Grid>
+
             <Grid item lg={6} md={6} sm={12}>
               <TextField
                 id="website"
                 label="Website"
                 fullWidth
-                value={website}
-                onChange={(e) => setWebsite(e.target.value)}
+                onChange={(e) => handleInputChange(setWebsite, e.target as HTMLInputElement)}
               />
             </Grid>
             <Grid item lg={6} md={6} sm={12}>
@@ -507,8 +495,7 @@ const UserForm: FC = () => {
                 id="instagram"
                 label="Instagram"
                 fullWidth
-                value={instagram}
-                onChange={(e) => setInstagram(e.target.value)}
+                onChange={(e) => handleInputChange(setInstagram, e.target as HTMLInputElement)}
               />
             </Grid>
             <Grid item lg={6} md={6} sm={12}>
@@ -516,8 +503,7 @@ const UserForm: FC = () => {
                 id="facebook"
                 label="Facebook"
                 fullWidth
-                value={facebook}
-                onChange={(e) => setFacebook(e.target.value)}
+                onChange={(e) => handleInputChange(setFacebook, e.target as HTMLInputElement)}
               />
             </Grid>
             <Grid item lg={6} md={6} sm={12}>
@@ -525,8 +511,7 @@ const UserForm: FC = () => {
                 id="twitter"
                 label="Twitter"
                 fullWidth
-                value={twitter}
-                onChange={(e) => setTwitter(e.target.value)}
+                onChange={(e) => handleInputChange(setTwitter, e.target as HTMLInputElement)}
               />
             </Grid>
 
@@ -535,8 +520,7 @@ const UserForm: FC = () => {
                 id="cellphone"
                 label="Contact phone"
                 fullWidth
-                value={contactPhone}
-                onChange={(e) => setContactPhone(e.target.value)}
+                onChange={(e) => handleInputChange(setContactPhone, e.target as HTMLInputElement)}
               />
             </Grid>
 
@@ -547,14 +531,9 @@ const UserForm: FC = () => {
                 type="password"
                 required
                 fullWidth
-                value={password}
-                onChange={(e) => {
-                  const text: string = e.target.value;
-                  handleNotEmptyFieldsChange(text, setPasswordError, 5);
-                  setPassword(e.target.value)
-                }}
-                error={passwordError}
-                helperText={passwordError ? "Your password must contain at least 5 chars" : ""}
+                onChange={(e) => handleInputChange(setPassword, e.target as HTMLInputElement)}
+                helperText={showHelperText(password, 5) && "Your password must contain at least 5 chars"}
+                error={showHelperText(password, 5)}
               />
             </Grid>
 

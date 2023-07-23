@@ -1,12 +1,6 @@
 class SocialAccount {
-  public twitter: string | undefined;
-  public linkedin: string | undefined;
-  public facebook: string | undefined;
-  public instagram: string | undefined;
-  public website: string | undefined;
-
-  constructor(linkedin?: string, twitter?: string, facebook?: string,
-    instagram?: string, website?: string) {
+  constructor(public linkedin?: string, public twitter?: string, public facebook?: string,
+    public instagram?: string, public website?: string) {
     this.linkedin = linkedin;
     this.twitter = twitter;
     this.facebook = facebook;
