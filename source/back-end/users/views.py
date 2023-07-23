@@ -330,13 +330,6 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         description="User's profile biography"
                     ),
                     coreapi.Field(
-                        name="company",
-                        location='form',
-                        required=False,
-                        schema=coreschema.String(100),
-                        description="User's company"
-                    ),
-                    coreapi.Field(
                         name="locale",
                         location='form',
                         required=False,
@@ -513,13 +506,6 @@ Inform PK or slug if mentioning specific user profile, PK will prevail if both f
                         required=False,
                         schema=coreschema.String(200),
                         description="User's profile biography"
-                    ),
-                    coreapi.Field(
-                        name="company",
-                        location='form',
-                        required=False,
-                        schema=coreschema.String(100),
-                        description="User's company"
                     ),
                     coreapi.Field(
                         name="locale",
@@ -739,7 +725,6 @@ class UserProfile(Base):
         birth_date: str = request.data.get('birth_date', None)
         age: int = request.data.get('age', None)
         biography: str = request.data.get('biography', None)
-        company: str = request.data.get('company', None)
         locale: str = request.data.get('locale', None)
         website: str = request.data.get('website', None)
         image = request.FILES.get('image', None)
@@ -809,13 +794,6 @@ class UserProfile(Base):
 
         if biography and len(biography) > 200:
             return generate_error_response('Biography must have a max length of 200 characters')
-
-        # Company validations
-        if company and not isinstance(company, str):
-            return generate_error_response('Company must be a string')
-
-        if company and len(company) > 100:
-            return generate_error_response('Company must have a max length of 100 characters')
 
         # Locale validations
         if locale and not isinstance(locale, str):
@@ -970,7 +948,6 @@ class UserProfile(Base):
             'birth_date': formatted_birth_date,
             'age': int(age) if isinstance(age, str) else None,
             'biography': biography,
-            'company': company,
             'locale': locale,
             'website': website,
             'image': image,
@@ -1062,7 +1039,6 @@ class UserProfile(Base):
                                          'birth_date', date.today()),  # type: ignore
                                      biography=profile_data.get(
                                          'biography', ''),
-                                     company=profile_data.get('company', ''),
                                      locale=profile_data.get('locale', ''),
                                      website=profile_data.get('website', ''),
                                      email_confirmed=email_confirmed,
@@ -1179,10 +1155,6 @@ class UserProfile(Base):
         if profile_data.get('biography', None):
             bio: str = profile_data.get('biography', '')  # type: ignore
             user_profile.biography = bio
-
-        if profile_data.get('company', None):
-            company: str = profile_data.get('company', '')  # type: ignore
-            user_profile.company = company
 
         if profile_data.get('locale', None):
             locale: str = profile_data.get('locale', '')  # type: ignore

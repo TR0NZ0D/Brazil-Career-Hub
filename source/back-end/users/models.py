@@ -68,12 +68,6 @@ class UserProfile(models.Model):
                                  null=True,
                                  help_text="This is the user's bio, \
                                     a quick description about them.")
-    company = models.CharField(verbose_name="Company",  # type: ignore
-                               max_length=100,
-                               blank=True,
-                               null=True,
-                               help_text="This is the user's company, \
-                                if working anywhere.")
     locale = models.CharField(verbose_name="Locale",  # type: ignore
                               max_length=80,
                               blank=True,
