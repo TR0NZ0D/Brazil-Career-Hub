@@ -5,13 +5,14 @@ import {
   nationalities as nationalitiesInFile
 } from 'utilities/RelevantData';
 import { Dayjs } from 'dayjs';
+import { appendZeroToNumber } from 'utilities/DateUtilities';
 
 class UserProfile extends User {
 
   private _languages: string[] = [];
   private _nationality: string | undefined;
 
-  public birthDate: Date;
+  public birthDate: Dayjs;
   public gender: "NI" | "M" | "F" | "NB" = "NI";
 
   constructor(userName: string, public languagesSpoken: string[], gender: "NI" | "M" | "F" | "NB", birthDate: Dayjs,
@@ -20,7 +21,7 @@ class UserProfile extends User {
     super(userName);
     this.languages = languagesSpoken;
     this.gender = gender;
-    this.birthDate = new Date(birthDate?.year()!, birthDate?.month()!, birthDate?.date());
+    this.birthDate = birthDate;
     this.nationality = nationality;
     this.socialAccount = socialAccount;
     this.biography = biography;
@@ -60,11 +61,11 @@ class UserProfile extends User {
   public getJsonForProfileCreation() {
     return {
       user_username: this.userName,
-      language: "en-us",
+      languages: this.languages,
       gender: this.gender,
       locale: this.nationality,
       nationality: this.nationality,
-      birth_date: this.birthDate !== undefined ? this.birthDate : null,
+      birth_date: `${this.birthDate.year()}-${appendZeroToNumber(this.birthDate.month() + 1)}-${appendZeroToNumber(this.birthDate.date())}`,
       biography: this.biography !== undefined ? this.biography : null,
       company: this.company !== undefined ? this.company : null,
       cpf: this.cpf !== undefined ? this.cpf : null,

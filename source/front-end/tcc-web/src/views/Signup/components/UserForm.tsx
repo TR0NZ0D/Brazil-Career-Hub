@@ -63,14 +63,11 @@ const UserForm: FC = () => {
   const [languagesColumn4, setLanguagesColumn4] = useState<string[]>([]);
 
   const [userNameError, setUserNameError] = useState<string>("");
-  const [ageError, setAgeError] = useState<string>("");
   const [nameError, setNameError] = useState<boolean>(false);
   const [surnameError, setSurnameError] = useState<boolean>(false);
   const [cpfError, setCpfError] = useState<boolean>(false);
   const [emailError, setEmailError] = useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<boolean>(false);
-
-  console.log(`${new Date().getFullYear() - 18}-${new Date().getMonth() + 1}-${new Date().getDate()}`);
 
   useEffect(() => {
     setLanguagesColumn1(languages.slice(0, 31));
@@ -116,7 +113,7 @@ const UserForm: FC = () => {
         if (resp.status === 201) {
           const socialLife: SocialAccount = new SocialAccount(linkedin, twitter,
             facebook, instagram, website);
-          const userProfile: UserProfile = new UserProfile(userName, languages, "NI", birthDate!,
+          const userProfile: UserProfile = new UserProfile(userName, languagesSpoken, "NI", birthDate!,
             nationality, socialLife);
 
           try {
