@@ -28,6 +28,8 @@ import SocialAccount from 'models/User/SocialAccount';
 import UserProfile from 'models/User/UserProfile';
 import { useNavigate } from 'react-router-dom';
 import { AxiosResponse } from 'axios';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs, { Dayjs } from 'dayjs';
 
 const UserForm: FC = () => {
 
@@ -40,7 +42,7 @@ const UserForm: FC = () => {
   const [userName, setUserName] = useState<string>("");
   const [name, setName] = useState<string>("");
   const [surname, setSurname] = useState<string>("");
-  const [age, setAge] = useState<number | string>("");
+  const [birthDate, setBirthDate] = useState<Dayjs | null>();
   const [gender, setGender] = useState<string>("");
   const [cpf, setCpf] = useState<string>("");
   const [nationality, setNationality] = useState<string>("");
@@ -61,11 +63,14 @@ const UserForm: FC = () => {
   const [languagesColumn4, setLanguagesColumn4] = useState<string[]>([]);
 
   const [userNameError, setUserNameError] = useState<string>("");
+  const [ageError, setAgeError] = useState<string>("");
   const [nameError, setNameError] = useState<boolean>(false);
   const [surnameError, setSurnameError] = useState<boolean>(false);
   const [cpfError, setCpfError] = useState<boolean>(false);
   const [emailError, setEmailError] = useState<boolean>(false);
   const [passwordError, setPasswordError] = useState<boolean>(false);
+
+  console.log(`${new Date().getFullYear() - 18}-${new Date().getMonth() + 1}-${new Date().getDate()}`);
 
   useEffect(() => {
     setLanguagesColumn1(languages.slice(0, 31));
@@ -111,7 +116,7 @@ const UserForm: FC = () => {
         if (resp.status === 201) {
           const socialLife: SocialAccount = new SocialAccount(linkedin, twitter,
             facebook, instagram, website);
-          const userProfile: UserProfile = new UserProfile(userName, languages, "NI", "2000-01-01",
+          const userProfile: UserProfile = new UserProfile(userName, languages, "NI", birthDate!,
             nationality, socialLife);
 
           try {
@@ -307,21 +312,16 @@ const UserForm: FC = () => {
             </Grid>
 
             <Grid item lg={6} md={6} sm={12}>
-              <TextField
-                required
-                id="age"
-                label="Age"
-                type="number"
-                fullWidth
-                value={age}
-                onChange={(e) => {
-                  if (e.target.value === "")
-                    setAge("");
-
-                  else
-                    setAge(Number.parseInt(e.target.value))
+              <DatePicker
+                label="Select your birth date"
+                maxDate={dayjs(`${new Date().getFullYear() - 18}-${new Date().getMonth() + 1}-${new Date().getDate()}`)}
+                slotProps={{
+                  textField: {
+                    required: true,
+                    fullWidth: true
+                  }
                 }}
-              />
+                onChange={(e: Dayjs | null) => setBirthDate(e)} />
             </Grid>
 
             <Grid item lg={6} md={6} sm={12}>

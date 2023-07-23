@@ -4,21 +4,23 @@ import {
   languages as languagesInFile,
   nationalities as nationalitiesInFile
 } from 'utilities/RelevantData';
+import { Dayjs } from 'dayjs';
 
 class UserProfile extends User {
 
   private _languages: string[] = [];
   private _nationality: string | undefined;
 
+  public birthDate: Date;
   public gender: "NI" | "M" | "F" | "NB" = "NI";
 
-  constructor(userName: string, public languagesSpoken: string[], gender: "NI" | "M" | "F" | "NB", public birthDate: string,
+  constructor(userName: string, public languagesSpoken: string[], gender: "NI" | "M" | "F" | "NB", birthDate: Dayjs,
     nationality: string, public socialAccount: SocialAccount, public biography?: string, public company?: string,
     public cpf?: string, public phone?: string) {
     super(userName);
     this.languages = languagesSpoken;
     this.gender = gender;
-    this.birthDate = birthDate;
+    this.birthDate = new Date(birthDate?.year()!, birthDate?.month()!, birthDate?.date());
     this.nationality = nationality;
     this.socialAccount = socialAccount;
     this.biography = biography;
@@ -62,9 +64,7 @@ class UserProfile extends User {
       gender: this.gender,
       locale: this.nationality,
       nationality: this.nationality,
-      birth_date: "2000-01-01",
-      age: 20,
-      // birth_date: this.birthDate !== undefined ? this.birthDate : null,
+      birth_date: this.birthDate !== undefined ? this.birthDate : null,
       biography: this.biography !== undefined ? this.biography : null,
       company: this.company !== undefined ? this.company : null,
       cpf: this.cpf !== undefined ? this.cpf : null,
