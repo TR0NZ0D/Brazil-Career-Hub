@@ -1,4 +1,4 @@
-﻿asgiref==3.7.2
+asgiref==3.7.2
 astroid==2.15.5
 attrs==23.1.0
 autopep8==2.0.2
@@ -63,5 +63,5 @@ types-urllib3==1.26.25.13
 typing_extensions==4.7.1
 tzdata==2023.3
 uritemplate==4.1.1
-urllib3==2.0.3
+urllib3==2.0.4
 wrapt==1.15.0
