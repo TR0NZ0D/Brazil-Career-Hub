@@ -159,16 +159,84 @@ const UserForm: FC = () => {
     return true;
   }
 
-  const handleInputChange = debounce((setFunction: (setVal: string) => void, element: HTMLInputElement, masker?: (text: string) => string) => {
-    let value: string = element.value;
+  const handleUsernameChange = debounce((element: HTMLInputElement) => {
+    let value = element.value;
 
-    if (masker) {
-      value = masker(value)
-      element.value = value;
+    if (value.length < 2) {
+      setUserNameError("username must have at least 2 chars")
+    }
+    else {
+      setUserNameError("");
     }
 
-    setFunction(value);
-  }, 100);
+    setUserName(value);
+  }, 350);
+
+  const handleNameChange = debounce((element: HTMLInputElement) => {
+    let value = element.value;
+    setName(value);
+  }, 350);
+
+  const handleSurnameChange = debounce((element: HTMLInputElement) => {
+    let value = element.value;
+    setSurname(value);
+  }, 350);
+
+  const handleCpfChange = debounce((element: HTMLInputElement) => {
+    let value = element.value;
+    value = FieldMasker.maskCpf(value);
+    setCpf(value);
+  }, 350);
+
+  const handleEmailChange = debounce((element: HTMLInputElement) => {
+    let value = element.value;
+    setEmail(value);
+  }, 350);
+
+  const handleAddressChange = debounce((element: HTMLInputElement) => {
+    let value = element.value;
+    setAddress(value);
+  }, 350);
+
+  const handleBiographyChange = debounce((element: HTMLInputElement) => {
+    let value = element.value;
+    setBiography(value);
+  }, 350);
+
+  const handleLinkedinChange = debounce((element: HTMLInputElement) => {
+    let value = element.value;
+    setLinkedin(value);
+  }, 350);
+
+  const handleWebsiteChange = debounce((element: HTMLInputElement) => {
+    let value = element.value;
+    setWebsite(value);
+  }, 350);
+
+  const handleInstagramChange = debounce((element: HTMLInputElement) => {
+    let value = element.value;
+    setInstagram(value);
+  }, 350);
+
+  const handleFacebookChange = debounce((element: HTMLInputElement) => {
+    let value = element.value;
+    setFacebook(value);
+  }, 350);
+
+  const handleTwitterChange = debounce((element: HTMLInputElement) => {
+    let value = element.value;
+    setTwitter(value);
+  }, 350);
+
+  const handleContactChange = debounce((element: HTMLInputElement) => {
+    let value = element.value;
+    setContactPhone(value);
+  }, 350);
+
+  const handlePasswordChange = debounce((element: HTMLInputElement) => {
+    let value = element.value;
+    setPassword(value);
+  }, 350);
 
   return (
     <>
@@ -273,17 +341,9 @@ const UserForm: FC = () => {
                 label="Username"
                 variant="outlined"
                 fullWidth
-                onChange={(e) => {
-                  handleInputChange(setUserName, e.target as HTMLInputElement)
-
-                  if (e.target.value.length < 3)
-                    setUserNameError("username must have at least 2 chars")
-
-                  else
-                    setUserNameError("")
-                }}
+                onChange={(e) => handleUsernameChange(e.target as HTMLInputElement)}
                 helperText={userNameError !== "" && userNameError}
-                error={userName !== "" && userName.length < 3}
+                error={userName !== "" && userName.length < 2}
               />
             </Grid>
 
@@ -293,7 +353,7 @@ const UserForm: FC = () => {
                 id="name"
                 label="Name"
                 fullWidth
-                onChange={(e) => handleInputChange(setName, e.target as HTMLInputElement)}
+                onChange={(e) => handleNameChange(e.target as HTMLInputElement)}
                 helperText={showHelperText(name, 2) && "name must have at least 2 chars"}
                 error={showHelperText(name, 2)}
               />
@@ -305,7 +365,7 @@ const UserForm: FC = () => {
                 id="surname"
                 label="Surname"
                 fullWidth
-                onChange={(e) => handleInputChange(setSurname, e.target as HTMLInputElement)}
+                onChange={(e) => handleSurnameChange(e.target as HTMLInputElement)}
                 helperText={showHelperText(surname, 2) && "surname must have at least 2 chars"}
                 error={showHelperText(surname, 2)}
               />
@@ -347,10 +407,7 @@ const UserForm: FC = () => {
                 id="CPF"
                 label="CPF"
                 fullWidth
-                onChange={(e) => {
-                  e.target.value = FieldMasker.maskCpf(e.target.value);
-                  handleInputChange(setCpf, e.target as HTMLInputElement)
-                }}
+                onChange={(e) => handleCpfChange(e.target as HTMLInputElement)}
                 helperText={cpf !== "" && !GeneralValidator.validateCpf(cpf) && "Type a valid CPF"}
                 error={cpf !== "" && !GeneralValidator.validateCpf(cpf)}
                 inputProps={{ maxLength: 14 }}
@@ -364,7 +421,7 @@ const UserForm: FC = () => {
                 label="E-mail"
                 type="email"
                 fullWidth
-                onChange={(e) => handleInputChange(setEmail, e.target as HTMLInputElement)}
+                onChange={(e) => handleEmailChange(e.target as HTMLInputElement)}
                 helperText={email !== "" && !GeneralValidator.validateEmail(email) && "type a valid e-mail"}
                 error={email !== "" && !GeneralValidator.validateEmail(email)}
               />
@@ -375,7 +432,7 @@ const UserForm: FC = () => {
                 id="address"
                 label="Address"
                 fullWidth
-                onChange={(e) => handleInputChange(setAddress, e.target as HTMLInputElement)}
+                onChange={(e) => handleAddressChange(e.target as HTMLInputElement)}
               />
             </Grid>
 
@@ -469,7 +526,7 @@ const UserForm: FC = () => {
                 fullWidth
                 multiline
                 rows={10}
-                onChange={(e) => handleInputChange(setBiography, e.target as HTMLInputElement)}
+                onChange={(e) => handleBiographyChange(e.target as HTMLInputElement)}
               />
             </Grid>
 
@@ -478,7 +535,7 @@ const UserForm: FC = () => {
                 id="linkedin"
                 label="Linkedin"
                 fullWidth
-                onChange={(e) => handleInputChange(setLinkedin, e.target as HTMLInputElement)}
+                onChange={(e) => handleLinkedinChange(e.target as HTMLInputElement)}
               />
             </Grid>
 
@@ -487,7 +544,7 @@ const UserForm: FC = () => {
                 id="website"
                 label="Website"
                 fullWidth
-                onChange={(e) => handleInputChange(setWebsite, e.target as HTMLInputElement)}
+                onChange={(e) => handleWebsiteChange(e.target as HTMLInputElement)}
               />
             </Grid>
             <Grid item lg={6} md={6} sm={12}>
@@ -495,7 +552,7 @@ const UserForm: FC = () => {
                 id="instagram"
                 label="Instagram"
                 fullWidth
-                onChange={(e) => handleInputChange(setInstagram, e.target as HTMLInputElement)}
+                onChange={(e) => handleInstagramChange(e.target as HTMLInputElement)}
               />
             </Grid>
             <Grid item lg={6} md={6} sm={12}>
@@ -503,7 +560,7 @@ const UserForm: FC = () => {
                 id="facebook"
                 label="Facebook"
                 fullWidth
-                onChange={(e) => handleInputChange(setFacebook, e.target as HTMLInputElement)}
+                onChange={(e) => handleFacebookChange(e.target as HTMLInputElement)}
               />
             </Grid>
             <Grid item lg={6} md={6} sm={12}>
@@ -511,7 +568,7 @@ const UserForm: FC = () => {
                 id="twitter"
                 label="Twitter"
                 fullWidth
-                onChange={(e) => handleInputChange(setTwitter, e.target as HTMLInputElement)}
+                onChange={(e) => handleTwitterChange(e.target as HTMLInputElement)}
               />
             </Grid>
 
@@ -520,7 +577,7 @@ const UserForm: FC = () => {
                 id="cellphone"
                 label="Contact phone"
                 fullWidth
-                onChange={(e) => handleInputChange(setContactPhone, e.target as HTMLInputElement)}
+                onChange={(e) => handleContactChange(e.target as HTMLInputElement)}
               />
             </Grid>
 
@@ -531,7 +588,7 @@ const UserForm: FC = () => {
                 type="password"
                 required
                 fullWidth
-                onChange={(e) => handleInputChange(setPassword, e.target as HTMLInputElement)}
+                onChange={(e) => handlePasswordChange(e.target as HTMLInputElement)}
                 helperText={showHelperText(password, 5) && "Your password must contain at least 5 chars"}
                 error={showHelperText(password, 5)}
               />
