@@ -2,15 +2,26 @@ import { FC, useState } from 'react';
 import {
   Button,
   Container,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
   Grid,
+  Radio,
+  RadioGroup,
   TextField,
   Typography
 } from '@mui/material';
 import { debounce } from 'lodash';
 import FieldMasker from 'utilities/FieldMasker';
 import GeneralValidator from 'utilities/GeneralValidator';
+import CompanyAccount from 'models/Company/CompanyAccount';
+import RegistrationStatuses from 'models/Company/RegistrationStatuses';
 
 const CompanyForm: FC = () => {
+
+  const [companyAccount, setCompanyAccount] = useState<CompanyAccount>({} as CompanyAccount);
+
+  const [registrationStatusError, setRegistrationStatusError] = useState<string>("");
 
   const [cnpj, setCnpj] = useState<string>("");
   const [corporateName, setCorporateName] = useState<string>("");
@@ -27,33 +38,32 @@ const CompanyForm: FC = () => {
   const [website, setWebsite] = useState<string>("");
   const [socialMedia, setSocialMedia] = useState<string>("");
 
-  const handleCnpjChange = debounce((element: HTMLInputElement) => {
-
-  });
-
   const handleCorporateNameChange = debounce((element: HTMLInputElement) => {
     const val = element.value;
-    setCorporateName(val);
+    const newCompany = { ...companyAccount, corporateName: val };
+    setCompanyAccount(newCompany);
   }, 350);
 
   const handleRegistrationStatusChange = debounce((element: HTMLInputElement) => {
     const val = element.value;
-    setRegistrationStatus(val);
+    // if (val && RegistrationStatuses.some(x => x.key === regStatus.key && x.description === regStatus.description))
+    //   this._registrationStatus = regStatus;
+
+    // else
+    //   throw new Error("Registration status is invalid");
   }, 350);
 
   const handleFantasyNameChange = debounce((element: HTMLInputElement) => {
-    const val = element.value;
-    setFantasyName(val);
+    setCompanyAccount({ ...companyAccount, fantasyName: element.value });
   }, 350);
 
   const handleCnaeChange = debounce((element: HTMLInputElement) => {
-    const val = element.value;
-    setCnae(val);
+    setCompanyAccount({ ...companyAccount, cnae: element.value });
   }, 350);
 
   const handleLegalNatureChange = debounce((element: HTMLInputElement) => {
     const val = element.value;
-    setRegistrationStatus(val);
+    setJuridicNature(val);
   }, 350);
 
   return (
@@ -101,14 +111,21 @@ const CompanyForm: FC = () => {
             />
           </Grid>
 
-          <Grid item sm={12} md={6} lg={6}>
-            <TextField
-              required
-              id="registration-status"
-              label="Situação Cadastral"
-              fullWidth
-              onChange={(e) => handleRegistrationStatusChange(e.target as HTMLInputElement)}
-            />
+          <Grid item lg={6} md={6} sm={12}>
+            <FormControl>
+              <FormLabel id="registration-group-label">Registration Status</FormLabel>
+              <RadioGroup
+                aria-labelledby="registration-radio-group"
+                defaultValue="None"
+                name="registration-radio-buttons-group"
+                value={companyAccount.registrationStatus}
+                onChange={(e) => setCompanyAccount({ ...companyAccount, registrationStatus: e.target.value as "None" | "Active" | "Suspended" | "Inapt" | "Active not regular" | "Extinct" })}
+              >
+                {RegistrationStatuses.map(x => (
+                  <FormControlLabel key={x.key} value={x.description} control={<Radio />} label={x.description} />
+                ))}
+              </RadioGroup>
+            </FormControl>
           </Grid>
 
           <Grid item sm={12} md={6} lg={6}>
@@ -134,22 +151,21 @@ const CompanyForm: FC = () => {
           <Grid item sm={12} md={6} lg={6}>
             <TextField
               required
-              id="economic-activity"
-              label="Atividade Economica"
+              id="juridic-natura"
+              label="Juridic nature"
               fullWidth
-              value={economicActivity}
-              onChange={(e) => setEconomicActivity(e.target.value)}
+              onChange={(e) => handleLegalNatureChange(e.target as HTMLInputElement)}
             />
           </Grid>
 
           <Grid item sm={12} md={6} lg={6}>
             <TextField
               required
-              id="juridic-natura"
-              label="Natureza Juridica"
+              id="economic-activity"
+              label="Atividade Economica"
               fullWidth
-              value={juridicNature}
-              onChange={(e) => setJuridicNature(e.target.value)}
+              value={economicActivity}
+              onChange={(e) => setEconomicActivity(e.target.value)}
             />
           </Grid>
 
