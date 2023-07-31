@@ -16,20 +16,14 @@ import FieldMasker from 'utilities/FieldMasker';
 import GeneralValidator from 'utilities/GeneralValidator';
 import CompanyAccount from 'models/Company/CompanyAccount';
 import RegistrationStatuses from 'models/Company/RegistrationStatuses';
+import LegalNatures from 'models/Company/LegalNatures';
 
 const CompanyForm: FC = () => {
 
   const [companyAccount, setCompanyAccount] = useState<CompanyAccount>({} as CompanyAccount);
 
-  const [registrationStatusError, setRegistrationStatusError] = useState<string>("");
-
   const [cnpj, setCnpj] = useState<string>("");
-  const [corporateName, setCorporateName] = useState<string>("");
-  const [registrationStatus, setRegistrationStatus] = useState<string>("");
-  const [fantasyName, setFantasyName] = useState<string>("");
-  const [cnae, setCnae] = useState<string>("")
   const [economicActivity, setEconomicActivity] = useState<string>("");
-  const [juridicNature, setJuridicNature] = useState<string>("");
   const [address, setAddress] = useState<string>("");
   const [contact, setContact] = useState<string>("");
   const [businesStartedDate, setBusinessStartedDate] = useState<string>("");
@@ -44,26 +38,12 @@ const CompanyForm: FC = () => {
     setCompanyAccount(newCompany);
   }, 350);
 
-  const handleRegistrationStatusChange = debounce((element: HTMLInputElement) => {
-    const val = element.value;
-    // if (val && RegistrationStatuses.some(x => x.key === regStatus.key && x.description === regStatus.description))
-    //   this._registrationStatus = regStatus;
-
-    // else
-    //   throw new Error("Registration status is invalid");
-  }, 350);
-
   const handleFantasyNameChange = debounce((element: HTMLInputElement) => {
     setCompanyAccount({ ...companyAccount, fantasyName: element.value });
   }, 350);
 
   const handleCnaeChange = debounce((element: HTMLInputElement) => {
     setCompanyAccount({ ...companyAccount, cnae: element.value });
-  }, 350);
-
-  const handleLegalNatureChange = debounce((element: HTMLInputElement) => {
-    const val = element.value;
-    setJuridicNature(val);
   }, 350);
 
   return (
@@ -128,6 +108,23 @@ const CompanyForm: FC = () => {
             </FormControl>
           </Grid>
 
+          <Grid item lg={6} md={6} sm={12}>
+            <FormControl>
+              <FormLabel id="nature-group-label">Juridic Nature</FormLabel>
+              <RadioGroup
+                aria-labelledby="nature-radio-group"
+                defaultValue="None"
+                name="nature-radio-buttons-group"
+                value={companyAccount.registrationStatus}
+                onChange={(e) => setCompanyAccount({ ...companyAccount, legalNature: e.target.value as "Individual Entrepreneur (EI)" | "Individual Limited Liability Company (EIRELI)" | "Simple Society (SI)" | "Private Limited Company (LTDA)" | "Limited Liability Company (SA)" | "Single-Member Limited Company (SLU)" })}
+              >
+                {LegalNatures.map(x => (
+                  <FormControlLabel key={x.key} value={x.description} control={<Radio />} label={x.description} />
+                ))}
+              </RadioGroup>
+            </FormControl>
+          </Grid>
+
           <Grid item sm={12} md={6} lg={6}>
             <TextField
               required
@@ -145,16 +142,6 @@ const CompanyForm: FC = () => {
               label="Cnae"
               fullWidth
               onChange={(e) => handleCnaeChange(e.target as HTMLInputElement)}
-            />
-          </Grid>
-
-          <Grid item sm={12} md={6} lg={6}>
-            <TextField
-              required
-              id="juridic-natura"
-              label="Juridic nature"
-              fullWidth
-              onChange={(e) => handleLegalNatureChange(e.target as HTMLInputElement)}
             />
           </Grid>
 
