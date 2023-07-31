@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useState, useContext, FormEvent } from 'react';
 import {
   Button,
   Container,
@@ -17,10 +17,18 @@ import GeneralValidator from 'utilities/GeneralValidator';
 import CompanyAccount from 'models/Company/CompanyAccount';
 import RegistrationStatuses from 'models/Company/RegistrationStatuses';
 import LegalNatures from 'models/Company/LegalNatures';
+import { createAccount } from 'api/company-requests/company-account-requests';
+import { AuthContext } from 'contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const CompanyForm: FC = () => {
 
   const [companyAccount, setCompanyAccount] = useState<CompanyAccount>({} as CompanyAccount);
+
+  const { adminToken } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const [accountCreationError, setAccountCreationError] = useState<string>("");
 
   const [cnpj, setCnpj] = useState<string>("");
   const [economicActivity, setEconomicActivity] = useState<string>("");
@@ -46,10 +54,26 @@ const CompanyForm: FC = () => {
     setCompanyAccount({ ...companyAccount, cnae: element.value });
   }, 350);
 
+  async function handleFormSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
+    e.preventDefault();
+
+    let response;
+
+    try {
+      response = await createAccount(companyAccount, adminToken!);
+
+      if (response.status === 201) {
+        navigate("/");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <>
       <Container style={{ padding: "4% 4% 4% 4%" }}>
-        <Grid container spacing={2} component="form">
+        <Grid container spacing={2} component="form" onSubmit={(e) => handleFormSubmit(e)}>
           <Grid item lg={12} md={12} sm={12}>
             <Typography
               variant="h5"
@@ -145,7 +169,7 @@ const CompanyForm: FC = () => {
             />
           </Grid>
 
-          <Grid item sm={12} md={6} lg={6}>
+          {/* <Grid item sm={12} md={6} lg={6}>
             <TextField
               required
               id="economic-activity"
@@ -234,7 +258,7 @@ const CompanyForm: FC = () => {
               value={socialMedia}
               onChange={(e) => setSocialMedia(e.target.value)}
             />
-          </Grid>
+          </Grid> */}
 
           <Grid container item justifyContent="flex-end">
             <Grid item>

@@ -3,7 +3,7 @@ import { baseUrl } from '../../constants';
 import CompanyAccount from 'models/Company/CompanyAccount';
 
 export async function createAccount(company: CompanyAccount, admToken: string) {
-  axios({
+  return await axios({
     method: 'post',
     url: baseUrl + "/api/company",
     data: company,
