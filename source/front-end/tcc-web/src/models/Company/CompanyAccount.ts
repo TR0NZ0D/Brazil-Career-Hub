@@ -1,10 +1,16 @@
 type CompanyAccount = {
   cnpj: string | undefined;
-  registrationStatus: "None" | "Active" | "Suspended" | "Inapt" | "Active not regular" | "Extinct";
-  legalNature: "Individual Entrepreneur (EI)" | "Individual Limited Liability Company (EIRELI)" | "Simple Society (SI)" | "Private Limited Company (LTDA)" | "Limited Liability Company (SA)" | "Single-Member Limited Company (SLU)";
+  registrationStatus: "1" | "2" | "3" | "4" | "5" | "8";
+  legalNature: "EI" | "EIRELI" | "SI" | "LTDA" | "SA" | "SLU";
   corporateName: string | undefined;
   fantasyName: string | undefined;
   cnae: string | undefined;
+}
+
+export function removeCharsFromCnpj(cnpj: string): string {
+  return cnpj.replaceAll('.', '')
+    .replace('-', '')
+    .replace('/', '');
 }
 
 export default CompanyAccount;

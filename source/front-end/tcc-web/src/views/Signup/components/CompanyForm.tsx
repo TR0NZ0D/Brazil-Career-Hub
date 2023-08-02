@@ -23,7 +23,10 @@ import { useNavigate } from 'react-router-dom';
 
 const CompanyForm: FC = () => {
 
-  const [companyAccount, setCompanyAccount] = useState<CompanyAccount>({} as CompanyAccount);
+  const [companyAccount, setCompanyAccount] = useState<CompanyAccount>({
+    registrationStatus: "1",
+    legalNature: "EI"
+  } as CompanyAccount);
 
   const { adminToken } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -60,7 +63,8 @@ const CompanyForm: FC = () => {
     let response;
 
     try {
-      response = await createAccount(companyAccount, adminToken!);
+      let companyToSubmit: CompanyAccount = { ...companyAccount, cnpj: cnpj };
+      response = await createAccount(companyToSubmit, adminToken!);
 
       if (response.status === 201) {
         navigate("/");
@@ -123,11 +127,15 @@ const CompanyForm: FC = () => {
                 defaultValue="None"
                 name="registration-radio-buttons-group"
                 value={companyAccount.registrationStatus}
-                onChange={(e) => setCompanyAccount({ ...companyAccount, registrationStatus: e.target.value as "None" | "Active" | "Suspended" | "Inapt" | "Active not regular" | "Extinct" })}
+                onChange={(e) => {
+                  setCompanyAccount({ ...companyAccount, registrationStatus: e.target.value as "1" | "2" | "3" | "4" | "5" | "8" })
+                }}
               >
-                {RegistrationStatuses.map(x => (
-                  <FormControlLabel key={x.key} value={x.description} control={<Radio />} label={x.description} />
-                ))}
+                {RegistrationStatuses.map(x => {
+                  return (
+                    <FormControlLabel key={x.key} value={x.key} control={< Radio />} label={x.description} />
+                  )
+                })}
               </RadioGroup>
             </FormControl>
           </Grid>
@@ -137,13 +145,12 @@ const CompanyForm: FC = () => {
               <FormLabel id="nature-group-label">Juridic Nature</FormLabel>
               <RadioGroup
                 aria-labelledby="nature-radio-group"
-                defaultValue="None"
                 name="nature-radio-buttons-group"
-                value={companyAccount.registrationStatus}
-                onChange={(e) => setCompanyAccount({ ...companyAccount, legalNature: e.target.value as "Individual Entrepreneur (EI)" | "Individual Limited Liability Company (EIRELI)" | "Simple Society (SI)" | "Private Limited Company (LTDA)" | "Limited Liability Company (SA)" | "Single-Member Limited Company (SLU)" })}
+                value={companyAccount.legalNature}
+                onChange={(e) => setCompanyAccount({ ...companyAccount, legalNature: e.target.value as "EI" | "EIRELI" | "SI" | "LTDA" | "SA" | "SLU" })}
               >
                 {LegalNatures.map(x => (
-                  <FormControlLabel key={x.key} value={x.description} control={<Radio />} label={x.description} />
+                  <FormControlLabel key={x.key} value={x.key} control={<Radio />} label={x.description} />
                 ))}
               </RadioGroup>
             </FormControl>
@@ -164,6 +171,7 @@ const CompanyForm: FC = () => {
               required
               id="cnae"
               label="Cnae"
+              type="number"
               fullWidth
               onChange={(e) => handleCnaeChange(e.target as HTMLInputElement)}
             />
