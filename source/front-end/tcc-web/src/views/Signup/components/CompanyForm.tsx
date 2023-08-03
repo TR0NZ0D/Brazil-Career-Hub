@@ -6,11 +6,13 @@ import {
   FormControlLabel,
   FormLabel,
   Grid,
+  Modal,
   Radio,
   RadioGroup,
   TextField,
   Typography
 } from '@mui/material';
+import ErrorIcon from '@mui/icons-material/Error';
 import { debounce } from 'lodash';
 import FieldMasker from 'utilities/FieldMasker';
 import GeneralValidator from 'utilities/GeneralValidator';
@@ -20,6 +22,7 @@ import LegalNatures from 'models/Company/LegalNatures';
 import { createAccount } from 'api/company-requests/company-account-requests';
 import { AuthContext } from 'contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { AxiosError } from 'axios';
 
 const CompanyForm: FC = () => {
 
@@ -31,7 +34,7 @@ const CompanyForm: FC = () => {
   const { adminToken } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [accountCreationError, setAccountCreationError] = useState<string>("");
+  const [errorCreatingAccount, setErrorCreatingAccount] = useState<string>("");
 
   const [cnpj, setCnpj] = useState<string>("");
   const [economicActivity, setEconomicActivity] = useState<string>("");
@@ -57,7 +60,7 @@ const CompanyForm: FC = () => {
     setCompanyAccount({ ...companyAccount, cnae: element.value });
   }, 350);
 
-  async function handleFormSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
+  async function handleFormSubmit(e: any): Promise<void> {
     e.preventDefault();
 
     let response;
@@ -69,13 +72,61 @@ const CompanyForm: FC = () => {
       if (response.status === 201) {
         navigate("/");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
+      setErrorCreatingAccount(error.response.data.message);
     }
   }
 
   return (
     <>
+      <Modal open={errorCreatingAccount !== ""} onClose={() => setErrorCreatingAccount("")} >
+        <Grid
+          container
+          item
+          lg={5}
+          md={8}
+          sm={8}
+          xs={10}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          style={{
+            borderRadius: 10,
+            backgroundColor: "#f7f6f6",
+            padding: "5% 5%",
+            margin: "5% auto",
+          }}
+        >
+          <ErrorIcon style={{ fill: "#FAB91A", fontSize: 40, marginBottom: "3%" }} />
+          <Typography gutterBottom>An error happened while creating your account: {errorCreatingAccount}</Typography>
+
+          <Grid
+            container
+            item
+            display="flex"
+            style={{
+              marginTop: "2%"
+            }}
+          >
+            <Button
+              variant='contained'
+              color="primary"
+              style={{ marginRight: "2%" }}
+              onClick={(e) => handleFormSubmit(e)}
+            >
+              Retry
+            </Button>
+            <Button
+              variant='outlined'
+              onClick={() => setErrorCreatingAccount("")}
+            >
+              Cancel
+            </Button>
+          </Grid>
+        </Grid>
+      </Modal>
+
       <Container style={{ padding: "4% 4% 4% 4%" }}>
         <Grid container spacing={2} component="form" onSubmit={(e) => handleFormSubmit(e)}>
           <Grid item lg={12} md={12} sm={12}>
