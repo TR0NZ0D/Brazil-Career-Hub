@@ -1,4 +1,4 @@
-import { FC, useState, useContext, FormEvent } from 'react';
+import { FC, useState, useContext } from 'react';
 import {
   Button,
   Container,
@@ -17,12 +17,18 @@ import { debounce } from 'lodash';
 import FieldMasker from 'utilities/FieldMasker';
 import GeneralValidator from 'utilities/GeneralValidator';
 import CompanyAccount from 'models/Company/CompanyAccount';
+import CompanyProfile from 'models/Company/CompanyProfile';
 import RegistrationStatuses from 'models/Company/RegistrationStatuses';
 import LegalNatures from 'models/Company/LegalNatures';
 import { createAccount } from 'api/company-requests/company-account-requests';
 import { AuthContext } from 'contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { AxiosError } from 'axios';
+import { generateGuid } from 'utilities/Generator';
+
+type CompanyAddress = {
+  key: string;
+  value: string;
+}
 
 const CompanyForm: FC = () => {
 
@@ -31,8 +37,12 @@ const CompanyForm: FC = () => {
     legalNature: "EI"
   } as CompanyAccount);
 
+  const [companyProfile, setCompanyProfile] = useState<CompanyProfile>({} as CompanyProfile)
+
   const { adminToken } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  const [companyAddresses, setCompanyAddresses] = useState<CompanyAddress[]>([{ key: generateGuid(), value: "" }])
 
   const [errorCreatingAccount, setErrorCreatingAccount] = useState<string>("");
 
@@ -59,6 +69,26 @@ const CompanyForm: FC = () => {
   const handleCnaeChange = debounce((element: HTMLInputElement) => {
     setCompanyAccount({ ...companyAccount, cnae: element.value });
   }, 350);
+
+  const handleAddressChange = debounce((element: HTMLInputElement, index: number) => {
+    let newAddresses = [...companyAddresses];
+    newAddresses[index].value = element.value;
+    setCompanyAddresses(newAddresses);
+  }, 50);
+
+  function addAddress() {
+    let newAddresses = [...companyAddresses];
+    newAddresses.push({ key: generateGuid(), value: '' });
+    setCompanyAddresses(newAddresses)
+  }
+
+  function removeAddress() {
+    if (companyAddresses.length > 1) {
+      let newAddresses = [...companyAddresses];
+      newAddresses.pop();
+      setCompanyAddresses(newAddresses)
+    }
+  }
 
   async function handleFormSubmit(e: any): Promise<void> {
     e.preventDefault();
@@ -228,26 +258,21 @@ const CompanyForm: FC = () => {
             />
           </Grid>
 
-          {/* <Grid item sm={12} md={6} lg={6}>
-            <TextField
-              required
-              id="economic-activity"
-              label="Atividade Economica"
-              fullWidth
-              value={economicActivity}
-              onChange={(e) => setEconomicActivity(e.target.value)}
-            />
-          </Grid>
+          {companyAddresses.map((x, index) =>
+            <Grid item sm={12} md={16} lg={12} key={x.key}>
+              <TextField
+                required
+                id="address"
+                label="Address"
+                fullWidth
+                onChange={(e) => handleAddressChange(e.target as HTMLInputElement, index)}
+              />
+            </Grid>
+          )}
 
-          <Grid item sm={12} md={6} lg={6}>
-            <TextField
-              required
-              id="address"
-              label="Address"
-              fullWidth
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-            />
+          <Grid container item display="flex" justifyContent="flex-end">
+            <Button variant="contained" onClick={addAddress} style={{ marginRight: "1%" }}>Add address</Button>
+            <Button variant="outlined" onClick={removeAddress}>Remove address</Button>
           </Grid>
 
           <Grid item sm={12} md={6} lg={6}>
@@ -317,7 +342,7 @@ const CompanyForm: FC = () => {
               value={socialMedia}
               onChange={(e) => setSocialMedia(e.target.value)}
             />
-          </Grid> */}
+          </Grid>
 
           <Grid container item justifyContent="flex-end">
             <Grid item>
