@@ -1,8 +1,10 @@
+import { Dayjs } from "dayjs";
+
 type CompanyProfile = {
   id: string | undefined;
   addresses: string[];
-  creationDate: Date | undefined;
-  financialCapital: number;
+  creationDate: Dayjs | undefined;
+  financialCapital: 0 | 1 | 2 | 3;
   employees: number;
   url: string;
   socialMedia: SocialMedia[];

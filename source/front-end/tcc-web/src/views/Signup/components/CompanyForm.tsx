@@ -24,6 +24,9 @@ import { createAccount } from 'api/company-requests/company-account-requests';
 import { AuthContext } from 'contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { generateGuid } from 'utilities/Generator';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs, { Dayjs } from 'dayjs';
+import { availableFinancialOptions } from 'models/Company/FinancialPosition';
 
 type CompanyAddress = {
   key: string;
@@ -37,7 +40,9 @@ const CompanyForm: FC = () => {
     legalNature: "EI"
   } as CompanyAccount);
 
-  const [companyProfile, setCompanyProfile] = useState<CompanyProfile>({} as CompanyProfile)
+  const [companyProfile, setCompanyProfile] = useState<CompanyProfile>({
+    financialCapital: 0
+  } as CompanyProfile)
 
   const { adminToken } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -286,28 +291,33 @@ const CompanyForm: FC = () => {
             />
           </Grid>
 
-          <Grid item sm={12} md={6} lg={6}>
-            <TextField
-              required
-              id="business-started-year"
-              label="Business Started Year"
-              type="number"
-              fullWidth
-              value={businesStartedDate}
-              onChange={(e) => setBusinessStartedDate(e.target.value)}
-            />
+          <Grid item lg={6} md={6} sm={12}>
+            <DatePicker
+              label="Select foundation date"
+              maxDate={dayjs(new Date().toDateString())}
+              slotProps={{
+                textField: {
+                  required: true,
+                  fullWidth: true
+                }
+              }}
+              onChange={(val: Dayjs | null) => setCompanyProfile({ ...companyProfile, creationDate: val! })} />
           </Grid>
 
-          <Grid item sm={12} md={6} lg={6}>
-            <TextField
-              required
-              id="capital"
-              label="Capital"
-              type="number"
-              fullWidth
-              value={capital}
-              onChange={(e) => setCapital(e.target.value)}
-            />
+          <Grid item lg={6} md={6} sm={12}>
+            <FormControl>
+              <FormLabel id="capital-group-label">Financial capital</FormLabel>
+              <RadioGroup
+                aria-labelledby="capital-radio-group"
+                name="capital-radio-buttons-group"
+                value={companyProfile.financialCapital}
+                onChange={(e) => setCompanyProfile({ ...companyProfile, financialCapital: Number.parseInt(e.target.value) as 0 | 1 | 2 | 3 })}
+              >
+                {availableFinancialOptions.map(x => (
+                  <FormControlLabel key={x.key} value={x.key} control={<Radio />} label={x.description} />
+                ))}
+              </RadioGroup>
+            </FormControl>
           </Grid>
 
           <Grid item sm={12} md={6} lg={6}>
