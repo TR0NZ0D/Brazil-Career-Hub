@@ -17,7 +17,7 @@ import { debounce } from 'lodash';
 import FieldMasker from 'utilities/FieldMasker';
 import GeneralValidator from 'utilities/GeneralValidator';
 import CompanyAccount from 'models/Company/CompanyAccount';
-import CompanyProfile from 'models/Company/CompanyProfile';
+import CompanyProfile, { CompanySocialMedia } from 'models/Company/CompanyProfile';
 import RegistrationStatuses from 'models/Company/RegistrationStatuses';
 import LegalNatures from 'models/Company/LegalNatures';
 import { createAccount } from 'api/company-requests/company-account-requests';
@@ -27,6 +27,7 @@ import { generateGuid } from 'utilities/Generator';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs, { Dayjs } from 'dayjs';
 import { availableFinancialOptions } from 'models/Company/FinancialPosition';
+import { availableEmployeeQuantity } from 'models/Company/EmployeeQuantities';
 
 type CompanyAddress = {
   key: string;
@@ -48,6 +49,9 @@ const CompanyForm: FC = () => {
   const navigate = useNavigate();
 
   const [companyAddresses, setCompanyAddresses] = useState<CompanyAddress[]>([{ key: generateGuid(), value: "" }])
+  const [companySocialMedias, setCompanySocialMedias] = useState<CompanySocialMedia[]>([
+    { title: '', url: '', username: '' }
+  ]);
 
   const [errorCreatingAccount, setErrorCreatingAccount] = useState<string>("");
 
@@ -81,17 +85,17 @@ const CompanyForm: FC = () => {
     setCompanyAddresses(newAddresses);
   }, 50);
 
-  function addAddress() {
-    let newAddresses = [...companyAddresses];
-    newAddresses.push({ key: generateGuid(), value: '' });
-    setCompanyAddresses(newAddresses)
+  function addItemToArray(array: any[], itemToAdd: any, funcToSet: (obj: any) => void): void {
+    let arrCopy = [...array];
+    arrCopy.push(itemToAdd);
+    funcToSet(arrCopy);
   }
 
-  function removeAddress() {
-    if (companyAddresses.length > 1) {
-      let newAddresses = [...companyAddresses];
-      newAddresses.pop();
-      setCompanyAddresses(newAddresses)
+  function popArrayItem(array: any[], funcToSet: (obj: any) => void): void {
+    if (array.length > 1) {
+      let arrCopy = [...array];
+      arrCopy.pop();
+      funcToSet(arrCopy);
     }
   }
 
@@ -276,8 +280,13 @@ const CompanyForm: FC = () => {
           )}
 
           <Grid container item display="flex" justifyContent="flex-end">
-            <Button variant="contained" onClick={addAddress} style={{ marginRight: "1%" }}>Add address</Button>
-            <Button variant="outlined" onClick={removeAddress}>Remove address</Button>
+            <Button
+              variant="contained"
+              onClick={() => addItemToArray(companyAddresses, { key: generateGuid(), value: '' }, setCompanyAddresses)}
+              style={{ marginRight: "1%" }}>
+              Add Address
+            </Button>
+            <Button variant="outlined" onClick={() => popArrayItem(companyAddresses, setCompanyAddresses)}>Remove Address</Button>
           </Grid>
 
           <Grid item sm={12} md={6} lg={6}>
@@ -320,19 +329,23 @@ const CompanyForm: FC = () => {
             </FormControl>
           </Grid>
 
-          <Grid item sm={12} md={6} lg={6}>
-            <TextField
-              required
-              id="employee-quantity"
-              label="Employee quantity"
-              type="number"
-              fullWidth
-              value={employeeQuantity}
-              onChange={(e) => setEmployeeQuantity(e.target.value)}
-            />
+          <Grid item lg={6} md={6} sm={12}>
+            <FormControl>
+              <FormLabel id="employee-group-label">Employee quantity</FormLabel>
+              <RadioGroup
+                aria-labelledby="employee-radio-group"
+                name="employee-radio-buttons-group"
+                value={companyProfile.employees}
+                onChange={(e) => setCompanyProfile({ ...companyProfile, employees: Number.parseInt(e.target.value) as 0 | 1 | 2 })}
+              >
+                {availableEmployeeQuantity.map(x => (
+                  <FormControlLabel key={x.key} value={x.key} control={<Radio />} label={x.description} />
+                ))}
+              </RadioGroup>
+            </FormControl>
           </Grid>
 
-          <Grid item sm={12} md={6} lg={6}>
+          <Grid item sm={12} md={12} lg={12}>
             <TextField
               required
               id="website"
@@ -343,15 +356,46 @@ const CompanyForm: FC = () => {
             />
           </Grid>
 
-          <Grid item sm={12} md={6} lg={6}>
-            <TextField
-              required
-              id="social-media"
-              label="Social Media"
-              fullWidth
-              value={socialMedia}
-              onChange={(e) => setSocialMedia(e.target.value)}
-            />
+          <Grid container item sm={12} md={12} lg={12} display="flex">
+            {companySocialMedias.map((x, index) => (
+              <>
+                <Grid item sm={12} md={3} lg={4} style={{ marginRight: '2%', marginBottom: '3%' }}>
+                  <TextField
+                    required
+                    id="social-media"
+                    label="Social Media"
+                    fullWidth
+                    value={socialMedia}
+                    onChange={(e) => setSocialMedia(e.target.value)}
+                  />
+                </Grid>
+                <Grid item sm={12} md={3} lg={4} style={{ marginRight: '2%' }}>
+                  <TextField
+                    required
+                    id="social-media"
+                    label="Social Media"
+                    fullWidth
+                    value={socialMedia}
+                    onChange={(e) => setSocialMedia(e.target.value)}
+                  />
+                </Grid>
+                <Grid item sm={12} md={3} lg={3} style={{ marginRight: '2%' }}>
+                  <TextField
+                    required
+                    id="social-media"
+                    label="Social Media"
+                    fullWidth
+                    value={socialMedia}
+                    onChange={(e) => setSocialMedia(e.target.value)}
+                  />
+                </Grid>
+              </>
+            ))}
+          </Grid>
+
+          <Grid container item display="flex" justifyContent="flex-end">
+            <Button variant="contained" onClick={() => addItemToArray(companySocialMedias, { title: '', url: '', username: '' }, setCompanySocialMedias)} style={{ marginRight: "1%" }}>Add Social Media</Button>
+            <Button variant="outlined" onClick={() => popArrayItem(companySocialMedias, setCompanySocialMedias)}>Remove Social Media</Button>
           </Grid>
 
           <Grid container item justifyContent="flex-end">

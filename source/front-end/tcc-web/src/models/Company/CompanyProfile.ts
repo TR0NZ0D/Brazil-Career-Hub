@@ -5,12 +5,12 @@ type CompanyProfile = {
   addresses: string[];
   creationDate: Dayjs | undefined;
   financialCapital: 0 | 1 | 2 | 3;
-  employees: number;
+  employees: 0 | 1 | 2;
   url: string;
-  socialMedia: SocialMedia[];
+  socialMedia: CompanySocialMedia[];
 }
 
-type SocialMedia = {
+export type CompanySocialMedia = {
   url: string | undefined;
   title: string | undefined;
   username: string | undefined;
