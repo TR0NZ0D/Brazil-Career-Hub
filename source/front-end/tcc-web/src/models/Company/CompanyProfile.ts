@@ -14,6 +14,7 @@ export type CompanySocialMedia = {
   url: string | undefined;
   title: string | undefined;
   username: string | undefined;
+  key: string;
 }
 
 export default CompanyProfile;

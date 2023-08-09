@@ -1,4 +1,4 @@
-import { FC, useState, useContext } from 'react';
+import { FC, useState, useContext, Fragment } from 'react';
 import {
   Button,
   Container,
@@ -42,7 +42,8 @@ const CompanyForm: FC = () => {
   } as CompanyAccount);
 
   const [companyProfile, setCompanyProfile] = useState<CompanyProfile>({
-    financialCapital: 0
+    financialCapital: 0,
+    employees: 0
   } as CompanyProfile)
 
   const { adminToken } = useContext(AuthContext);
@@ -50,20 +51,14 @@ const CompanyForm: FC = () => {
 
   const [companyAddresses, setCompanyAddresses] = useState<CompanyAddress[]>([{ key: generateGuid(), value: "" }])
   const [companySocialMedias, setCompanySocialMedias] = useState<CompanySocialMedia[]>([
-    { title: '', url: '', username: '' }
+    { title: '', url: '', username: '', key: generateGuid() }
   ]);
 
   const [errorCreatingAccount, setErrorCreatingAccount] = useState<string>("");
 
   const [cnpj, setCnpj] = useState<string>("");
-  const [economicActivity, setEconomicActivity] = useState<string>("");
-  const [address, setAddress] = useState<string>("");
   const [contact, setContact] = useState<string>("");
-  const [businesStartedDate, setBusinessStartedDate] = useState<string>("");
-  const [capital, setCapital] = useState<string>("");
-  const [employeeQuantity, setEmployeeQuantity] = useState<string>("");
   const [website, setWebsite] = useState<string>("");
-  const [socialMedia, setSocialMedia] = useState<string>("");
 
   const handleCorporateNameChange = debounce((element: HTMLInputElement) => {
     const val = element.value;
@@ -97,6 +92,12 @@ const CompanyForm: FC = () => {
       arrCopy.pop();
       funcToSet(arrCopy);
     }
+  }
+
+  function handleSocialMediaChange(val: string, index: number, prop: "url" | "title" | "username"): void {
+    let socialMediasCopy = [...companySocialMedias];
+    socialMediasCopy[index][prop] = val;
+    setCompanySocialMedias(socialMediasCopy);
   }
 
   async function handleFormSubmit(e: any): Promise<void> {
@@ -357,50 +358,55 @@ const CompanyForm: FC = () => {
           </Grid>
 
           <Grid container item sm={12} md={12} lg={12} display="flex">
-            {companySocialMedias.map((x, index) => (
-              <>
-                <Grid item sm={12} md={3} lg={4} style={{ marginRight: '2%', marginBottom: '3%' }}>
-                  <TextField
-                    required
-                    id="social-media"
-                    label="Social Media"
-                    fullWidth
-                    value={socialMedia}
-                    onChange={(e) => setSocialMedia(e.target.value)}
-                  />
-                </Grid>
-                <Grid item sm={12} md={3} lg={4} style={{ marginRight: '2%' }}>
-                  <TextField
-                    required
-                    id="social-media"
-                    label="Social Media"
-                    fullWidth
-                    value={socialMedia}
-                    onChange={(e) => setSocialMedia(e.target.value)}
-                  />
-                </Grid>
-                <Grid item sm={12} md={3} lg={3} style={{ marginRight: '2%' }}>
-                  <TextField
-                    required
-                    id="social-media"
-                    label="Social Media"
-                    fullWidth
-                    value={socialMedia}
-                    onChange={(e) => setSocialMedia(e.target.value)}
-                  />
-                </Grid>
-              </>
-            ))}
+            {companySocialMedias.map((x, index) => {
+              const titleId: string = `title-social-media-${index}`;
+              const urlId: string = `url-social-media-${index}`;
+              const usernameId: string = `username-social-media-${index}`;
+              return (
+                <Fragment key={x.key}>
+                  <Grid item sm={12} md={3} lg={4} style={{ marginRight: '2%', marginBottom: '1%' }}>
+                    <TextField
+                      id={titleId}
+                      label="Title"
+                      helperText="Type which is the social media"
+                      fullWidth
+                      value={x.title}
+                      onChange={(e) => handleSocialMediaChange(e.target.value, index, "title")}
+                    />
+                  </Grid>
+                  <Grid item sm={12} md={3} lg={4} style={{ marginRight: '2%', marginBottom: '1%' }}>
+                    <TextField
+                      id={urlId}
+                      label="Url"
+                      helperText="Type the URL"
+                      fullWidth
+                      value={x.url}
+                      onChange={(e) => handleSocialMediaChange(e.target.value, index, "url")}
+                    />
+                  </Grid>
+                  <Grid item sm={12} md={3} lg={3} style={{ marginRight: '2%', marginBottom: '1%' }}>
+                    <TextField
+                      id={usernameId}
+                      label="Username"
+                      helperText="Your username in this social media"
+                      fullWidth
+                      value={x.username}
+                      onChange={(e) => handleSocialMediaChange(e.target.value, index, "username")}
+                    />
+                  </Grid>
+                </Fragment>
+              )
+            })}
           </Grid>
 
           <Grid container item display="flex" justifyContent="flex-end">
-            <Button variant="contained" onClick={() => addItemToArray(companySocialMedias, { title: '', url: '', username: '' }, setCompanySocialMedias)} style={{ marginRight: "1%" }}>Add Social Media</Button>
+            <Button variant="contained" onClick={() => addItemToArray(companySocialMedias, { title: '', url: '', username: '', key: generateGuid() }, setCompanySocialMedias)} style={{ marginRight: "1%" }}>Add Social Media</Button>
             <Button variant="outlined" onClick={() => popArrayItem(companySocialMedias, setCompanySocialMedias)}>Remove Social Media</Button>
           </Grid>
 
-          <Grid container item justifyContent="flex-end">
+          <Grid container item justifyContent="flex-end" style={{ marginTop: '5%' }}>
             <Grid item>
-              <Button variant="contained" type="submit">Submit</Button>
+              <Button variant="contained" type="submit">Create account</Button>
             </Grid>
           </Grid>
         </Grid>
