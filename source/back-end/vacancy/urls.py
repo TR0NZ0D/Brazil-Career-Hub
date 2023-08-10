@@ -11,5 +11,5 @@ app_name = 'vacancy'
 
 # localhost:8000/api/vacancy/
 urlpatterns = [
-
+    path('', views.Vacancy.as_view())  # type: ignore
 ]

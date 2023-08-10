@@ -25,14 +25,12 @@ class VacancyModel(models.Model):
     created_at = models.DateTimeField(verbose_name="Created At",
                                       auto_now_add=True,
                                       editable=False)
-    salary = models.IntegerField(verbose_name="Salary")
+    salary = models.PositiveIntegerField(verbose_name="Salary")
     address = models.ForeignKey(VacancyAddress,
                                 verbose_name="Address",
                                 on_delete=models.SET_NULL,
                                 null=True,
                                 blank=True)
-    resume = models.FileField(verbose_name="Resume",
-                              upload_to='resumes/%Y/%m/%d')
 
     def __str__(self) -> str:
         return self.role
