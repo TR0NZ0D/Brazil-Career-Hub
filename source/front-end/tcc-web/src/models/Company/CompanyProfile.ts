@@ -7,6 +7,7 @@ type CompanyProfile = {
   financialCapital: 0 | 1 | 2 | 3;
   employees: 0 | 1 | 2;
   url: string;
+  contact: string;
   socialMedia: CompanySocialMedia[];
 }
 

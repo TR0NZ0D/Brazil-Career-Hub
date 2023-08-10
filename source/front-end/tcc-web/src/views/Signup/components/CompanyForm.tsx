@@ -28,6 +28,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs, { Dayjs } from 'dayjs';
 import { availableFinancialOptions } from 'models/Company/FinancialPosition';
 import { availableEmployeeQuantity } from 'models/Company/EmployeeQuantities';
+import { createCompanyProfile } from 'api/company-requests/company-profile-requests';
 
 type CompanyAddress = {
   key: string;
@@ -57,8 +58,6 @@ const CompanyForm: FC = () => {
   const [errorCreatingAccount, setErrorCreatingAccount] = useState<string>("");
 
   const [cnpj, setCnpj] = useState<string>("");
-  const [contact, setContact] = useState<string>("");
-  const [website, setWebsite] = useState<string>("");
 
   const handleCorporateNameChange = debounce((element: HTMLInputElement) => {
     const val = element.value;
@@ -72,6 +71,14 @@ const CompanyForm: FC = () => {
 
   const handleCnaeChange = debounce((element: HTMLInputElement) => {
     setCompanyAccount({ ...companyAccount, cnae: element.value });
+  }, 350);
+
+  const handleContactChange = debounce((element: HTMLInputElement) => {
+    setCompanyProfile({ ...companyProfile, contact: element.value });
+  }, 350);
+
+  const handleWebisteChange = debounce((element: HTMLInputElement) => {
+    setCompanyProfile({ ...companyProfile, url: element.value });
   }, 350);
 
   const handleAddressChange = debounce((element: HTMLInputElement, index: number) => {
@@ -106,11 +113,15 @@ const CompanyForm: FC = () => {
     let response;
 
     try {
-      let companyToSubmit: CompanyAccount = { ...companyAccount, cnpj: cnpj };
-      response = await createAccount(companyToSubmit, adminToken!);
+      let accountToSend = { ...companyAccount, cnpj: cnpj };
+      response = await createAccount(accountToSend, adminToken!);
 
       if (response.status === 201) {
-        navigate("/");
+        let profileToSend = { ...companyProfile };
+        response = await createCompanyProfile(profileToSend, adminToken!);
+
+        if (response.status === 201)
+          navigate("/");
       }
     } catch (error: any) {
       console.log(error);
@@ -296,8 +307,8 @@ const CompanyForm: FC = () => {
               id="contact"
               label="Contact"
               fullWidth
-              value={contact}
-              onChange={(e) => setContact(e.target.value)}
+              value={companyProfile.contact}
+              onChange={(e) => handleContactChange(e.target as HTMLInputElement)}
             />
           </Grid>
 
@@ -352,8 +363,8 @@ const CompanyForm: FC = () => {
               id="website"
               label="Website"
               fullWidth
-              value={website}
-              onChange={(e) => setWebsite(e.target.value)}
+              value={companyProfile.url}
+              onChange={(e) => handleWebisteChange(e.target as HTMLInputElement)}
             />
           </Grid>
 
