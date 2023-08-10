@@ -20,3 +20,15 @@ export async function createAccount(company: CompanyAccount, admToken: string) {
     }
   })
 }
+
+export async function deleteAccount(id: number, admToken: string) {
+  return await axios({
+    method: 'delete',
+    url: baseUrl + "/api/company/",
+    params: { pk: id },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + admToken
+    }
+  })
+}

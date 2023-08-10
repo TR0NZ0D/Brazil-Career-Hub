@@ -20,7 +20,7 @@ import CompanyAccount from 'models/Company/CompanyAccount';
 import CompanyProfile, { CompanySocialMedia } from 'models/Company/CompanyProfile';
 import RegistrationStatuses from 'models/Company/RegistrationStatuses';
 import LegalNatures from 'models/Company/LegalNatures';
-import { createAccount } from 'api/company-requests/company-account-requests';
+import { createAccount, deleteAccount } from 'api/company-requests/company-account-requests';
 import { AuthContext } from 'contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { generateGuid } from 'utilities/Generator';
@@ -111,17 +111,23 @@ const CompanyForm: FC = () => {
     e.preventDefault();
 
     let response;
-
+    let id: number;
     try {
       let accountToSend = { ...companyAccount, cnpj: cnpj };
       response = await createAccount(accountToSend, adminToken!);
 
       if (response.status === 201) {
-        let profileToSend = { ...companyProfile };
-        response = await createCompanyProfile(profileToSend, adminToken!);
+        try {
+          id = response.data.content.id;
+          let profileToSend = { ...companyProfile, id: id };
+          response = await createCompanyProfile(profileToSend, adminToken!);
 
-        if (response.status === 201)
-          navigate("/");
+          if (response.status === 201)
+            navigate("/");
+        } catch (error: any) {
+          deleteAccount(id!, adminToken!);
+          throw error;
+        }
       }
     } catch (error: any) {
       console.log(error);
@@ -307,7 +313,6 @@ const CompanyForm: FC = () => {
               id="contact"
               label="Contact"
               fullWidth
-              value={companyProfile.contact}
               onChange={(e) => handleContactChange(e.target as HTMLInputElement)}
             />
           </Grid>
@@ -363,7 +368,6 @@ const CompanyForm: FC = () => {
               id="website"
               label="Website"
               fullWidth
-              value={companyProfile.url}
               onChange={(e) => handleWebisteChange(e.target as HTMLInputElement)}
             />
           </Grid>
