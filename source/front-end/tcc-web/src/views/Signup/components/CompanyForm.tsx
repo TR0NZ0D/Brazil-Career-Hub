@@ -29,11 +29,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { availableFinancialOptions } from 'models/Company/FinancialPosition';
 import { availableEmployeeQuantity } from 'models/Company/EmployeeQuantities';
 import { createCompanyProfile } from 'api/company-requests/company-profile-requests';
-
-type CompanyAddress = {
-  key: string;
-  value: string;
-}
+import MultipleTextField from 'components/MultipleTextField/MultipleTextField';
 
 const CompanyForm: FC = () => {
 
@@ -44,16 +40,14 @@ const CompanyForm: FC = () => {
 
   const [companyProfile, setCompanyProfile] = useState<CompanyProfile>({
     financialCapital: 0,
-    employees: 0
+    employees: 0,
+    socialMedia: [{ title: '', url: '', username: '', key: generateGuid() }]
   } as CompanyProfile)
+
+  const [companyAddresses, setCompanyAddresses] = useState<string[]>([''])
 
   const { adminToken } = useContext(AuthContext);
   const navigate = useNavigate();
-
-  const [companyAddresses, setCompanyAddresses] = useState<CompanyAddress[]>([{ key: generateGuid(), value: "" }])
-  const [companySocialMedias, setCompanySocialMedias] = useState<CompanySocialMedia[]>([
-    { title: '', url: '', username: '', key: generateGuid() }
-  ]);
 
   const [errorCreatingAccount, setErrorCreatingAccount] = useState<string>("");
 
@@ -81,30 +75,23 @@ const CompanyForm: FC = () => {
     setCompanyProfile({ ...companyProfile, url: element.value });
   }, 350);
 
-  const handleAddressChange = debounce((element: HTMLInputElement, index: number) => {
-    let newAddresses = [...companyAddresses];
-    newAddresses[index].value = element.value;
-    setCompanyAddresses(newAddresses);
-  }, 50);
-
-  function addItemToArray(array: any[], itemToAdd: any, funcToSet: (obj: any) => void): void {
-    let arrCopy = [...array];
-    arrCopy.push(itemToAdd);
-    funcToSet(arrCopy);
+  function addSocialMedia() {
+    const newSocialMedia: CompanySocialMedia = { title: '', url: '', username: '', key: generateGuid() };
+    let companyCopy: CompanyProfile = { ...companyProfile };
+    companyCopy.socialMedia.push(newSocialMedia);
+    setCompanyProfile(companyCopy);
   }
 
-  function popArrayItem(array: any[], funcToSet: (obj: any) => void): void {
-    if (array.length > 1) {
-      let arrCopy = [...array];
-      arrCopy.pop();
-      funcToSet(arrCopy);
-    }
+  function removeSocialMedia() {
+    let companyCopy: CompanyProfile = { ...companyProfile };
+    companyCopy.socialMedia.pop();
+    setCompanyProfile(companyCopy);
   }
 
   function handleSocialMediaChange(val: string, index: number, prop: "url" | "title" | "username"): void {
-    let socialMediasCopy = [...companySocialMedias];
-    socialMediasCopy[index][prop] = val;
-    setCompanySocialMedias(socialMediasCopy);
+    let companyCopy: CompanyProfile = { ...companyProfile };
+    companyCopy.socialMedia[index][prop] = val;
+    setCompanyProfile(companyCopy);
   }
 
   async function handleFormSubmit(e: any): Promise<void> {
@@ -119,7 +106,11 @@ const CompanyForm: FC = () => {
       if (response.status === 201) {
         try {
           id = response.data.content.id;
-          let profileToSend = { ...companyProfile, id: id };
+          let profileToSend: CompanyProfile = {
+            ...companyProfile,
+            addresses: companyAddresses,
+            id: id
+          };
           response = await createCompanyProfile(profileToSend, adminToken!);
 
           if (response.status === 201)
@@ -285,27 +276,12 @@ const CompanyForm: FC = () => {
             />
           </Grid>
 
-          {companyAddresses.map((x, index) =>
-            <Grid item sm={12} md={16} lg={12} key={x.key}>
-              <TextField
-                required
-                id="address"
-                label="Address"
-                fullWidth
-                onChange={(e) => handleAddressChange(e.target as HTMLInputElement, index)}
-              />
-            </Grid>
-          )}
-
-          <Grid container item display="flex" justifyContent="flex-end">
-            <Button
-              variant="contained"
-              onClick={() => addItemToArray(companyAddresses, { key: generateGuid(), value: '' }, setCompanyAddresses)}
-              style={{ marginRight: "1%" }}>
-              Add Address
-            </Button>
-            <Button variant="outlined" onClick={() => popArrayItem(companyAddresses, setCompanyAddresses)}>Remove Address</Button>
-          </Grid>
+          <MultipleTextField
+            label="Address"
+            fields={companyAddresses}
+            itemToPush={''}
+            setFunction={setCompanyAddresses}
+          />
 
           <Grid item sm={12} md={6} lg={6}>
             <TextField
@@ -373,7 +349,7 @@ const CompanyForm: FC = () => {
           </Grid>
 
           <Grid container item sm={12} md={12} lg={12} display="flex">
-            {companySocialMedias.map((x, index) => {
+            {companyProfile.socialMedia.map((x, index) => {
               const titleId: string = `title-social-media-${index}`;
               const urlId: string = `url-social-media-${index}`;
               const usernameId: string = `username-social-media-${index}`;
@@ -415,8 +391,8 @@ const CompanyForm: FC = () => {
           </Grid>
 
           <Grid container item display="flex" justifyContent="flex-end">
-            <Button variant="contained" onClick={() => addItemToArray(companySocialMedias, { title: '', url: '', username: '', key: generateGuid() }, setCompanySocialMedias)} style={{ marginRight: "1%" }}>Add Social Media</Button>
-            <Button variant="outlined" onClick={() => popArrayItem(companySocialMedias, setCompanySocialMedias)}>Remove Social Media</Button>
+            <Button variant="contained" onClick={addSocialMedia} style={{ marginRight: "1%" }}>Add Social Media</Button>
+            <Button variant="outlined" onClick={removeSocialMedia}>Remove Social Media</Button>
           </Grid>
 
           <Grid container item justifyContent="flex-end" style={{ marginTop: '5%' }}>
