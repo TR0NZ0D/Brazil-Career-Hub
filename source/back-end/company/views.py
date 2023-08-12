@@ -599,7 +599,7 @@ Inform PK or slug if mentioning specific company account, PK will prevail if bot
                         name="financial_capital",
                         location='form',
                         required=False,
-                        schema=coreschema.Number(),
+                        schema=coreschema.Integer(),
                         description="Company's financial capital"
                     ),
                     coreapi.Field(
@@ -665,7 +665,7 @@ Inform PK or slug if mentioning specific company account, PK will prevail if bot
                         name="financial_capital",
                         location='form',
                         required=False,
-                        schema=coreschema.Number(),
+                        schema=coreschema.Integer(),
                         description="Company's financial capital"
                     ),
                     coreapi.Field(
@@ -749,8 +749,8 @@ class CompanyProfile(Base):
                 return generate_error_response("Creation date must follow the iso 8601 format (yyyy-mm-dd)")
         else:
             formatted_creation_date = None
-        if financial_capital and not isinstance(financial_capital, float):
-            return generate_error_response("Financial capital should be a float")
+        if financial_capital and not isinstance(financial_capital, int):
+            return generate_error_response("Financial capital should be an integer")
         if employees and not isinstance(employees, int):
             return generate_error_response("Employee number should be an integer")
         if site_url and not isinstance(site_url, str):

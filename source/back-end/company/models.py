@@ -124,9 +124,9 @@ class CompanyProfileModel(models.Model):
                                      blank=True,
                                      null=True,
                                      help_text="This is the company's creation date")
-    financial_capital = models.FloatField(verbose_name="Financial capital",  # type: ignore
-                                          null=True,
-                                          blank=True)
+    financial_capital = models.IntegerField(verbose_name="Financial capital",  # type: ignore
+                                            null=True,
+                                            blank=True)
     employees = models.PositiveIntegerField(verbose_name="Company's employee number",  # type: ignore
                                             null=True,
                                             blank=True)
