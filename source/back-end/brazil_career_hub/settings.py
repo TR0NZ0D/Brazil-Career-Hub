@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'users',  # User profile and account (prod clients)
     'company',  # Company profile and account (prod clients)
     'vacancy',  # Jobs and vacancy (project's main content)
+    'resumes',  # User's resumes
     # --- Other Libraries --- #
     'django_filters',
     'rest_framework',  # Toolkit for building web APIs

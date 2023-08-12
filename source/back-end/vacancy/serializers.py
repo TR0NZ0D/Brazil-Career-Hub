@@ -1,13 +1,6 @@
-
 from rest_framework import serializers
 
 from . import models
-
-
-class VacancyAddressSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.VacancyAddress
-        fields = '__all__'
 
 
 class VacancyModelSerializer(serializers.ModelSerializer):
