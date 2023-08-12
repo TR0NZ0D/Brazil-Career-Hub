@@ -1,3 +1,4 @@
+from typing import Any
 from django.db import models
 
 
@@ -12,6 +13,15 @@ class VacancyAddress(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+    def __getattribute__(self, __name: str) -> Any:
+        if __name == "serialize":
+            return {
+                "title": self.title,
+                "address": self.address,
+                "number": self.number
+            }
+        return super().__getattribute__(__name)
 
     class Meta:
         verbose_name = 'Vacancy Address'

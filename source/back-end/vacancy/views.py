@@ -281,7 +281,7 @@ class Vacancy(Base):
             vacancy = models.VacancyModel.objects.all().filter(pk=primary_key).first()
 
             response_data = self.generate_basic_response_data(status.HTTP_200_OK,
-                                                              "")
+                                                              "Vacancy found")
             if vacancy is not None:
                 serializer = VacancyModelSerializer(vacancy)
                 response_data['content'] = serializer.data
@@ -292,7 +292,7 @@ class Vacancy(Base):
         vacancies = models.VacancyModel.objects.all()
 
         response_data = self.generate_basic_response_data(status.HTTP_200_OK,
-                                                          "")
+                                                          "Vacancies found")
 
         if vacancies is not None:
             serializer = VacancyModelSerializer(vacancies, many=True)
