@@ -3,6 +3,48 @@ from rest_framework import serializers
 from . import models
 
 
+class ExperienceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ResumeExperience
+        fields = '__all__'
+
+
+class CompetenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ResumeCompetence
+        fields = '__all__'
+
+
+class CourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ResumeCourse
+        fields = '__all__'
+
+
+class ReferenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ResumeReference
+        fields = '__all__'
+
+
+class GraduationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ResumeGraduation
+        fields = '__all__'
+
+
+class ProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ResumeProject
+        fields = '__all__'
+
+
+class LinkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ResumeLink
+        fields = '__all__'
+
+
 class ResumeModelSerializer(serializers.ModelSerializer):
     all_experiences = serializers.ModelSerializer()
     all_competences = serializers.ModelSerializer()

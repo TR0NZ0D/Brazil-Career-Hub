@@ -70,11 +70,11 @@ class ResumeModelAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at",)
 
 
-admin.site.register(models.ResumeExperiences, ResumeExperiencesAdmin)
-admin.site.register(models.ResumeCompetences, ResumeCompetencesAdmin)
-admin.site.register(models.ResumeCourses, ResumeCoursesAdmin)
-admin.site.register(models.ResumeReferences, ResumeReferencesAdmin)
+admin.site.register(models.ResumeExperience, ResumeExperiencesAdmin)
+admin.site.register(models.ResumeCompetence, ResumeCompetencesAdmin)
+admin.site.register(models.ResumeCourse, ResumeCoursesAdmin)
+admin.site.register(models.ResumeReference, ResumeReferencesAdmin)
 admin.site.register(models.ResumeGraduation, ResumeGraduationAdmin)
-admin.site.register(models.ResumeProjects, ResumeProjectsAdmin)
+admin.site.register(models.ResumeProject, ResumeProjectsAdmin)
 admin.site.register(models.ResumeLink, ResumeLinkAdmin)
 admin.site.register(models.ResumeModel, ResumeModelAdmin)
