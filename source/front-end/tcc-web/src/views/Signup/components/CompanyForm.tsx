@@ -17,7 +17,7 @@ import { debounce } from 'lodash';
 import FieldMasker from 'utilities/FieldMasker';
 import GeneralValidator from 'utilities/GeneralValidator';
 import CompanyAccount from 'models/Company/CompanyAccount';
-import CompanyProfile, { CompanySocialMedia } from 'models/Company/CompanyProfile';
+import CompanyProfile, { addItemToCompanyArray, changeCompanyArrayItem, removeItemFromCompanyArray } from 'models/Company/CompanyProfile';
 import RegistrationStatuses from 'models/Company/RegistrationStatuses';
 import LegalNatures from 'models/Company/LegalNatures';
 import { createAccount, deleteAccount } from 'api/company-requests/company-account-requests';
@@ -29,7 +29,6 @@ import dayjs, { Dayjs } from 'dayjs';
 import { availableFinancialOptions } from 'models/Company/FinancialPosition';
 import { availableEmployeeQuantity } from 'models/Company/EmployeeQuantities';
 import { createCompanyProfile } from 'api/company-requests/company-profile-requests';
-import MultipleTextField from 'components/MultipleTextField/MultipleTextField';
 
 const CompanyForm: FC = () => {
 
@@ -41,10 +40,9 @@ const CompanyForm: FC = () => {
   const [companyProfile, setCompanyProfile] = useState<CompanyProfile>({
     financialCapital: 0,
     employees: 0,
-    socialMedia: [{ title: '', url: '', username: '', key: generateGuid() }]
+    socialMedia: [{ title: '', url: '', username: '', key: generateGuid() }],
+    addresses: [{ address: '', title: '', key: generateGuid() }]
   } as CompanyProfile)
-
-  const [companyAddresses, setCompanyAddresses] = useState<string[]>([''])
 
   const { adminToken } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -75,25 +73,6 @@ const CompanyForm: FC = () => {
     setCompanyProfile({ ...companyProfile, url: element.value });
   }, 350);
 
-  function addSocialMedia() {
-    const newSocialMedia: CompanySocialMedia = { title: '', url: '', username: '', key: generateGuid() };
-    let companyCopy: CompanyProfile = { ...companyProfile };
-    companyCopy.socialMedia.push(newSocialMedia);
-    setCompanyProfile(companyCopy);
-  }
-
-  function removeSocialMedia() {
-    let companyCopy: CompanyProfile = { ...companyProfile };
-    companyCopy.socialMedia.pop();
-    setCompanyProfile(companyCopy);
-  }
-
-  function handleSocialMediaChange(val: string, index: number, prop: "url" | "title" | "username"): void {
-    let companyCopy: CompanyProfile = { ...companyProfile };
-    companyCopy.socialMedia[index][prop] = val;
-    setCompanyProfile(companyCopy);
-  }
-
   async function handleFormSubmit(e: any): Promise<void> {
     e.preventDefault();
 
@@ -108,7 +87,6 @@ const CompanyForm: FC = () => {
           id = response.data.content.id;
           let profileToSend: CompanyProfile = {
             ...companyProfile,
-            addresses: companyAddresses,
             id: id
           };
           response = await createCompanyProfile(profileToSend, adminToken!);
@@ -276,16 +254,59 @@ const CompanyForm: FC = () => {
             />
           </Grid>
 
-          <MultipleTextField
-            label="Address"
-            fields={companyAddresses}
-            itemToPush={''}
-            setFunction={setCompanyAddresses}
-          />
+          <Grid container item sm={12} md={12} lg={12} display="flex">
+            {companyProfile.addresses.map((x, index) => {
+              const titleId: string = `title-address-${index}`;
+              const addressId: string = `address-${index}`;
+              const addressNumberId: string = `address-number-${index}`;
+
+              return (
+                <Fragment key={x.key}>
+                  <Grid item sm={12} md={3} lg={4} style={{ marginRight: '2%', marginBottom: '1%' }}>
+                    <TextField
+                      id={titleId}
+                      label="Title"
+                      helperText="Describe what this address is"
+                      fullWidth
+                      value={x.title}
+                      onChange={(e) => setCompanyProfile(changeCompanyArrayItem(companyProfile, companyProfile.addresses, index, "title",
+                        e.target.value))}
+                    />
+                  </Grid>
+                  <Grid item sm={12} md={3} lg={4} style={{ marginRight: '2%', marginBottom: '1%' }}>
+                    <TextField
+                      id={addressId}
+                      label="Address"
+                      helperText="Type the address"
+                      fullWidth
+                      value={x.address}
+                      onChange={(e) => setCompanyProfile(changeCompanyArrayItem(companyProfile, companyProfile.addresses, index, "address",
+                        e.target.value))}
+                    />
+                  </Grid>
+                  <Grid item sm={12} md={3} lg={3} style={{ marginRight: '2%', marginBottom: '1%' }}>
+                    <TextField
+                      id={addressNumberId}
+                      label="Number"
+                      helperText="Insert the number of this address"
+                      fullWidth
+                      value={x.number}
+                      onChange={(e) => setCompanyProfile(changeCompanyArrayItem(companyProfile, companyProfile.addresses, index, "number",
+                        e.target.value))}
+                    />
+                  </Grid>
+                </Fragment>
+              )
+            })}
+          </Grid>
+
+          <Grid container item display="flex" justifyContent="flex-end">
+            <Button variant="contained" onClick={() => setCompanyProfile(addItemToCompanyArray(companyProfile, companyProfile.addresses))} style={{ marginRight: "1%" }}>Add Address</Button>
+            <Button variant="outlined" onClick={() => setCompanyProfile(removeItemFromCompanyArray(companyProfile, companyProfile.addresses))}>Remove Address</Button>
+          </Grid>
 
           <Grid item sm={12} md={6} lg={6}>
             <TextField
-              required
               id="contact"
               label="Contact"
               fullWidth
@@ -299,7 +320,6 @@ const CompanyForm: FC = () => {
               maxDate={dayjs(new Date().toDateString())}
               slotProps={{
                 textField: {
-                  required: true,
                   fullWidth: true
                 }
               }}
@@ -340,7 +360,6 @@ const CompanyForm: FC = () => {
 
           <Grid item sm={12} md={12} lg={12}>
             <TextField
-              required
               id="website"
               label="Website"
               fullWidth
@@ -362,7 +381,8 @@ const CompanyForm: FC = () => {
                       helperText="Type which is the social media"
                       fullWidth
                       value={x.title}
-                      onChange={(e) => handleSocialMediaChange(e.target.value, index, "title")}
+                      onChange={(e) => setCompanyProfile(changeCompanyArrayItem(companyProfile, companyProfile.socialMedia, index, "title",
+                        e.target.value))}
                     />
                   </Grid>
                   <Grid item sm={12} md={3} lg={4} style={{ marginRight: '2%', marginBottom: '1%' }}>
@@ -372,7 +392,8 @@ const CompanyForm: FC = () => {
                       helperText="Type the URL"
                       fullWidth
                       value={x.url}
-                      onChange={(e) => handleSocialMediaChange(e.target.value, index, "url")}
+                      onChange={(e) => setCompanyProfile(changeCompanyArrayItem(companyProfile, companyProfile.socialMedia, index, "url",
+                        e.target.value))}
                     />
                   </Grid>
                   <Grid item sm={12} md={3} lg={3} style={{ marginRight: '2%', marginBottom: '1%' }}>
@@ -382,7 +403,8 @@ const CompanyForm: FC = () => {
                       helperText="Your username in this social media"
                       fullWidth
                       value={x.username}
-                      onChange={(e) => handleSocialMediaChange(e.target.value, index, "username")}
+                      onChange={(e) => setCompanyProfile(changeCompanyArrayItem(companyProfile, companyProfile.socialMedia, index, "username",
+                        e.target.value))}
                     />
                   </Grid>
                 </Fragment>
@@ -391,8 +413,14 @@ const CompanyForm: FC = () => {
           </Grid>
 
           <Grid container item display="flex" justifyContent="flex-end">
-            <Button variant="contained" onClick={addSocialMedia} style={{ marginRight: "1%" }}>Add Social Media</Button>
-            <Button variant="outlined" onClick={removeSocialMedia}>Remove Social Media</Button>
+            <Button
+              variant="contained"
+              onClick={() => setCompanyProfile(addItemToCompanyArray(companyProfile, companyProfile.socialMedia))}
+              style={{ marginRight: "1%" }}
+            >
+              Add Social Media
+            </Button>
+            <Button variant="outlined" onClick={() => setCompanyProfile(removeItemFromCompanyArray(companyProfile, companyProfile.socialMedia))}>Remove Social Media</Button>
           </Grid>
 
           <Grid container item justifyContent="flex-end" style={{ marginTop: '5%' }}>
