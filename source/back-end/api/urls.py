@@ -26,4 +26,7 @@ urlpatterns = [
 
     # ========== Vacancy ========== #
     path('vacancy/', include('vacancy.urls')),
+
+    # ========== Resumes ========== #
+    path('resumes/', include('resumes.urls')),
 ]
