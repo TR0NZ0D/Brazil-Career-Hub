@@ -5,6 +5,7 @@ type CompanyAccount = {
   corporateName: string | undefined;
   fantasyName: string | undefined;
   cnae: string | undefined;
+  password: string;
 }
 
 export function removeCharsFromCnpj(cnpj: string): string {
