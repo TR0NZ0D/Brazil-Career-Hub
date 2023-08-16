@@ -1,13 +1,13 @@
-# import coreapi
-# import coreschema
+import coreapi
+import coreschema
 
 from django.http import HttpRequest
-# from django.core.exceptions import ValidationError
-# from rest_framework import status
-# from rest_framework.response import Response
+from django.core.exceptions import ValidationError
+from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.schemas.coreapi import AutoSchema
 
-# from api.tools.api_tools import description_generator
+from api.tools.api_tools import description_generator
 from api.views import Base
 from . import serializers
 from . import models
@@ -412,6 +412,18 @@ class Resume(Base):
     not_found_id_str = "Resume ID not found"
     not_found_vacancy_str = "Resume not found"
 
+    def get(self, request, *args, **kwargs):
+        pass
+
+    def post(self, request, *args, **kwargs):
+        pass
+
+    def patch(self, request, *args, **kwargs):
+        pass
+
+    def delete(self, request, *args, **kwargs):
+        pass
+
 
 # ========== Experience ========== #
 class ExperienceSchema(AutoSchema):
@@ -609,6 +621,18 @@ class Experience(Base):
 
     not_found_id_str = "Experience ID not found"
     not_found_vacancy_str = "Experience not found"
+
+    def get(self, request, *args, **kwargs):
+        pass
+
+    def post(self, request, *args, **kwargs):
+        pass
+
+    def patch(self, request, *args, **kwargs):
+        pass
+
+    def delete(self, request, *args, **kwargs):
+        pass
 
 
 # ========== Competence ========== #
@@ -808,6 +832,18 @@ class Competence(Base):
     not_found_id_str = "Competence ID not found"
     not_found_vacancy_str = "Competence not found"
 
+    def get(self, request, *args, **kwargs):
+        pass
+
+    def post(self, request, *args, **kwargs):
+        pass
+
+    def patch(self, request, *args, **kwargs):
+        pass
+
+    def delete(self, request, *args, **kwargs):
+        pass
+
 
 # ========== Course ========== #
 class CourseSchema(AutoSchema):
@@ -1005,6 +1041,18 @@ class Course(Base):
 
     not_found_id_str = "Course ID not found"
     not_found_vacancy_str = "Course not found"
+
+    def get(self, request, *args, **kwargs):
+        pass
+
+    def post(self, request, *args, **kwargs):
+        pass
+
+    def patch(self, request, *args, **kwargs):
+        pass
+
+    def delete(self, request, *args, **kwargs):
+        pass
 
 
 # ========== Reference ========== #
@@ -1204,6 +1252,18 @@ class Reference(Base):
     not_found_id_str = "Reference ID not found"
     not_found_vacancy_str = "Reference not found"
 
+    def get(self, request, *args, **kwargs):
+        pass
+
+    def post(self, request, *args, **kwargs):
+        pass
+
+    def patch(self, request, *args, **kwargs):
+        pass
+
+    def delete(self, request, *args, **kwargs):
+        pass
+
 
 # ========== Graduation ========== #
 class GraduationSchema(AutoSchema):
@@ -1401,6 +1461,18 @@ class Graduation(Base):
 
     not_found_id_str = "Graduation ID not found"
     not_found_vacancy_str = "Graduation not found"
+
+    def get(self, request, *args, **kwargs):
+        pass
+
+    def post(self, request, *args, **kwargs):
+        pass
+
+    def patch(self, request, *args, **kwargs):
+        pass
+
+    def delete(self, request, *args, **kwargs):
+        pass
 
 
 # ========== Project ========== #
@@ -1600,10 +1672,21 @@ class Project(Base):
     not_found_id_str = "Project ID not found"
     not_found_vacancy_str = "Project not found"
 
+    def get(self, request, *args, **kwargs):
+        pass
+
+    def post(self, request, *args, **kwargs):
+        pass
+
+    def patch(self, request, *args, **kwargs):
+        pass
+
+    def delete(self, request, *args, **kwargs):
+        pass
+
 
 # ========== Link ========== #
 class LinkSchema(AutoSchema):
-    # TODO: Edit to link
     def get_description(self, path: str, method: str) -> str:
         authorization_info = """
 ## Authorization:
@@ -1614,7 +1697,15 @@ class LinkSchema(AutoSchema):
         query_params_info = """
 ## Query Parameters
 
-Inform PK if mentioning specific vacancy
+- Inform link PK if mentioning specific link
+- Inform user pk / profile pk / profile slug to get all links
+
+"""
+
+        unique_query_params_info = """
+## Query Parameters
+
+Inform link PK if mentioning specific link
 
 """
 
@@ -1623,62 +1714,62 @@ Inform PK if mentioning specific vacancy
                 responses = {
                     "200": {
                         'description': 'OK',
-                        'reason': 'Vacancy found'
+                        'reason': 'Link found'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy not found'
+                        'reason': 'Link not found'
                     }
                 }
-                return description_generator(title="Get a specific vacancy or all vacancies",
+                return description_generator(title="Get a specific link or all links from a specific user",
                                              description=query_params_info + authorization_info,
                                              responses=responses)
             case 'POST':
                 responses = {
                     "201": {
                         'description': 'CREATED',
-                        'reason': 'Vacancy successfully created'
+                        'reason': 'Link successfully created'
                     },
                     "400": {
                         'description': "BAD REQUEST",
                         'reason': 'Invalid request body'
                     }
                 }
-                return description_generator(title="Create a vacancy",
+                return description_generator(title="Create a link",
                                              description=authorization_info,
                                              responses=responses)
             case 'PATCH':
                 responses = {
                     "200": {
                         'description': 'OK',
-                        'reason': 'Vacancy successfully updated'
+                        'reason': 'Link successfully updated'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy ID not found'
+                        'reason': 'Link ID not found'
                     },
                     "400": {
                         'description': "BAD REQUEST",
                         'reason': 'Invalid request body'
                     }
                 }
-                return description_generator(title="Update specific information from vacancy",
+                return description_generator(title="Update specific information from link",
                                              # noqa: E502
-                                             description=query_params_info + authorization_info,
+                                             description=unique_query_params_info + authorization_info,
                                              responses=responses)
             case 'DELETE':
                 responses = {
                     "204": {
                         'description': 'NO CONTENT',
-                        'reason': 'Vacancy successfully deleted'
+                        'reason': 'Link successfully deleted'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy not found'
+                        'reason': 'Link not found'
                     }
                 }
-                return description_generator(title="Delete a specific vacancy",
-                                             description=query_params_info + authorization_info,
+                return description_generator(title="Delete a specific link",
+                                             description=unique_query_params_info + authorization_info,
                                              responses=responses)
             case _:
                 return ''
@@ -1692,45 +1783,59 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=False,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Link ID (returns specific link)"
+                    ),
+                    coreapi.Field(
+                        name="user_pk",
+                        location="query",
+                        required=False,
+                        schema=coreschema.Integer(minimum=1),
+                        description="User ID (return all links)"
+                    ),
+                    coreapi.Field(
+                        name="profile_pk",
+                        location="query",
+                        required=False,
+                        schema=coreschema.Integer(minimum=1),
+                        description="Profile ID (return all links)"
+                    ),
+                    coreapi.Field(
+                        name="slug",
+                        location="query",
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Profile slug (return all links)"
                     )
                 ]
             case 'POST':
                 return [
                     coreapi.Field(
-                        name="role",
+                        name="profile_pk",
                         location="form",
                         required=True,
+                        schema=coreschema.Integer(),
+                        description="Profile ID"
+                    ),
+                    coreapi.Field(
+                        name="title",
+                        location='form',
+                        required=False,
                         schema=coreschema.String(255),
-                        description="Vacancy role (or title)"
+                        description="Link title"
                     ),
                     coreapi.Field(
                         name="description",
                         location='form',
+                        required=False,
+                        schema=coreschema.String(255),
+                        description="Link description"
+                    ),
+                    coreapi.Field(
+                        name="url",
+                        location='form',
                         required=True,
                         schema=coreschema.String(),
-                        description="Vacancy description"
-                    ),
-                    coreapi.Field(
-                        name="modality",
-                        location='form',
-                        required=True,
-                        schema=coreschema.String(255),
-                        description="Vacancy modality"
-                    ),
-                    coreapi.Field(
-                        name="salary",
-                        location='form',
-                        required=True,
-                        schema=coreschema.Integer(),
-                        description="Vacancy salary"
-                    ),
-                    coreapi.Field(
-                        name="address",
-                        location='form',
-                        required=False,
-                        schema=coreschema.Array(coreschema.String(255)),
-                        description="Vacancy address (JSON should contain two strings and an integer)"
+                        description="Link URL"
                     )
                 ]
             case 'PATCH':
@@ -1740,42 +1845,35 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=True,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Link ID"
                     ),
                     coreapi.Field(
-                        name="role",
+                        name="profile_pk",
                         location="form",
                         required=False,
+                        schema=coreschema.Integer(),
+                        description="Profile ID"
+                    ),
+                    coreapi.Field(
+                        name="title",
+                        location='form',
+                        required=False,
                         schema=coreschema.String(255),
-                        description="Vacancy role (or title)"
+                        description="Link title"
                     ),
                     coreapi.Field(
                         name="description",
                         location='form',
                         required=False,
-                        schema=coreschema.String(),
-                        description="Vacancy description"
-                    ),
-                    coreapi.Field(
-                        name="modality",
-                        location='form',
-                        required=False,
                         schema=coreschema.String(255),
-                        description="Vacancy modality"
+                        description="Link description"
                     ),
                     coreapi.Field(
-                        name="salary",
+                        name="url",
                         location='form',
-                        required=False,
-                        schema=coreschema.Integer(),
-                        description="Vacancy salary"
-                    ),
-                    coreapi.Field(
-                        name="address",
-                        location='form',
-                        required=False,
-                        schema=coreschema.Array(coreschema.String(255)),
-                        description="Vacancy address (JSON should contain two strings and an integer)"
+                        required=True,
+                        schema=coreschema.String(),
+                        description="Link URL"
                     )
                 ]
             case 'DELETE':
@@ -1785,7 +1883,7 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=True,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Link ID"
                     )
                 ]
             case _:
@@ -1797,3 +1895,15 @@ class Link(Base):
 
     not_found_id_str = "Link ID not found"
     not_found_vacancy_str = "Link not found"
+
+    def get(self, request, *args, **kwargs):
+        pass
+
+    def post(self, request, *args, **kwargs):
+        pass
+
+    def patch(self, request, *args, **kwargs):
+        pass
+
+    def delete(self, request, *args, **kwargs):
+        pass
