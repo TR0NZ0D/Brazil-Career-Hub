@@ -17,11 +17,11 @@ class CompanyAccountSerializer(serializers.ModelSerializer):
     class Meta:
         """Meta data for user profile serializer"""
         model = models.CompanyAccountModel
-        fields = ['id', 'cnpj', 'corporate_name', 'registration_status_display', 'fantasy_name',
-                  'cnae', 'legal_nature_display', 'slug']
+        fields = ['id', 'cnpj', "password", "deactivated", "should_change_password", "banned", 'corporate_name',
+                  'registration_status_display', 'fantasy_name', 'cnae', 'legal_nature_display', 'slug']
 
 
-class createCompanyAccountSerializer(serializers.ModelSerializer):
+class CreateCompanyAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CompanyAccountModel
         fields = "__all__"
@@ -38,6 +38,22 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
     cnae = serializers.SerializerMethodField()
     legal_nature_display = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
+    password = serializers.SerializerMethodField()
+    deactivated = serializers.SerializerMethodField()
+    should_change_password = serializers.SerializerMethodField()
+    banned = serializers.SerializerMethodField()
+
+    def get_password(self, obj):
+        return obj.company_account.password
+
+    def get_deactivated(self, obj):
+        return obj.company_account.deactivated
+
+    def get_should_change_password(self, obj):
+        return obj.company_account.should_change_password
+
+    def get_banned(self, obj):
+        return obj.company_account.banned
 
     def get_addresses(self, obj):
         return obj.address.all().values()
@@ -70,10 +86,11 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
         model = models.CompanyProfileModel
         fields = ['cnpj', 'corporate_name', 'registration_status_display', 'fantasy_name',
                   'cnae', 'legal_nature_display', 'slug', "id", "company_account", "addresses",
-                  "contact", "creation_date", "financial_capital", "employees", "site_url", "social_medias"]
+                  "contact", "creation_date", "financial_capital", "employees", "site_url", "social_medias",
+                  "password", "deactivated", "should_change_password", "banned"]
 
 
-class createCompanyProfileSerializer(serializers.ModelSerializer):
+class CreateCompanyProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CompanyProfileModel
         fields = "__all__"
