@@ -12,7 +12,8 @@ export async function createAccount(company: CompanyAccount, admToken: string) {
       registration_status: company.registrationStatus,
       fantasy_name: company.fantasyName,
       cnae: company.cnae,
-      legal_nature: company.legalNature
+      legal_nature: company.legalNature,
+      password: company.password
     },
     headers: {
       "Content-Type": "application/json",

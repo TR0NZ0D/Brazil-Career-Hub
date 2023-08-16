@@ -65,6 +65,10 @@ const CompanyForm: FC = () => {
     setCompanyAccount({ ...companyAccount, cnae: element.value });
   }, 350);
 
+  const handlePasswordChange = debounce((element: HTMLInputElement) => {
+    setCompanyAccount({ ...companyAccount, password: element.value });
+  }, 350);
+
   const handleContactChange = debounce((element: HTMLInputElement) => {
     setCompanyProfile({ ...companyProfile, contact: element.value });
   }, 350);
@@ -421,6 +425,17 @@ const CompanyForm: FC = () => {
               Add Social Media
             </Button>
             <Button variant="outlined" onClick={() => setCompanyProfile(removeItemFromCompanyArray(companyProfile, companyProfile.socialMedia))}>Remove Social Media</Button>
+          </Grid>
+
+          <Grid item sm={12} md={12} lg={12}>
+            <TextField
+              required
+              id="password"
+              label="Password"
+              fullWidth
+              type="password"
+              onChange={(e) => handlePasswordChange(e.target as HTMLInputElement)}
+            />
           </Grid>
 
           <Grid container item justifyContent="flex-end" style={{ marginTop: '5%' }}>
