@@ -46,6 +46,10 @@ class CompanyAccountModel(models.Model):
                                 This is auto generated.",
                             error_messages={"unique": "Slug is already owned by another company. \
                                 Please use another"})
+    password = models.CharField("Password", max_length=255)
+    deactivated = models.BooleanField("Deactivated", default=False)
+    should_change_password = models.BooleanField("Should change password", default=False)
+    banned = models.BooleanField("Banned", default=False)
 
     def __str__(self) -> str:
         return f"{self.fantasy_name}'s company account"
