@@ -146,6 +146,13 @@ Inform PK or slug if mentioning specific company account, PK will prevail if bot
                         description="Company cnpj"
                     ),
                     coreapi.Field(
+                        name="password",
+                        location="form",
+                        required=True,
+                        schema=coreschema.String(),
+                        description="Company's password"
+                    ),
+                    coreapi.Field(
                         name="corporate_name",
                         location='form',
                         required=False,
@@ -203,6 +210,13 @@ Inform PK or slug if mentioning specific company account, PK will prevail if bot
                         required=False,
                         schema=coreschema.String(15),
                         description="Company cnpj"
+                    ),
+                    coreapi.Field(
+                        name="password",
+                        location="form",
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Company password"
                     ),
                     coreapi.Field(
                         name="corporate_name",
@@ -276,12 +290,17 @@ class CompanyAccount(Base):
             return (False, self.generate_basic_response(status.HTTP_400_BAD_REQUEST, text))
         # Required
         cnpj = request.data.get("cnpj", None)
+        password = request.data.get("password", None)
         corporate = request.data.get("corporate_name", None)
         fantasy = request.data.get("fantasy_name", None)
         cnae = request.data.get("cnae", None)
         # Optionals
         registration = request.data.get("registration_status", "1")
         legal_nature = request.data.get("legal_nature", "EI")
+        if not password and not bypass_required:
+            return generate_error_response("Password is required")
+        if password and not isinstance(password, str):
+            return generate_error_response("Password should be a string")
         if not cnpj and not bypass_required:
             return generate_error_response("CNPJ is required")
         if cnpj and not CNPJ().validar(str(cnpj)):
@@ -313,6 +332,7 @@ class CompanyAccount(Base):
             return generate_error_response(f"Legal nature {legal_nature} is not available")
         data = {
             "cnpj": cnpj,
+            "password": password,
             "corporate": corporate,
             "fantasy": fantasy,
             "cnae": cnae,
@@ -346,7 +366,7 @@ class CompanyAccount(Base):
                 .filter(pk=primary_key).first()
 
         response_data = self.generate_basic_response_data(status.HTTP_200_OK,
-                                                          "")
+                                                          "Company's account found")
         if company_account is not None:
             serializer = serializers.CompanyAccountSerializer(company_account)
             response_data['content'] = serializer.data
@@ -360,6 +380,7 @@ class CompanyAccount(Base):
             return data_or_response
         account_data = data_or_response
         cnpj = account_data.get("cnpj", None)
+        password = account_data.get("password", "")
         corporate = account_data.get("corporate", None)
         fantasy = account_data.get("fantasy", None)
         cnae = account_data.get("cnae", None)
@@ -368,6 +389,7 @@ class CompanyAccount(Base):
 
         account = models.CompanyAccountModel(
             cnpj=cnpj,
+            password=password,
             corporate_name=corporate,
             registration_status=registration,
             fantasy_name=fantasy,
@@ -375,8 +397,8 @@ class CompanyAccount(Base):
             legal_nature=legal_nature
         )
         response_data = self.generate_basic_response_data(status.HTTP_201_CREATED, "Company account created successfully")
-        data = serializers.createCompanyAccountSerializer(account, many=False).data
-        serializer = serializers.createCompanyAccountSerializer(data=data)
+        data = serializers.CreateCompanyAccountSerializer(account, many=False).data
+        serializer = serializers.CreateCompanyAccountSerializer(data=data)
         if serializer.is_valid():
             account.save()
             data = serializers.CompanyAccountSerializer(account, many=False).data
@@ -411,6 +433,9 @@ class CompanyAccount(Base):
         if account_data.get("cnpj", None):
             cnpj = account_data.get("cnpj", None)
             company_account.cnpj = cnpj
+        if account_data.get("password", None):
+            password = account_data.get("password", None)
+            company_account.password = password
         if account_data.get("corporate", None):
             corporate = account_data.get("corporate", None)
             company_account.corporate_name = corporate
@@ -882,8 +907,8 @@ class CompanyProfile(Base):
             site_url=site_url
         )
         response_data = self.generate_basic_response_data(status.HTTP_201_CREATED, "Company profile created successfully")
-        data = serializers.createCompanyProfileSerializer(profile, many=False).data
-        serializer = serializers.createCompanyProfileSerializer(data=data)
+        data = serializers.CreateCompanyProfileSerializer(profile, many=False).data
+        serializer = serializers.CreateCompanyProfileSerializer(data=data)
         if serializer.is_valid():
             profile.save()
             self.generateManyToMany(profile_data, profile)
@@ -946,3 +971,134 @@ class CompanyProfile(Base):
             return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_account_str)
         company_profile.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# =================== Company Authentication =================== #
+class CompanyAuthSchema(AutoSchema):
+    def get_description(self, path: str, method: str) -> str:
+        authorization_info = """
+## Authorization:
+
+**Type:** Bearer
+"""
+        match method:
+            case 'GET':
+                responses = {
+                    "200": {
+                        'description': 'OK',
+                        'reason': 'Company logged out successfully'
+                    },
+                    "500": {
+                        'description': 'INTERNAL SERVER ERROR',
+                        'reason': 'Something went wrong'
+                    }
+                }
+                return description_generator(title="logout a company",
+                                             description=authorization_info,
+                                             responses=responses)
+            case 'POST':
+                responses = {
+                    "200": {
+                        'description': 'OK',
+                        'reason': 'Company authenticated and logged in successfully'
+                    },
+                    "202": {
+                        'description': 'ACCEPTED',
+                        'reason': 'Company authenticated successfully, but, need to change password'
+                    },
+                    "400": {
+                        'description': "BAD REQUEST",
+                        'reason': 'Invalid request body'
+                    },
+                    "403": {
+                        'description': 'FORBIDDEN',
+                        'reason': 'Authentication failed'
+                    },
+                    "404": {
+                        'description': 'NOT FOUND',
+                        'reason': 'Company account not found'
+                    },
+                    "423": {
+                        'description': 'LOCKED',
+                        'reason': 'Company account can\'t be accessed due to a ban or other issue'
+                    },
+                    "500": {
+                        'description': 'INTERNAL SERVER ERROR',
+                        'reason': 'Something went wrong'
+                    }
+                }
+                return description_generator(title="Authenticate and login a company",
+                                             description=authorization_info,
+                                             responses=responses)
+            case _:
+                return ''
+
+    def get_path_fields(self, path: str, method: str) -> list[coreapi.Field]:
+        match method:
+            case 'POST':
+                return [
+                    coreapi.Field(
+                        name="cnpj",
+                        location="form",
+                        required=True,
+                        schema=coreschema.String(15),
+                        description="Company cnpj"
+                    ),
+                    coreapi.Field(
+                        name="password",
+                        location='form',
+                        required=True,
+                        schema=coreschema.String(),
+                        description="Company's account password"
+                    )
+                ]
+            case _:
+                return []
+
+
+class CompanyAuth(Base):
+    schema = CompanyAuthSchema()
+
+    def get(self, request):
+        return self.generate_basic_response(status.HTTP_200_OK, "Logged out")
+
+    def post(self, request):
+        cnpj = request.data.get('cnpj', None)
+        password = request.data.get('password', None)
+
+        if cnpj is None or password is None:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST,
+                                                "CNPJ or password not found")
+
+        if not CNPJ().validar(str(cnpj)):
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST,
+                                                "Invalid CNPJ")
+
+        company = models.CompanyAccountModel.objects.filter(cnpj=cnpj, password=password).first()
+
+        if company is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                "No account found with this CNPJ")
+
+        profile = models.CompanyProfileModel.objects.filter(company_account=company).first()
+
+        if profile is None:
+            return self.generate_basic_response(status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                "Company profile not found")
+
+        if company.banned:
+            return self.generate_basic_response(status.HTTP_423_LOCKED,
+                                                "Company's account is banned")
+
+        if company.should_change_password:
+            data = self.generate_basic_response_data(status.HTTP_202_ACCEPTED,
+                                                     "Company must change password before logging in")
+            serializer = serializers.CompanyProfileSerializer(profile)
+            data['content'] = serializer.data
+            return Response(data=data, status=data.get('status', status.HTTP_202_ACCEPTED))
+
+        data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                 "Logged in successfully")
+        serializer = serializers.CompanyProfileSerializer(profile)
+        data['content'] = serializer.data
+        return Response(data=data, status=data.get('status', status.HTTP_200_OK))

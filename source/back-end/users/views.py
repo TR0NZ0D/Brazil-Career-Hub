@@ -131,10 +131,6 @@ class UserAuthentication(Base):
             return self.generate_basic_response(status.HTTP_400_BAD_REQUEST,
                                                 "Username or password not found")
 
-        if request.user.is_authenticated:
-            return self.generate_basic_response(status.HTTP_409_CONFLICT,
-                                                "An user is already logged in")
-
         user = User.objects.all().filter(username=username).first()
 
         if user is None:
