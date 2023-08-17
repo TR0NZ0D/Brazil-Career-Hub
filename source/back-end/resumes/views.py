@@ -217,7 +217,6 @@ class ResumeTools:
 
 # ========== Resume ========== #
 class ResumeSchema(AutoSchema):
-    # TODO: Edit to resume
     def get_description(self, path: str, method: str) -> str:
         authorization_info = """
 ## Authorization:
@@ -228,7 +227,15 @@ class ResumeSchema(AutoSchema):
         query_params_info = """
 ## Query Parameters
 
-Inform PK if mentioning specific vacancy
+- Inform resume PK if mentioning specific resume
+- Inform user pk / profile pk / profile slug to get all resumes
+
+"""
+
+        unique_query_params_info = """
+## Query Parameters
+
+Inform resume PK if mentioning specific resume
 
 """
 
@@ -237,62 +244,62 @@ Inform PK if mentioning specific vacancy
                 responses = {
                     "200": {
                         'description': 'OK',
-                        'reason': 'Vacancy found'
+                        'reason': 'Resume found'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy not found'
+                        'reason': 'Resume not found'
                     }
                 }
-                return description_generator(title="Get a specific vacancy or all vacancies",
+                return description_generator(title="Get a specific resume or all resumes from a specific user",
                                              description=query_params_info + authorization_info,
                                              responses=responses)
             case 'POST':
                 responses = {
                     "201": {
                         'description': 'CREATED',
-                        'reason': 'Vacancy successfully created'
+                        'reason': 'Resume successfully created'
                     },
                     "400": {
                         'description': "BAD REQUEST",
                         'reason': 'Invalid request body'
                     }
                 }
-                return description_generator(title="Create a vacancy",
+                return description_generator(title="Create a resume",
                                              description=authorization_info,
                                              responses=responses)
             case 'PATCH':
                 responses = {
                     "200": {
                         'description': 'OK',
-                        'reason': 'Vacancy successfully updated'
+                        'reason': 'Resume successfully updated'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy ID not found'
+                        'reason': 'Resume ID not found'
                     },
                     "400": {
                         'description': "BAD REQUEST",
                         'reason': 'Invalid request body'
                     }
                 }
-                return description_generator(title="Update specific information from vacancy",
+                return description_generator(title="Update specific information from resume",
                                              # noqa: E502
-                                             description=query_params_info + authorization_info,
+                                             description=unique_query_params_info + authorization_info,
                                              responses=responses)
             case 'DELETE':
                 responses = {
                     "204": {
                         'description': 'NO CONTENT',
-                        'reason': 'Vacancy successfully deleted'
+                        'reason': 'Resume successfully deleted'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy not found'
+                        'reason': 'Resume not found'
                     }
                 }
-                return description_generator(title="Delete a specific vacancy",
-                                             description=query_params_info + authorization_info,
+                return description_generator(title="Delete a specific resume",
+                                             description=unique_query_params_info + authorization_info,
                                              responses=responses)
             case _:
                 return ''
@@ -306,45 +313,101 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=False,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Resume ID (returns specific resume)"
+                    ),
+                    coreapi.Field(
+                        name="user_pk",
+                        location="query",
+                        required=False,
+                        schema=coreschema.Integer(minimum=1),
+                        description="User ID (return all resumes)"
+                    ),
+                    coreapi.Field(
+                        name="profile_pk",
+                        location="query",
+                        required=False,
+                        schema=coreschema.Integer(minimum=1),
+                        description="Profile ID (return all resumes)"
+                    ),
+                    coreapi.Field(
+                        name="slug",
+                        location="query",
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Profile slug (return all resumes)"
                     )
                 ]
             case 'POST':
                 return [
                     coreapi.Field(
-                        name="role",
+                        name="profile_pk",
                         location="form",
                         required=True,
+                        schema=coreschema.Integer(),
+                        description="Profile ID"
+                    ),
+                    coreapi.Field(
+                        name="title",
+                        location='form',
+                        required=False,
                         schema=coreschema.String(255),
-                        description="Vacancy role (or title)"
+                        description="Resume title"
                     ),
                     coreapi.Field(
                         name="description",
                         location='form',
-                        required=True,
+                        required=False,
                         schema=coreschema.String(),
-                        description="Vacancy description"
+                        description="Resume description"
                     ),
                     coreapi.Field(
-                        name="modality",
-                        location='form',
-                        required=True,
-                        schema=coreschema.String(255),
-                        description="Vacancy modality"
-                    ),
-                    coreapi.Field(
-                        name="salary",
-                        location='form',
-                        required=True,
-                        schema=coreschema.Integer(),
-                        description="Vacancy salary"
-                    ),
-                    coreapi.Field(
-                        name="address",
+                        name="experiences",
                         location='form',
                         required=False,
-                        schema=coreschema.Array(coreschema.String(255)),
-                        description="Vacancy address (JSON should contain two strings and an integer)"
+                        schema=coreschema.Object(),
+                        description="Experiences dict or PK"
+                    ),
+                    coreapi.Field(
+                        name="competencies",
+                        location='form',
+                        required=False,
+                        schema=coreschema.Object(),
+                        description="Competencies dict or PK"
+                    ),
+                    coreapi.Field(
+                        name="courses",
+                        location='form',
+                        required=False,
+                        schema=coreschema.Object(),
+                        description="Courses dict or PK"
+                    ),
+                    coreapi.Field(
+                        name="references",
+                        location='form',
+                        required=False,
+                        schema=coreschema.Object(),
+                        description="References dict or PK"
+                    ),
+                    coreapi.Field(
+                        name="graduations",
+                        location='form',
+                        required=False,
+                        schema=coreschema.Object(),
+                        description="Graduations dict or PK"
+                    ),
+                    coreapi.Field(
+                        name="projects",
+                        location='form',
+                        required=False,
+                        schema=coreschema.Object(),
+                        description="Projects dict or PK"
+                    ),
+                    coreapi.Field(
+                        name="links",
+                        location='form',
+                        required=False,
+                        schema=coreschema.Object(),
+                        description="Links dict or PK"
                     )
                 ]
             case 'PATCH':
@@ -354,42 +417,77 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=True,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Resume ID"
                     ),
                     coreapi.Field(
-                        name="role",
+                        name="profile_pk",
                         location="form",
                         required=False,
+                        schema=coreschema.Integer(),
+                        description="Profile ID"
+                    ),
+                    coreapi.Field(
+                        name="title",
+                        location='form',
+                        required=False,
                         schema=coreschema.String(255),
-                        description="Vacancy role (or title)"
+                        description="Resume title"
                     ),
                     coreapi.Field(
                         name="description",
                         location='form',
                         required=False,
                         schema=coreschema.String(),
-                        description="Vacancy description"
+                        description="Resume description"
                     ),
                     coreapi.Field(
-                        name="modality",
+                        name="experiences",
                         location='form',
                         required=False,
-                        schema=coreschema.String(255),
-                        description="Vacancy modality"
+                        schema=coreschema.Object(),
+                        description="Experiences dict or PK"
                     ),
                     coreapi.Field(
-                        name="salary",
+                        name="competencies",
                         location='form',
                         required=False,
-                        schema=coreschema.Integer(),
-                        description="Vacancy salary"
+                        schema=coreschema.Object(),
+                        description="Competencies dict or PK"
                     ),
                     coreapi.Field(
-                        name="address",
+                        name="courses",
                         location='form',
                         required=False,
-                        schema=coreschema.Array(coreschema.String(255)),
-                        description="Vacancy address (JSON should contain two strings and an integer)"
+                        schema=coreschema.Object(),
+                        description="Courses dict or PK"
+                    ),
+                    coreapi.Field(
+                        name="references",
+                        location='form',
+                        required=False,
+                        schema=coreschema.Object(),
+                        description="References dict or PK"
+                    ),
+                    coreapi.Field(
+                        name="graduations",
+                        location='form',
+                        required=False,
+                        schema=coreschema.Object(),
+                        description="Graduations dict or PK"
+                    ),
+                    coreapi.Field(
+                        name="projects",
+                        location='form',
+                        required=False,
+                        schema=coreschema.Object(),
+                        description="Projects dict or PK"
+                    ),
+                    coreapi.Field(
+                        name="links",
+                        location='form',
+                        required=False,
+                        schema=coreschema.Object(),
+                        description="Links dict or PK"
                     )
                 ]
             case 'DELETE':
@@ -399,7 +497,7 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=True,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Resume ID"
                     )
                 ]
             case _:
@@ -427,7 +525,6 @@ class Resume(Base):
 
 # ========== Experience ========== #
 class ExperienceSchema(AutoSchema):
-    # TODO: Edit to experience
     def get_description(self, path: str, method: str) -> str:
         authorization_info = """
 ## Authorization:
@@ -438,7 +535,15 @@ class ExperienceSchema(AutoSchema):
         query_params_info = """
 ## Query Parameters
 
-Inform PK if mentioning specific vacancy
+- Inform experience PK if mentioning specific experience
+- Inform user pk / profile pk / profile slug to get all experiencies
+
+"""
+
+        unique_query_params_info = """
+## Query Parameters
+
+Inform experience PK if mentioning specific experience
 
 """
 
@@ -447,62 +552,62 @@ Inform PK if mentioning specific vacancy
                 responses = {
                     "200": {
                         'description': 'OK',
-                        'reason': 'Vacancy found'
+                        'reason': 'Experience found'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy not found'
+                        'reason': 'Experience not found'
                     }
                 }
-                return description_generator(title="Get a specific vacancy or all vacancies",
+                return description_generator(title="Get a specific experience or all experiencies from a specific user",
                                              description=query_params_info + authorization_info,
                                              responses=responses)
             case 'POST':
                 responses = {
                     "201": {
                         'description': 'CREATED',
-                        'reason': 'Vacancy successfully created'
+                        'reason': 'Experience successfully created'
                     },
                     "400": {
                         'description': "BAD REQUEST",
                         'reason': 'Invalid request body'
                     }
                 }
-                return description_generator(title="Create a vacancy",
+                return description_generator(title="Create a experience",
                                              description=authorization_info,
                                              responses=responses)
             case 'PATCH':
                 responses = {
                     "200": {
                         'description': 'OK',
-                        'reason': 'Vacancy successfully updated'
+                        'reason': 'Experience successfully updated'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy ID not found'
+                        'reason': 'Experience ID not found'
                     },
                     "400": {
                         'description': "BAD REQUEST",
                         'reason': 'Invalid request body'
                     }
                 }
-                return description_generator(title="Update specific information from vacancy",
+                return description_generator(title="Update specific information from experience",
                                              # noqa: E502
-                                             description=query_params_info + authorization_info,
+                                             description=unique_query_params_info + authorization_info,
                                              responses=responses)
             case 'DELETE':
                 responses = {
                     "204": {
                         'description': 'NO CONTENT',
-                        'reason': 'Vacancy successfully deleted'
+                        'reason': 'Experience successfully deleted'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy not found'
+                        'reason': 'Experience not found'
                     }
                 }
-                return description_generator(title="Delete a specific vacancy",
-                                             description=query_params_info + authorization_info,
+                return description_generator(title="Delete a specific experience",
+                                             description=unique_query_params_info + authorization_info,
                                              responses=responses)
             case _:
                 return ''
@@ -516,45 +621,87 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=False,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Link ID (returns specific experience)"
+                    ),
+                    coreapi.Field(
+                        name="user_pk",
+                        location="query",
+                        required=False,
+                        schema=coreschema.Integer(minimum=1),
+                        description="User ID (return all experiencies)"
+                    ),
+                    coreapi.Field(
+                        name="profile_pk",
+                        location="query",
+                        required=False,
+                        schema=coreschema.Integer(minimum=1),
+                        description="Profile ID (return all experiencies)"
+                    ),
+                    coreapi.Field(
+                        name="slug",
+                        location="query",
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Profile slug (return all experiencies)"
                     )
                 ]
             case 'POST':
                 return [
                     coreapi.Field(
-                        name="role",
+                        name="profile_pk",
                         location="form",
                         required=True,
+                        schema=coreschema.Integer(),
+                        description="Profile ID"
+                    ),
+                    coreapi.Field(
+                        name="title",
+                        location='form',
+                        required=False,
                         schema=coreschema.String(255),
-                        description="Vacancy role (or title)"
+                        description="Experience title"
                     ),
                     coreapi.Field(
                         name="description",
                         location='form',
-                        required=True,
+                        required=False,
                         schema=coreschema.String(),
-                        description="Vacancy description"
+                        description="Experience item description"
                     ),
                     coreapi.Field(
-                        name="modality",
-                        location='form',
-                        required=True,
-                        schema=coreschema.String(255),
-                        description="Vacancy modality"
-                    ),
-                    coreapi.Field(
-                        name="salary",
-                        location='form',
-                        required=True,
-                        schema=coreschema.Integer(),
-                        description="Vacancy salary"
-                    ),
-                    coreapi.Field(
-                        name="address",
+                        name="experience_company",
                         location='form',
                         required=False,
-                        schema=coreschema.Array(coreschema.String(255)),
-                        description="Vacancy address (JSON should contain two strings and an integer)"
+                        schema=coreschema.String(),
+                        description="Experience company"
+                    ),
+                    coreapi.Field(
+                        name="experience_role",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Experience role"
+                    ),
+                    coreapi.Field(
+                        name="experience_description",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Experience description"
+                    ),
+                    coreapi.Field(
+                        name="experience_start_time",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Experience start date (ISO format)"
+                    ),
+                    coreapi.Field(
+                        name="experience_end_time",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Experience end date (ISO format)"
                     )
                 ]
             case 'PATCH':
@@ -564,42 +711,63 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=True,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Experience ID"
                     ),
                     coreapi.Field(
-                        name="role",
+                        name="profile_pk",
                         location="form",
                         required=False,
+                        schema=coreschema.Integer(),
+                        description="Profile ID"
+                    ),
+                    coreapi.Field(
+                        name="title",
+                        location='form',
+                        required=False,
                         schema=coreschema.String(255),
-                        description="Vacancy role (or title)"
+                        description="Experience title"
                     ),
                     coreapi.Field(
                         name="description",
                         location='form',
                         required=False,
                         schema=coreschema.String(),
-                        description="Vacancy description"
+                        description="Experience item description"
                     ),
                     coreapi.Field(
-                        name="modality",
+                        name="experience_company",
                         location='form',
                         required=False,
-                        schema=coreschema.String(255),
-                        description="Vacancy modality"
+                        schema=coreschema.String(),
+                        description="Experience company"
                     ),
                     coreapi.Field(
-                        name="salary",
+                        name="experience_role",
                         location='form',
                         required=False,
-                        schema=coreschema.Integer(),
-                        description="Vacancy salary"
+                        schema=coreschema.String(),
+                        description="Experience role"
                     ),
                     coreapi.Field(
-                        name="address",
+                        name="experience_description",
                         location='form',
                         required=False,
-                        schema=coreschema.Array(coreschema.String(255)),
-                        description="Vacancy address (JSON should contain two strings and an integer)"
+                        schema=coreschema.String(),
+                        description="Experience description"
+                    ),
+                    coreapi.Field(
+                        name="experience_start_time",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Experience start date (ISO format)"
+                    ),
+                    coreapi.Field(
+                        name="experience_end_time",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Experience end date (ISO format)"
                     )
                 ]
             case 'DELETE':
@@ -609,7 +777,7 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=True,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Experience ID"
                     )
                 ]
             case _:
@@ -637,7 +805,6 @@ class Experience(Base):
 
 # ========== Competence ========== #
 class CompetenceSchema(AutoSchema):
-    # TODO: Edit to competence
     def get_description(self, path: str, method: str) -> str:
         authorization_info = """
 ## Authorization:
@@ -648,7 +815,15 @@ class CompetenceSchema(AutoSchema):
         query_params_info = """
 ## Query Parameters
 
-Inform PK if mentioning specific vacancy
+- Inform competence PK if mentioning specific competence
+- Inform user pk / profile pk / profile slug to get all competencies
+
+"""
+
+        unique_query_params_info = """
+## Query Parameters
+
+Inform competence PK if mentioning specific competence
 
 """
 
@@ -657,62 +832,62 @@ Inform PK if mentioning specific vacancy
                 responses = {
                     "200": {
                         'description': 'OK',
-                        'reason': 'Vacancy found'
+                        'reason': 'Competence found'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy not found'
+                        'reason': 'Competence not found'
                     }
                 }
-                return description_generator(title="Get a specific vacancy or all vacancies",
+                return description_generator(title="Get a specific competence or all competencies from a specific user",
                                              description=query_params_info + authorization_info,
                                              responses=responses)
             case 'POST':
                 responses = {
                     "201": {
                         'description': 'CREATED',
-                        'reason': 'Vacancy successfully created'
+                        'reason': 'Competence successfully created'
                     },
                     "400": {
                         'description': "BAD REQUEST",
                         'reason': 'Invalid request body'
                     }
                 }
-                return description_generator(title="Create a vacancy",
+                return description_generator(title="Create a competence",
                                              description=authorization_info,
                                              responses=responses)
             case 'PATCH':
                 responses = {
                     "200": {
                         'description': 'OK',
-                        'reason': 'Vacancy successfully updated'
+                        'reason': 'Competence successfully updated'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy ID not found'
+                        'reason': 'Competence ID not found'
                     },
                     "400": {
                         'description': "BAD REQUEST",
                         'reason': 'Invalid request body'
                     }
                 }
-                return description_generator(title="Update specific information from vacancy",
+                return description_generator(title="Update specific information from competence",
                                              # noqa: E502
-                                             description=query_params_info + authorization_info,
+                                             description=unique_query_params_info + authorization_info,
                                              responses=responses)
             case 'DELETE':
                 responses = {
                     "204": {
                         'description': 'NO CONTENT',
-                        'reason': 'Vacancy successfully deleted'
+                        'reason': 'Competence successfully deleted'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy not found'
+                        'reason': 'Competence not found'
                     }
                 }
-                return description_generator(title="Delete a specific vacancy",
-                                             description=query_params_info + authorization_info,
+                return description_generator(title="Delete a specific competence",
+                                             description=unique_query_params_info + authorization_info,
                                              responses=responses)
             case _:
                 return ''
@@ -726,45 +901,66 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=False,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Link ID (returns specific competence)"
+                    ),
+                    coreapi.Field(
+                        name="user_pk",
+                        location="query",
+                        required=False,
+                        schema=coreschema.Integer(minimum=1),
+                        description="User ID (return all competencies)"
+                    ),
+                    coreapi.Field(
+                        name="profile_pk",
+                        location="query",
+                        required=False,
+                        schema=coreschema.Integer(minimum=1),
+                        description="Profile ID (return all competencies)"
+                    ),
+                    coreapi.Field(
+                        name="slug",
+                        location="query",
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Profile slug (return all competencies)"
                     )
                 ]
             case 'POST':
                 return [
                     coreapi.Field(
-                        name="role",
+                        name="profile_pk",
                         location="form",
                         required=True,
+                        schema=coreschema.Integer(),
+                        description="Profile ID"
+                    ),
+                    coreapi.Field(
+                        name="title",
+                        location='form',
+                        required=False,
                         schema=coreschema.String(255),
-                        description="Vacancy role (or title)"
+                        description="Competence title"
                     ),
                     coreapi.Field(
                         name="description",
                         location='form',
-                        required=True,
+                        required=False,
                         schema=coreschema.String(),
-                        description="Vacancy description"
+                        description="Competence description"
                     ),
                     coreapi.Field(
-                        name="modality",
-                        location='form',
-                        required=True,
-                        schema=coreschema.String(255),
-                        description="Vacancy modality"
-                    ),
-                    coreapi.Field(
-                        name="salary",
-                        location='form',
-                        required=True,
-                        schema=coreschema.Integer(),
-                        description="Vacancy salary"
-                    ),
-                    coreapi.Field(
-                        name="address",
+                        name="competence_name",
                         location='form',
                         required=False,
-                        schema=coreschema.Array(coreschema.String(255)),
-                        description="Vacancy address (JSON should contain two strings and an integer)"
+                        schema=coreschema.String(),
+                        description="Competence name"
+                    ),
+                    coreapi.Field(
+                        name="competence_level",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Competence level"
                     )
                 ]
             case 'PATCH':
@@ -774,42 +970,42 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=True,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Competence ID"
                     ),
                     coreapi.Field(
-                        name="role",
+                        name="profile_pk",
                         location="form",
                         required=False,
+                        schema=coreschema.Integer(),
+                        description="Profile ID"
+                    ),
+                    coreapi.Field(
+                        name="title",
+                        location='form',
+                        required=False,
                         schema=coreschema.String(255),
-                        description="Vacancy role (or title)"
+                        description="Competence title"
                     ),
                     coreapi.Field(
                         name="description",
                         location='form',
                         required=False,
                         schema=coreschema.String(),
-                        description="Vacancy description"
+                        description="Competence description"
                     ),
                     coreapi.Field(
-                        name="modality",
+                        name="competence_name",
                         location='form',
                         required=False,
-                        schema=coreschema.String(255),
-                        description="Vacancy modality"
+                        schema=coreschema.String(),
+                        description="Competence name"
                     ),
                     coreapi.Field(
-                        name="salary",
+                        name="competence_level",
                         location='form',
                         required=False,
-                        schema=coreschema.Integer(),
-                        description="Vacancy salary"
-                    ),
-                    coreapi.Field(
-                        name="address",
-                        location='form',
-                        required=False,
-                        schema=coreschema.Array(coreschema.String(255)),
-                        description="Vacancy address (JSON should contain two strings and an integer)"
+                        schema=coreschema.String(),
+                        description="Competence level"
                     )
                 ]
             case 'DELETE':
@@ -819,7 +1015,7 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=True,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Competence ID"
                     )
                 ]
             case _:
@@ -847,7 +1043,6 @@ class Competence(Base):
 
 # ========== Course ========== #
 class CourseSchema(AutoSchema):
-    # TODO: Edit to course
     def get_description(self, path: str, method: str) -> str:
         authorization_info = """
 ## Authorization:
@@ -858,7 +1053,15 @@ class CourseSchema(AutoSchema):
         query_params_info = """
 ## Query Parameters
 
-Inform PK if mentioning specific vacancy
+- Inform course PK if mentioning specific course
+- Inform user pk / profile pk / profile slug to get all courses
+
+"""
+
+        unique_query_params_info = """
+## Query Parameters
+
+Inform course PK if mentioning specific course
 
 """
 
@@ -867,62 +1070,62 @@ Inform PK if mentioning specific vacancy
                 responses = {
                     "200": {
                         'description': 'OK',
-                        'reason': 'Vacancy found'
+                        'reason': 'Course found'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy not found'
+                        'reason': 'Course not found'
                     }
                 }
-                return description_generator(title="Get a specific vacancy or all vacancies",
+                return description_generator(title="Get a specific course or all courses from a specific user",
                                              description=query_params_info + authorization_info,
                                              responses=responses)
             case 'POST':
                 responses = {
                     "201": {
                         'description': 'CREATED',
-                        'reason': 'Vacancy successfully created'
+                        'reason': 'Course successfully created'
                     },
                     "400": {
                         'description': "BAD REQUEST",
                         'reason': 'Invalid request body'
                     }
                 }
-                return description_generator(title="Create a vacancy",
+                return description_generator(title="Create a course",
                                              description=authorization_info,
                                              responses=responses)
             case 'PATCH':
                 responses = {
                     "200": {
                         'description': 'OK',
-                        'reason': 'Vacancy successfully updated'
+                        'reason': 'Course successfully updated'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy ID not found'
+                        'reason': 'Course ID not found'
                     },
                     "400": {
                         'description': "BAD REQUEST",
                         'reason': 'Invalid request body'
                     }
                 }
-                return description_generator(title="Update specific information from vacancy",
+                return description_generator(title="Update specific information from course",
                                              # noqa: E502
-                                             description=query_params_info + authorization_info,
+                                             description=unique_query_params_info + authorization_info,
                                              responses=responses)
             case 'DELETE':
                 responses = {
                     "204": {
                         'description': 'NO CONTENT',
-                        'reason': 'Vacancy successfully deleted'
+                        'reason': 'Course successfully deleted'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy not found'
+                        'reason': 'Course not found'
                     }
                 }
-                return description_generator(title="Delete a specific vacancy",
-                                             description=query_params_info + authorization_info,
+                return description_generator(title="Delete a specific course",
+                                             description=unique_query_params_info + authorization_info,
                                              responses=responses)
             case _:
                 return ''
@@ -936,45 +1139,94 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=False,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Course ID (returns specific course)"
+                    ),
+                    coreapi.Field(
+                        name="user_pk",
+                        location="query",
+                        required=False,
+                        schema=coreschema.Integer(minimum=1),
+                        description="User ID (return all courses)"
+                    ),
+                    coreapi.Field(
+                        name="profile_pk",
+                        location="query",
+                        required=False,
+                        schema=coreschema.Integer(minimum=1),
+                        description="Profile ID (return all courses)"
+                    ),
+                    coreapi.Field(
+                        name="slug",
+                        location="query",
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Profile slug (return all courses)"
                     )
                 ]
             case 'POST':
                 return [
                     coreapi.Field(
-                        name="role",
+                        name="profile_pk",
                         location="form",
                         required=True,
+                        schema=coreschema.Integer(),
+                        description="Profile ID"
+                    ),
+                    coreapi.Field(
+                        name="title",
+                        location='form',
+                        required=False,
                         schema=coreschema.String(255),
-                        description="Vacancy role (or title)"
+                        description="Course title"
                     ),
                     coreapi.Field(
                         name="description",
                         location='form',
-                        required=True,
+                        required=False,
                         schema=coreschema.String(),
-                        description="Vacancy description"
+                        description="Course description"
                     ),
                     coreapi.Field(
-                        name="modality",
-                        location='form',
-                        required=True,
-                        schema=coreschema.String(255),
-                        description="Vacancy modality"
-                    ),
-                    coreapi.Field(
-                        name="salary",
-                        location='form',
-                        required=True,
-                        schema=coreschema.Integer(),
-                        description="Vacancy salary"
-                    ),
-                    coreapi.Field(
-                        name="address",
+                        name="course_name",
                         location='form',
                         required=False,
-                        schema=coreschema.Array(coreschema.String(255)),
-                        description="Vacancy address (JSON should contain two strings and an integer)"
+                        schema=coreschema.String(),
+                        description="Course name"
+                    ),
+                    coreapi.Field(
+                        name="course_locale",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Course locale"
+                    ),
+                    coreapi.Field(
+                        name="course_provider",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Course provider"
+                    ),
+                    coreapi.Field(
+                        name="course_hours",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Course hours"
+                    ),
+                    coreapi.Field(
+                        name="course_start_time",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Course start date (ISO format)"
+                    ),
+                    coreapi.Field(
+                        name="course_end_time",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Course end date (ISO format)"
                     )
                 ]
             case 'PATCH':
@@ -984,42 +1236,70 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=True,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Course ID"
                     ),
                     coreapi.Field(
-                        name="role",
+                        name="profile_pk",
                         location="form",
                         required=False,
+                        schema=coreschema.Integer(),
+                        description="Profile ID"
+                    ),
+                    coreapi.Field(
+                        name="title",
+                        location='form',
+                        required=False,
                         schema=coreschema.String(255),
-                        description="Vacancy role (or title)"
+                        description="Course title"
                     ),
                     coreapi.Field(
                         name="description",
                         location='form',
                         required=False,
                         schema=coreschema.String(),
-                        description="Vacancy description"
+                        description="Course description"
                     ),
                     coreapi.Field(
-                        name="modality",
+                        name="course_name",
                         location='form',
                         required=False,
-                        schema=coreschema.String(255),
-                        description="Vacancy modality"
+                        schema=coreschema.String(),
+                        description="Course name"
                     ),
                     coreapi.Field(
-                        name="salary",
+                        name="course_locale",
                         location='form',
                         required=False,
-                        schema=coreschema.Integer(),
-                        description="Vacancy salary"
+                        schema=coreschema.String(),
+                        description="Course locale"
                     ),
                     coreapi.Field(
-                        name="address",
+                        name="course_provider",
                         location='form',
                         required=False,
-                        schema=coreschema.Array(coreschema.String(255)),
-                        description="Vacancy address (JSON should contain two strings and an integer)"
+                        schema=coreschema.String(),
+                        description="Course provider"
+                    ),
+                    coreapi.Field(
+                        name="course_hours",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Course hours"
+                    ),
+                    coreapi.Field(
+                        name="course_start_time",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Course start date (ISO format)"
+                    ),
+                    coreapi.Field(
+                        name="course_end_time",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Course end date (ISO format)"
                     )
                 ]
             case 'DELETE':
@@ -1029,7 +1309,7 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=True,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Course ID"
                     )
                 ]
             case _:
@@ -1057,7 +1337,6 @@ class Course(Base):
 
 # ========== Reference ========== #
 class ReferenceSchema(AutoSchema):
-    # TODO: Edit to reference
     def get_description(self, path: str, method: str) -> str:
         authorization_info = """
 ## Authorization:
@@ -1068,7 +1347,15 @@ class ReferenceSchema(AutoSchema):
         query_params_info = """
 ## Query Parameters
 
-Inform PK if mentioning specific vacancy
+- Inform reference PK if mentioning specific reference
+- Inform user pk / profile pk / profile slug to get all references
+
+"""
+
+        unique_query_params_info = """
+## Query Parameters
+
+Inform reference PK if mentioning specific reference
 
 """
 
@@ -1077,62 +1364,62 @@ Inform PK if mentioning specific vacancy
                 responses = {
                     "200": {
                         'description': 'OK',
-                        'reason': 'Vacancy found'
+                        'reason': 'Reference found'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy not found'
+                        'reason': 'Reference not found'
                     }
                 }
-                return description_generator(title="Get a specific vacancy or all vacancies",
+                return description_generator(title="Get a specific reference or all references from a specific user",
                                              description=query_params_info + authorization_info,
                                              responses=responses)
             case 'POST':
                 responses = {
                     "201": {
                         'description': 'CREATED',
-                        'reason': 'Vacancy successfully created'
+                        'reason': 'Reference successfully created'
                     },
                     "400": {
                         'description': "BAD REQUEST",
                         'reason': 'Invalid request body'
                     }
                 }
-                return description_generator(title="Create a vacancy",
+                return description_generator(title="Create a reference",
                                              description=authorization_info,
                                              responses=responses)
             case 'PATCH':
                 responses = {
                     "200": {
                         'description': 'OK',
-                        'reason': 'Vacancy successfully updated'
+                        'reason': 'Reference successfully updated'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy ID not found'
+                        'reason': 'Reference ID not found'
                     },
                     "400": {
                         'description': "BAD REQUEST",
                         'reason': 'Invalid request body'
                     }
                 }
-                return description_generator(title="Update specific information from vacancy",
+                return description_generator(title="Update specific information from reference",
                                              # noqa: E502
-                                             description=query_params_info + authorization_info,
+                                             description=unique_query_params_info + authorization_info,
                                              responses=responses)
             case 'DELETE':
                 responses = {
                     "204": {
                         'description': 'NO CONTENT',
-                        'reason': 'Vacancy successfully deleted'
+                        'reason': 'Reference successfully deleted'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy not found'
+                        'reason': 'Reference not found'
                     }
                 }
-                return description_generator(title="Delete a specific vacancy",
-                                             description=query_params_info + authorization_info,
+                return description_generator(title="Delete a specific Reference",
+                                             description=unique_query_params_info + authorization_info,
                                              responses=responses)
             case _:
                 return ''
@@ -1146,45 +1433,87 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=False,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Reference ID (returns specific reference)"
+                    ),
+                    coreapi.Field(
+                        name="user_pk",
+                        location="query",
+                        required=False,
+                        schema=coreschema.Integer(minimum=1),
+                        description="User ID (return all references)"
+                    ),
+                    coreapi.Field(
+                        name="profile_pk",
+                        location="query",
+                        required=False,
+                        schema=coreschema.Integer(minimum=1),
+                        description="Profile ID (return all references)"
+                    ),
+                    coreapi.Field(
+                        name="slug",
+                        location="query",
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Profile slug (return all references)"
                     )
                 ]
             case 'POST':
                 return [
                     coreapi.Field(
-                        name="role",
+                        name="profile_pk",
                         location="form",
                         required=True,
+                        schema=coreschema.Integer(),
+                        description="Profile ID"
+                    ),
+                    coreapi.Field(
+                        name="title",
+                        location='form',
+                        required=False,
                         schema=coreschema.String(255),
-                        description="Vacancy role (or title)"
+                        description="Reference title"
                     ),
                     coreapi.Field(
                         name="description",
                         location='form',
-                        required=True,
+                        required=False,
                         schema=coreschema.String(),
-                        description="Vacancy description"
+                        description="Reference description"
                     ),
                     coreapi.Field(
-                        name="modality",
-                        location='form',
-                        required=True,
-                        schema=coreschema.String(255),
-                        description="Vacancy modality"
-                    ),
-                    coreapi.Field(
-                        name="salary",
-                        location='form',
-                        required=True,
-                        schema=coreschema.Integer(),
-                        description="Vacancy salary"
-                    ),
-                    coreapi.Field(
-                        name="address",
+                        name="reference_name",
                         location='form',
                         required=False,
-                        schema=coreschema.Array(coreschema.String(255)),
-                        description="Vacancy address (JSON should contain two strings and an integer)"
+                        schema=coreschema.String(),
+                        description="Reference name"
+                    ),
+                    coreapi.Field(
+                        name="reference_role",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Reference role"
+                    ),
+                    coreapi.Field(
+                        name="reference_company",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Reference company"
+                    ),
+                    coreapi.Field(
+                        name="reference_phone",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Reference phone"
+                    ),
+                    coreapi.Field(
+                        name="refecence_email",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Reference email"
                     )
                 ]
             case 'PATCH':
@@ -1194,42 +1523,63 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=True,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Reference ID"
                     ),
                     coreapi.Field(
-                        name="role",
+                        name="profile_pk",
                         location="form",
                         required=False,
+                        schema=coreschema.Integer(),
+                        description="Profile ID"
+                    ),
+                    coreapi.Field(
+                        name="title",
+                        location='form',
+                        required=False,
                         schema=coreschema.String(255),
-                        description="Vacancy role (or title)"
+                        description="Reference title"
                     ),
                     coreapi.Field(
                         name="description",
                         location='form',
                         required=False,
                         schema=coreschema.String(),
-                        description="Vacancy description"
+                        description="Reference description"
                     ),
                     coreapi.Field(
-                        name="modality",
+                        name="reference_name",
                         location='form',
                         required=False,
-                        schema=coreschema.String(255),
-                        description="Vacancy modality"
+                        schema=coreschema.String(),
+                        description="Reference name"
                     ),
                     coreapi.Field(
-                        name="salary",
+                        name="reference_role",
                         location='form',
                         required=False,
-                        schema=coreschema.Integer(),
-                        description="Vacancy salary"
+                        schema=coreschema.String(),
+                        description="Reference role"
                     ),
                     coreapi.Field(
-                        name="address",
+                        name="reference_company",
                         location='form',
                         required=False,
-                        schema=coreschema.Array(coreschema.String(255)),
-                        description="Vacancy address (JSON should contain two strings and an integer)"
+                        schema=coreschema.String(),
+                        description="Reference company"
+                    ),
+                    coreapi.Field(
+                        name="reference_phone",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Reference phone"
+                    ),
+                    coreapi.Field(
+                        name="refecence_email",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Reference email"
                     )
                 ]
             case 'DELETE':
@@ -1239,7 +1589,7 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=True,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Reference ID"
                     )
                 ]
             case _:
@@ -1267,7 +1617,6 @@ class Reference(Base):
 
 # ========== Graduation ========== #
 class GraduationSchema(AutoSchema):
-    # TODO: Edit to graduation
     def get_description(self, path: str, method: str) -> str:
         authorization_info = """
 ## Authorization:
@@ -1278,7 +1627,15 @@ class GraduationSchema(AutoSchema):
         query_params_info = """
 ## Query Parameters
 
-Inform PK if mentioning specific vacancy
+- Inform graduation PK if mentioning specific graduation
+- Inform user pk / profile pk / profile slug to get all graduations
+
+"""
+
+        unique_query_params_info = """
+## Query Parameters
+
+Inform graduation PK if mentioning specific graduation
 
 """
 
@@ -1287,62 +1644,62 @@ Inform PK if mentioning specific vacancy
                 responses = {
                     "200": {
                         'description': 'OK',
-                        'reason': 'Vacancy found'
+                        'reason': 'Graduation found'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy not found'
+                        'reason': 'Graduation not found'
                     }
                 }
-                return description_generator(title="Get a specific vacancy or all vacancies",
+                return description_generator(title="Get a specific graduation or all graduations from a specific user",
                                              description=query_params_info + authorization_info,
                                              responses=responses)
             case 'POST':
                 responses = {
                     "201": {
                         'description': 'CREATED',
-                        'reason': 'Vacancy successfully created'
+                        'reason': 'Graduation successfully created'
                     },
                     "400": {
                         'description': "BAD REQUEST",
                         'reason': 'Invalid request body'
                     }
                 }
-                return description_generator(title="Create a vacancy",
+                return description_generator(title="Create a graduation",
                                              description=authorization_info,
                                              responses=responses)
             case 'PATCH':
                 responses = {
                     "200": {
                         'description': 'OK',
-                        'reason': 'Vacancy successfully updated'
+                        'reason': 'Graduation successfully updated'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy ID not found'
+                        'reason': 'Graduation ID not found'
                     },
                     "400": {
                         'description': "BAD REQUEST",
                         'reason': 'Invalid request body'
                     }
                 }
-                return description_generator(title="Update specific information from vacancy",
+                return description_generator(title="Update specific information from graduation",
                                              # noqa: E502
-                                             description=query_params_info + authorization_info,
+                                             description=unique_query_params_info + authorization_info,
                                              responses=responses)
             case 'DELETE':
                 responses = {
                     "204": {
                         'description': 'NO CONTENT',
-                        'reason': 'Vacancy successfully deleted'
+                        'reason': 'Graduation successfully deleted'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy not found'
+                        'reason': 'Graduation not found'
                     }
                 }
-                return description_generator(title="Delete a specific vacancy",
-                                             description=query_params_info + authorization_info,
+                return description_generator(title="Delete a specific graduation",
+                                             description=unique_query_params_info + authorization_info,
                                              responses=responses)
             case _:
                 return ''
@@ -1356,45 +1713,80 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=False,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Graduation ID (returns specific graduation)"
+                    ),
+                    coreapi.Field(
+                        name="user_pk",
+                        location="query",
+                        required=False,
+                        schema=coreschema.Integer(minimum=1),
+                        description="User ID (return all graduations)"
+                    ),
+                    coreapi.Field(
+                        name="profile_pk",
+                        location="query",
+                        required=False,
+                        schema=coreschema.Integer(minimum=1),
+                        description="Profile ID (return all graduations)"
+                    ),
+                    coreapi.Field(
+                        name="slug",
+                        location="query",
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Profile slug (return all graduations)"
                     )
                 ]
             case 'POST':
                 return [
                     coreapi.Field(
-                        name="role",
+                        name="profile_pk",
                         location="form",
                         required=True,
+                        schema=coreschema.Integer(),
+                        description="Profile ID"
+                    ),
+                    coreapi.Field(
+                        name="title",
+                        location='form',
+                        required=False,
                         schema=coreschema.String(255),
-                        description="Vacancy role (or title)"
+                        description="Graduation title"
                     ),
                     coreapi.Field(
                         name="description",
                         location='form',
-                        required=True,
+                        required=False,
                         schema=coreschema.String(),
-                        description="Vacancy description"
+                        description="Graduation description"
                     ),
                     coreapi.Field(
-                        name="modality",
-                        location='form',
-                        required=True,
-                        schema=coreschema.String(255),
-                        description="Vacancy modality"
-                    ),
-                    coreapi.Field(
-                        name="salary",
-                        location='form',
-                        required=True,
-                        schema=coreschema.Integer(),
-                        description="Vacancy salary"
-                    ),
-                    coreapi.Field(
-                        name="address",
+                        name="graduation_type",
                         location='form',
                         required=False,
-                        schema=coreschema.Array(coreschema.String(255)),
-                        description="Vacancy address (JSON should contain two strings and an integer)"
+                        schema=coreschema.String(150),
+                        description="Graduation Type"
+                    ),
+                    coreapi.Field(
+                        name="graduation_period",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(150),
+                        description="Graduation Period (hours)"
+                    ),
+                    coreapi.Field(
+                        name="graduation_start_time",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Graduation start date (ISO format)"
+                    ),
+                    coreapi.Field(
+                        name="graduation_end_time",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Graduation end date (ISO format)"
                     )
                 ]
             case 'PATCH':
@@ -1404,42 +1796,56 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=True,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Graduation ID"
                     ),
                     coreapi.Field(
-                        name="role",
+                        name="profile_pk",
                         location="form",
                         required=False,
+                        schema=coreschema.Integer(),
+                        description="Profile ID"
+                    ),
+                    coreapi.Field(
+                        name="title",
+                        location='form',
+                        required=False,
                         schema=coreschema.String(255),
-                        description="Vacancy role (or title)"
+                        description="Graduation title"
                     ),
                     coreapi.Field(
                         name="description",
                         location='form',
                         required=False,
                         schema=coreschema.String(),
-                        description="Vacancy description"
+                        description="Graduation description"
                     ),
                     coreapi.Field(
-                        name="modality",
+                        name="graduation_type",
                         location='form',
                         required=False,
-                        schema=coreschema.String(255),
-                        description="Vacancy modality"
+                        schema=coreschema.String(150),
+                        description="Graduation Type"
                     ),
                     coreapi.Field(
-                        name="salary",
+                        name="graduation_period",
                         location='form',
                         required=False,
-                        schema=coreschema.Integer(),
-                        description="Vacancy salary"
+                        schema=coreschema.String(150),
+                        description="Graduation Period (hours)"
                     ),
                     coreapi.Field(
-                        name="address",
+                        name="graduation_start_time",
                         location='form',
                         required=False,
-                        schema=coreschema.Array(coreschema.String(255)),
-                        description="Vacancy address (JSON should contain two strings and an integer)"
+                        schema=coreschema.String(),
+                        description="Graduation start date (ISO format)"
+                    ),
+                    coreapi.Field(
+                        name="graduation_end_time",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Graduation end date (ISO format)"
                     )
                 ]
             case 'DELETE':
@@ -1449,7 +1855,7 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=True,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Graduation ID"
                     )
                 ]
             case _:
@@ -1477,7 +1883,6 @@ class Graduation(Base):
 
 # ========== Project ========== #
 class ProjectSchema(AutoSchema):
-    # TODO: Edit to project
     def get_description(self, path: str, method: str) -> str:
         authorization_info = """
 ## Authorization:
@@ -1488,7 +1893,15 @@ class ProjectSchema(AutoSchema):
         query_params_info = """
 ## Query Parameters
 
-Inform PK if mentioning specific vacancy
+- Inform project PK if mentioning specific project
+- Inform user pk / profile pk / profile slug to get all projects
+
+"""
+
+        unique_query_params_info = """
+## Query Parameters
+
+Inform project PK if mentioning specific project
 
 """
 
@@ -1497,62 +1910,62 @@ Inform PK if mentioning specific vacancy
                 responses = {
                     "200": {
                         'description': 'OK',
-                        'reason': 'Vacancy found'
+                        'reason': 'Project found'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy not found'
+                        'reason': 'Project not found'
                     }
                 }
-                return description_generator(title="Get a specific vacancy or all vacancies",
+                return description_generator(title="Get a specific project or all project from a specific user",
                                              description=query_params_info + authorization_info,
                                              responses=responses)
             case 'POST':
                 responses = {
                     "201": {
                         'description': 'CREATED',
-                        'reason': 'Vacancy successfully created'
+                        'reason': 'Project successfully created'
                     },
                     "400": {
                         'description': "BAD REQUEST",
                         'reason': 'Invalid request body'
                     }
                 }
-                return description_generator(title="Create a vacancy",
+                return description_generator(title="Create a project",
                                              description=authorization_info,
                                              responses=responses)
             case 'PATCH':
                 responses = {
                     "200": {
                         'description': 'OK',
-                        'reason': 'Vacancy successfully updated'
+                        'reason': 'Project successfully updated'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy ID not found'
+                        'reason': 'Project ID not found'
                     },
                     "400": {
                         'description': "BAD REQUEST",
                         'reason': 'Invalid request body'
                     }
                 }
-                return description_generator(title="Update specific information from vacancy",
+                return description_generator(title="Update specific information from project",
                                              # noqa: E502
-                                             description=query_params_info + authorization_info,
+                                             description=unique_query_params_info + authorization_info,
                                              responses=responses)
             case 'DELETE':
                 responses = {
                     "204": {
                         'description': 'NO CONTENT',
-                        'reason': 'Vacancy successfully deleted'
+                        'reason': 'Project successfully deleted'
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy not found'
+                        'reason': 'Project not found'
                     }
                 }
-                return description_generator(title="Delete a specific vacancy",
-                                             description=query_params_info + authorization_info,
+                return description_generator(title="Delete a specific project",
+                                             description=unique_query_params_info + authorization_info,
                                              responses=responses)
             case _:
                 return ''
@@ -1566,45 +1979,73 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=False,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Project ID (returns specific project)"
+                    ),
+                    coreapi.Field(
+                        name="user_pk",
+                        location="query",
+                        required=False,
+                        schema=coreschema.Integer(minimum=1),
+                        description="User ID (return all projects)"
+                    ),
+                    coreapi.Field(
+                        name="profile_pk",
+                        location="query",
+                        required=False,
+                        schema=coreschema.Integer(minimum=1),
+                        description="Profile ID (return all projects)"
+                    ),
+                    coreapi.Field(
+                        name="slug",
+                        location="query",
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Profile slug (return all projects)"
                     )
                 ]
             case 'POST':
                 return [
                     coreapi.Field(
-                        name="role",
+                        name="profile_pk",
                         location="form",
                         required=True,
+                        schema=coreschema.Integer(),
+                        description="Profile ID"
+                    ),
+                    coreapi.Field(
+                        name="title",
+                        location='form',
+                        required=False,
                         schema=coreschema.String(255),
-                        description="Vacancy role (or title)"
+                        description="Project title"
                     ),
                     coreapi.Field(
                         name="description",
                         location='form',
-                        required=True,
+                        required=False,
                         schema=coreschema.String(),
-                        description="Vacancy description"
+                        description="Project item description"
                     ),
                     coreapi.Field(
-                        name="modality",
-                        location='form',
-                        required=True,
-                        schema=coreschema.String(255),
-                        description="Vacancy modality"
-                    ),
-                    coreapi.Field(
-                        name="salary",
-                        location='form',
-                        required=True,
-                        schema=coreschema.Integer(),
-                        description="Vacancy salary"
-                    ),
-                    coreapi.Field(
-                        name="address",
+                        name="project_name",
                         location='form',
                         required=False,
-                        schema=coreschema.Array(coreschema.String(255)),
-                        description="Vacancy address (JSON should contain two strings and an integer)"
+                        schema=coreschema.String(255),
+                        description="Project name"
+                    ),
+                    coreapi.Field(
+                        name="project_description",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(),
+                        description="Project description"
+                    ),
+                    coreapi.Field(
+                        name="project_link",
+                        location='form',
+                        required=False,
+                        schema=coreschema.String(255),
+                        description="Project URL"
                     )
                 ]
             case 'PATCH':
@@ -1614,42 +2055,49 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=True,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Project ID"
                     ),
                     coreapi.Field(
-                        name="role",
+                        name="profile_pk",
                         location="form",
                         required=False,
+                        schema=coreschema.Integer(),
+                        description="Profile ID"
+                    ),
+                    coreapi.Field(
+                        name="title",
+                        location='form',
+                        required=False,
                         schema=coreschema.String(255),
-                        description="Vacancy role (or title)"
+                        description="Project title"
                     ),
                     coreapi.Field(
                         name="description",
                         location='form',
                         required=False,
                         schema=coreschema.String(),
-                        description="Vacancy description"
+                        description="Project item description"
                     ),
                     coreapi.Field(
-                        name="modality",
+                        name="project_name",
                         location='form',
                         required=False,
                         schema=coreschema.String(255),
-                        description="Vacancy modality"
+                        description="Project name"
                     ),
                     coreapi.Field(
-                        name="salary",
+                        name="project_description",
                         location='form',
                         required=False,
-                        schema=coreschema.Integer(),
-                        description="Vacancy salary"
+                        schema=coreschema.String(),
+                        description="Project description"
                     ),
                     coreapi.Field(
-                        name="address",
+                        name="project_link",
                         location='form',
                         required=False,
-                        schema=coreschema.Array(coreschema.String(255)),
-                        description="Vacancy address (JSON should contain two strings and an integer)"
+                        schema=coreschema.String(255),
+                        description="Project URL"
                     )
                 ]
             case 'DELETE':
@@ -1659,7 +2107,7 @@ Inform PK if mentioning specific vacancy
                         location="query",
                         required=True,
                         schema=coreschema.Integer(minimum=1),
-                        description="Vacancy ID"
+                        description="Project ID"
                     )
                 ]
             case _:
@@ -1871,7 +2319,7 @@ Inform link PK if mentioning specific link
                     coreapi.Field(
                         name="url",
                         location='form',
-                        required=True,
+                        required=False,
                         schema=coreschema.String(),
                         description="Link URL"
                     )

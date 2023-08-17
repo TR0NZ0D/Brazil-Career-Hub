@@ -48,18 +48,18 @@ class ResumeCompetence(models.Model):
                              max_length=255)
     description = models.TextField("Description",
                                    blank=True)
-    competency_name = models.CharField("Competency name",
+    competence_name = models.CharField("Competence name",
                                        blank=True,
                                        max_length=255)
-    competency_level = models.CharField("Competency level",
+    competence_level = models.CharField("Competence level",
                                         blank=True,
                                         max_length=255)
 
     def __str__(self) -> str:
-        return f"{self.profile.user.first_name}'s competency: {self.title}"  # type: ignore
+        return f"{self.profile.user.first_name}'s competence: {self.title}"  # type: ignore
 
     class Meta:
-        verbose_name = 'Resume competency'
+        verbose_name = 'Resume competence'
         verbose_name_plural = 'Resume competencies'
 
 
@@ -227,9 +227,9 @@ class ResumeModel(models.Model):
     experiences = models.ManyToManyField(ResumeExperience,
                                          blank=True,
                                          verbose_name="Experiences")
-    competences = models.ManyToManyField(ResumeCompetence,
-                                         blank=True,
-                                         verbose_name="Competences")
+    competencies = models.ManyToManyField(ResumeCompetence,
+                                          blank=True,
+                                          verbose_name="Competencies")
     courses = models.ManyToManyField(ResumeCourse,
                                      blank=True,
                                      verbose_name="Courses")

@@ -13,11 +13,11 @@ class ResumeExperiencesAdmin(admin.ModelAdmin):
                      'experience_role', 'experience_description')
 
 
-class ResumeCompetencesAdmin(admin.ModelAdmin):
-    list_display = ("pk", "profile", "title", "competency_name", "competency_level")
+class ResumeCompetenciesAdmin(admin.ModelAdmin):
+    list_display = ("pk", "profile", "title", "competence_name", "competence_level")
     list_display_links = ("pk", "profile")
     list_per_page = 50
-    search_fields = ('description', "competency_name", "competency_level")
+    search_fields = ('description', "competence_name", "competence_level")
 
 
 class ResumeCoursesAdmin(admin.ModelAdmin):
@@ -71,7 +71,7 @@ class ResumeModelAdmin(admin.ModelAdmin):
 
 
 admin.site.register(models.ResumeExperience, ResumeExperiencesAdmin)
-admin.site.register(models.ResumeCompetence, ResumeCompetencesAdmin)
+admin.site.register(models.ResumeCompetence, ResumeCompetenciesAdmin)
 admin.site.register(models.ResumeCourse, ResumeCoursesAdmin)
 admin.site.register(models.ResumeReference, ResumeReferencesAdmin)
 admin.site.register(models.ResumeGraduation, ResumeGraduationAdmin)

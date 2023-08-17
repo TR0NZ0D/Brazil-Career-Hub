@@ -47,7 +47,7 @@ class LinkSerializer(serializers.ModelSerializer):
 
 class ResumeModelSerializer(serializers.ModelSerializer):
     all_experiences = serializers.ModelSerializer()
-    all_competences = serializers.ModelSerializer()
+    all_competencies = serializers.ModelSerializer()
     all_courses = serializers.ModelSerializer()
     all_references = serializers.ModelSerializer()
     all_graduations = serializers.ModelSerializer()
@@ -57,8 +57,8 @@ class ResumeModelSerializer(serializers.ModelSerializer):
     def get_all_experiences(self, obj):
         return obj.experiences.all().values()
 
-    def get_all_competences(self, obj):
-        return obj.competences.all().values()
+    def get_all_competencies(self, obj):
+        return obj.competencies.all().values()
 
     def get_all_courses(self, obj):
         return obj.courses.all().values()
@@ -83,7 +83,7 @@ class ResumeModelSerializer(serializers.ModelSerializer):
                   "created_at",
                   "description",
                   "all_experiences",
-                  "all_competences",
+                  "all_competencies",
                   "all_courses",
                   "all_references",
                   "all_graduations",
