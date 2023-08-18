@@ -23,8 +23,8 @@ import {
   Modal
 } from '@mui/material';
 import UserAccount from 'models/User/UserAccount';
-import { createUserAccount, deleteUserAccount, getUserAccount } from 'api/users/user-account-requests';
-import { createUserProfile } from 'api/users/user-profile-requests';
+import { createUserAccount, deleteUserAccount, getUserAccount } from 'api/users-requests/user-account-requests';
+import { createUserProfile } from 'api/users-requests/user-profile-requests';
 import SocialAccount from 'models/User/SocialAccount';
 import UserProfile from 'models/User/UserProfile';
 import { useNavigate } from 'react-router-dom';
