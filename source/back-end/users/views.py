@@ -1810,17 +1810,26 @@ class UserManagement(Base):
                        first_name=account_data.get('name', ''),
                        last_name=account_data.get('surname', ''))
 
-        account.set_password(account_data.get('password', None))
-
         response_data = self.generate_basic_response_data(status.HTTP_201_CREATED,
                                                           "User account created successfully")
         data = serializers.UserSerializer(account, many=False).data
         serializer = serializers.UserSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
+
+            created_user = User.objects.filter(username=new_username).first()
+
+            if not created_user:
+                return self.generate_basic_response(status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                                    "Unexpected error occurred, contact back-end")
+
+            created_user.set_password(account_data.get('password', None))
+            created_user.save()
+
             response_data['content'] = serializer.data
             return Response(response_data,
                             status=response_data.get('status', status.HTTP_201_CREATED))
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request):
