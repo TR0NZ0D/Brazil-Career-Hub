@@ -299,8 +299,7 @@ class Vacancy(Base):
             response_data['content'] = serializer.data
             return Response(data=response_data, status=status.HTTP_200_OK)
 
-        response_data['content'] = []
-        return Response(data=response_data, status=status.HTTP_200_OK)
+        return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_vacancy_str)
 
     def post(self, request):
         data_valid, data_or_response = self.handle_vacancy_data(request, False)

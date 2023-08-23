@@ -13,6 +13,7 @@ from . import serializers
 from . import models
 from users.models import UserProfile
 from users.serializers import UserProfileSerializer
+from typing import Any
 
 
 # ========== Generics ========== #
@@ -52,8 +53,32 @@ class ResumeTools:
 
     # ====== Resume ====== #
     @staticmethod
-    def get_resume(request: HttpRequest) -> models.ResumeModel | list[models.ResumeModel] | None:
-        pass
+    def get_resume(request: HttpRequest) -> models.ResumeModel | None:
+        pk = request.query_params.get("pk", None)  # type: ignore
+
+        if pk:
+            return models.ResumeModel.objects.filter(pk=pk).first()
+
+        return None
+
+    @staticmethod
+    def get_all_resumes(request: HttpRequest) -> Any | None:
+        user_pk = request.query_params.get("user_pk", None)  # type: ignore
+
+        if user_pk:
+            return models.ResumeModel.objects.filter(profile__user__pk=user_pk)
+
+        profile_pk = request.query_params.get("profile_pk", None)  # type: ignore
+
+        if profile_pk:
+            return models.ResumeModel.objects.filter(profile__pk=profile_pk)
+
+        slug = request.query_params.get("slug", None)  # type: ignore
+
+        if slug:
+            return models.ResumeModel.objects.filter(profile__slug=slug)
+
+        return None
 
     @staticmethod
     def create_resume(request: HttpRequest) -> models.ResumeModel:
@@ -65,7 +90,15 @@ class ResumeTools:
 
     @staticmethod
     def delete_resume(request: HttpRequest, resume: models.ResumeModel):
-        pass
+        resume_model = ResumeTools.get_resume(request)
+
+        if resume_model is None:
+            return
+
+        if resume_model.pk != resume.pk:
+            return
+
+        resume.delete()
 
     @staticmethod
     def add_experience_to_resume(request: HttpRequest, resume: models.ResumeModel, experience: models.ResumeExperience):
@@ -508,10 +541,38 @@ class Resume(Base):
     schema = ResumeSchema()
 
     not_found_id_str = "Resume ID not found"
-    not_found_vacancy_str = "Resume not found"
+    not_found_resume_str = "Resume not found"
 
     def get(self, request, *args, **kwargs):
-        pass
+
+        pk = request.query_params.get("pk", None)  # type: ignore
+
+        if pk:
+            resume_model: models.ResumeModel | None = ResumeTools.get_resume(request)
+
+            if resume_model is None:
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_resume_str)
+
+            response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                              "Resume found")
+
+            serializer = serializers.ResumeModelSerializer(resume_model, many=False)
+            response_data['content'] = serializer.data
+            return Response(data=response_data, status=status.HTTP_200_OK)
+
+        resume_models: Any | None = ResumeTools.get_all_resumes(request)
+
+        if resume_models is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                self.not_found_resume_str)
+
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "Resumes found")
+
+        serializer = serializers.ResumeModelSerializer(resume_models, many=True)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         pass
@@ -520,7 +581,14 @@ class Resume(Base):
         pass
 
     def delete(self, request, *args, **kwargs):
-        pass
+        resume_model = ResumeTools.get_resume(request)
+
+        if resume_model is not None:
+            ResumeTools.delete_resume(request, resume_model)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                            self.not_found_resume_str)
 
 
 # ========== Experience ========== #
@@ -788,7 +856,7 @@ class Experience(Base):
     schema = ExperienceSchema()
 
     not_found_id_str = "Experience ID not found"
-    not_found_vacancy_str = "Experience not found"
+    not_found_experience_str = "Experience not found"
 
     def get(self, request, *args, **kwargs):
         pass
@@ -1026,7 +1094,7 @@ class Competence(Base):
     schema = CompetenceSchema()
 
     not_found_id_str = "Competence ID not found"
-    not_found_vacancy_str = "Competence not found"
+    not_found_competence_str = "Competence not found"
 
     def get(self, request, *args, **kwargs):
         pass
@@ -1320,7 +1388,7 @@ class Course(Base):
     schema = CourseSchema()
 
     not_found_id_str = "Course ID not found"
-    not_found_vacancy_str = "Course not found"
+    not_found_course_str = "Course not found"
 
     def get(self, request, *args, **kwargs):
         pass
@@ -1600,7 +1668,7 @@ class Reference(Base):
     schema = ReferenceSchema()
 
     not_found_id_str = "Reference ID not found"
-    not_found_vacancy_str = "Reference not found"
+    not_found_reference_str = "Reference not found"
 
     def get(self, request, *args, **kwargs):
         pass
@@ -1866,7 +1934,7 @@ class Graduation(Base):
     schema = GraduationSchema()
 
     not_found_id_str = "Graduation ID not found"
-    not_found_vacancy_str = "Graduation not found"
+    not_found_graduation_str = "Graduation not found"
 
     def get(self, request, *args, **kwargs):
         pass
@@ -2118,7 +2186,7 @@ class Project(Base):
     schema = ProjectSchema()
 
     not_found_id_str = "Project ID not found"
-    not_found_vacancy_str = "Project not found"
+    not_found_project_str = "Project not found"
 
     def get(self, request, *args, **kwargs):
         pass
@@ -2342,7 +2410,7 @@ class Link(Base):
     schema = LinkSchema()
 
     not_found_id_str = "Link ID not found"
-    not_found_vacancy_str = "Link not found"
+    not_found_link_str = "Link not found"
 
     def get(self, request, *args, **kwargs):
         pass
