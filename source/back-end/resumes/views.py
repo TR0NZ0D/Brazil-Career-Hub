@@ -130,8 +130,32 @@ class ResumeTools:
 
     # ====== Experience ====== #
     @staticmethod
-    def get_experience(request: HttpRequest) -> models.ResumeExperience | list[models.ResumeExperience] | None:
-        pass
+    def get_experience(request: HttpRequest) -> models.ResumeExperience | None:
+        pk = request.query_params.get("pk", None)  # type: ignore
+
+        if pk:
+            return models.ResumeExperience.objects.filter(pk=pk).first()
+
+        return None
+
+    @staticmethod
+    def get_all_experiences(request: HttpRequest) -> Any | None:
+        user_pk = request.query_params.get("user_pk", None)  # type: ignore
+
+        if user_pk:
+            return models.ResumeExperience.objects.filter(profile__user__pk=user_pk)
+
+        profile_pk = request.query_params.get("profile_pk", None)  # type: ignore
+
+        if profile_pk:
+            return models.ResumeExperience.objects.filter(profile__pk=profile_pk)
+
+        slug = request.query_params.get("slug", None)  # type: ignore
+
+        if slug:
+            return models.ResumeExperience.objects.filter(profile__slug=slug)
+
+        return None
 
     @staticmethod
     def create_experience(request: HttpRequest) -> models.ResumeExperience:
@@ -143,12 +167,44 @@ class ResumeTools:
 
     @staticmethod
     def delete_experience(request: HttpRequest, experience: models.ResumeExperience):
-        pass
+        experience_model = ResumeTools.get_experience(request)
+
+        if experience_model is None:
+            return
+
+        if experience_model.pk != experience.pk:
+            return
+
+        experience.delete()
 
     # ====== Competence ====== #
     @staticmethod
-    def get_competence(request: HttpRequest) -> models.ResumeCompetence | list[models.ResumeCompetence] | None:
-        pass
+    def get_competence(request: HttpRequest) -> models.ResumeCompetence | None:
+        pk = request.query_params.get("pk", None)  # type: ignore
+
+        if pk:
+            return models.ResumeCompetence.objects.filter(pk=pk).first()
+
+        return None
+
+    @staticmethod
+    def get_all_competences(request: HttpRequest) -> Any | None:
+        user_pk = request.query_params.get("user_pk", None)  # type: ignore
+
+        if user_pk:
+            return models.ResumeCompetence.objects.filter(profile__user__pk=user_pk)
+
+        profile_pk = request.query_params.get("profile_pk", None)  # type: ignore
+
+        if profile_pk:
+            return models.ResumeCompetence.objects.filter(profile__pk=profile_pk)
+
+        slug = request.query_params.get("slug", None)  # type: ignore
+
+        if slug:
+            return models.ResumeCompetence.objects.filter(profile__slug=slug)
+
+        return None
 
     @staticmethod
     def create_competence(request: HttpRequest) -> models.ResumeCompetence:
@@ -160,12 +216,44 @@ class ResumeTools:
 
     @staticmethod
     def delete_competence(request: HttpRequest, competence: models.ResumeCompetence):
-        pass
+        competence_model = ResumeTools.get_competence(request)
+
+        if competence_model is None:
+            return
+
+        if competence_model.pk != competence.pk:
+            return
+
+        competence.delete()
 
     # ====== Course ====== #
     @staticmethod
-    def get_course(request: HttpRequest) -> models.ResumeCourse | list[models.ResumeCourse] | None:
-        pass
+    def get_course(request: HttpRequest) -> models.ResumeCourse | None:
+        pk = request.query_params.get("pk", None)  # type: ignore
+
+        if pk:
+            return models.ResumeCourse.objects.filter(pk=pk).first()
+
+        return None
+
+    @staticmethod
+    def get_all_courses(request: HttpRequest) -> Any | None:
+        user_pk = request.query_params.get("user_pk", None)  # type: ignore
+
+        if user_pk:
+            return models.ResumeCourse.objects.filter(profile__user__pk=user_pk)
+
+        profile_pk = request.query_params.get("profile_pk", None)  # type: ignore
+
+        if profile_pk:
+            return models.ResumeCourse.objects.filter(profile__pk=profile_pk)
+
+        slug = request.query_params.get("slug", None)  # type: ignore
+
+        if slug:
+            return models.ResumeCourse.objects.filter(profile__slug=slug)
+
+        return None
 
     @staticmethod
     def create_course(request: HttpRequest) -> models.ResumeCourse:
@@ -177,12 +265,44 @@ class ResumeTools:
 
     @staticmethod
     def delete_course(request: HttpRequest, course: models.ResumeCourse):
-        pass
+        course_model = ResumeTools.get_course(request)
+
+        if course_model is None:
+            return
+
+        if course_model.pk != course.pk:
+            return
+
+        course.delete()
 
     # ====== Reference ====== #
     @staticmethod
-    def get_reference(request: HttpRequest) -> models.ResumeReference | list[models.ResumeReference] | None:
-        pass
+    def get_reference(request: HttpRequest) -> models.ResumeReference | None:
+        pk = request.query_params.get("pk", None)  # type: ignore
+
+        if pk:
+            return models.ResumeReference.objects.filter(pk=pk).first()
+
+        return None
+
+    @staticmethod
+    def get_all_references(request: HttpRequest) -> Any | None:
+        user_pk = request.query_params.get("user_pk", None)  # type: ignore
+
+        if user_pk:
+            return models.ResumeReference.objects.filter(profile__user__pk=user_pk)
+
+        profile_pk = request.query_params.get("profile_pk", None)  # type: ignore
+
+        if profile_pk:
+            return models.ResumeReference.objects.filter(profile__pk=profile_pk)
+
+        slug = request.query_params.get("slug", None)  # type: ignore
+
+        if slug:
+            return models.ResumeReference.objects.filter(profile__slug=slug)
+
+        return None
 
     @staticmethod
     def create_reference(request: HttpRequest) -> models.ResumeReference:
@@ -194,12 +314,44 @@ class ResumeTools:
 
     @staticmethod
     def delete_reference(request: HttpRequest, reference: models.ResumeReference):
-        pass
+        reference_model = ResumeTools.get_reference(request)
+
+        if reference_model is None:
+            return
+
+        if reference_model.pk != reference.pk:
+            return
+
+        reference.delete()
 
     # ====== Graduation ====== #
     @staticmethod
-    def get_graduation(request: HttpRequest) -> models.ResumeGraduation | list[models.ResumeGraduation] | None:
-        pass
+    def get_graduation(request: HttpRequest) -> models.ResumeGraduation | None:
+        pk = request.query_params.get("pk", None)  # type: ignore
+
+        if pk:
+            return models.ResumeGraduation.objects.filter(pk=pk).first()
+
+        return None
+
+    @staticmethod
+    def get_all_graduations(request: HttpRequest) -> Any | None:
+        user_pk = request.query_params.get("user_pk", None)  # type: ignore
+
+        if user_pk:
+            return models.ResumeGraduation.objects.filter(profile__user__pk=user_pk)
+
+        profile_pk = request.query_params.get("profile_pk", None)  # type: ignore
+
+        if profile_pk:
+            return models.ResumeGraduation.objects.filter(profile__pk=profile_pk)
+
+        slug = request.query_params.get("slug", None)  # type: ignore
+
+        if slug:
+            return models.ResumeGraduation.objects.filter(profile__slug=slug)
+
+        return None
 
     @staticmethod
     def create_graduation(request: HttpRequest) -> models.ResumeGraduation:
@@ -211,12 +363,44 @@ class ResumeTools:
 
     @staticmethod
     def delete_graduation(request: HttpRequest, graduation: models.ResumeGraduation):
-        pass
+        graduation_model = ResumeTools.get_graduation(request)
+
+        if graduation_model is None:
+            return
+
+        if graduation_model.pk != graduation.pk:
+            return
+
+        graduation.delete()
 
     # ====== Project ====== #
     @staticmethod
-    def get_project(request: HttpRequest) -> models.ResumeProject | list[models.ResumeProject] | None:
-        pass
+    def get_project(request: HttpRequest) -> models.ResumeProject | None:
+        pk = request.query_params.get("pk", None)  # type: ignore
+
+        if pk:
+            return models.ResumeProject.objects.filter(pk=pk).first()
+
+        return None
+
+    @staticmethod
+    def get_all_projects(request: HttpRequest) -> Any | None:
+        user_pk = request.query_params.get("user_pk", None)  # type: ignore
+
+        if user_pk:
+            return models.ResumeProject.objects.filter(profile__user__pk=user_pk)
+
+        profile_pk = request.query_params.get("profile_pk", None)  # type: ignore
+
+        if profile_pk:
+            return models.ResumeProject.objects.filter(profile__pk=profile_pk)
+
+        slug = request.query_params.get("slug", None)  # type: ignore
+
+        if slug:
+            return models.ResumeProject.objects.filter(profile__slug=slug)
+
+        return None
 
     @staticmethod
     def create_project(request: HttpRequest) -> models.ResumeProject:
@@ -228,12 +412,44 @@ class ResumeTools:
 
     @staticmethod
     def delete_project(request: HttpRequest, project: models.ResumeProject):
-        pass
+        project_model = ResumeTools.get_project(request)
+
+        if project_model is None:
+            return
+
+        if project_model.pk != project.pk:
+            return
+
+        project.delete()
 
     # ====== Link ====== #
     @staticmethod
-    def get_link(request: HttpRequest) -> models.ResumeLink | list[models.ResumeLink] | None:
-        pass
+    def get_link(request: HttpRequest) -> models.ResumeLink | None:
+        pk = request.query_params.get("pk", None)  # type: ignore
+
+        if pk:
+            return models.ResumeLink.objects.filter(pk=pk).first()
+
+        return None
+
+    @staticmethod
+    def get_all_links(request: HttpRequest) -> Any | None:
+        user_pk = request.query_params.get("user_pk", None)  # type: ignore
+
+        if user_pk:
+            return models.ResumeLink.objects.filter(profile__user__pk=user_pk)
+
+        profile_pk = request.query_params.get("profile_pk", None)  # type: ignore
+
+        if profile_pk:
+            return models.ResumeLink.objects.filter(profile__pk=profile_pk)
+
+        slug = request.query_params.get("slug", None)  # type: ignore
+
+        if slug:
+            return models.ResumeLink.objects.filter(profile__slug=slug)
+
+        return None
 
     @staticmethod
     def create_link(request: HttpRequest) -> models.ResumeLink:
@@ -245,7 +461,15 @@ class ResumeTools:
 
     @staticmethod
     def delete_link(request: HttpRequest, link: models.ResumeLink):
-        pass
+        link_model = ResumeTools.get_link(request)
+
+        if link_model is None:
+            return
+
+        if link_model.pk != link.pk:
+            return
+
+        link.delete()
 
 
 # ========== Resume ========== #
@@ -868,7 +1092,14 @@ class Experience(Base):
         pass
 
     def delete(self, request, *args, **kwargs):
-        pass
+        experience_model = ResumeTools.get_experience(request)
+
+        if experience_model is not None:
+            ResumeTools.delete_experience(request, experience_model)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                            self.not_found_experience_str)
 
 
 # ========== Competence ========== #
@@ -1106,7 +1337,14 @@ class Competence(Base):
         pass
 
     def delete(self, request, *args, **kwargs):
-        pass
+        competence_model = ResumeTools.get_competence(request)
+
+        if competence_model is not None:
+            ResumeTools.delete_competence(request, competence_model)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                            self.not_found_competence_str)
 
 
 # ========== Course ========== #
@@ -1400,7 +1638,14 @@ class Course(Base):
         pass
 
     def delete(self, request, *args, **kwargs):
-        pass
+        course_model = ResumeTools.get_course(request)
+
+        if course_model is not None:
+            ResumeTools.delete_course(request, course_model)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                            self.not_found_course_str)
 
 
 # ========== Reference ========== #
@@ -1680,7 +1925,14 @@ class Reference(Base):
         pass
 
     def delete(self, request, *args, **kwargs):
-        pass
+        reference_model = ResumeTools.get_reference(request)
+
+        if reference_model is not None:
+            ResumeTools.delete_reference(request, reference_model)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                            self.not_found_reference_str)
 
 
 # ========== Graduation ========== #
@@ -1946,7 +2198,14 @@ class Graduation(Base):
         pass
 
     def delete(self, request, *args, **kwargs):
-        pass
+        graduation_model = ResumeTools.get_graduation(request)
+
+        if graduation_model is not None:
+            ResumeTools.delete_graduation(request, graduation_model)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                            self.not_found_graduation_str)
 
 
 # ========== Project ========== #
@@ -2198,7 +2457,14 @@ class Project(Base):
         pass
 
     def delete(self, request, *args, **kwargs):
-        pass
+        project_model = ResumeTools.get_project(request)
+
+        if project_model is not None:
+            ResumeTools.delete_project(request, project_model)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                            self.not_found_project_str)
 
 
 # ========== Link ========== #
@@ -2422,4 +2688,11 @@ class Link(Base):
         pass
 
     def delete(self, request, *args, **kwargs):
-        pass
+        link_model = ResumeTools.get_link(request)
+
+        if link_model is not None:
+            ResumeTools.delete_link(request, link_model)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                            self.not_found_link_str)
