@@ -9,21 +9,40 @@ import {
 } from '@mui/material'
 import LogoImage from 'assets/images/logo.png';
 import { LoginContainer, LoginTitle, Logo } from './styles';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { AuthContext } from 'contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
 
   const [username, setUsername] = useState<string>("");
   const [cnpj, setCnpj] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-
   const [userType, setUserType] = useState<"company" | "user">("user");
+
+  const { userLogin } = useContext(AuthContext);
+
+  const navigate = useNavigate();
+
+  async function handleLoginSubmit(e: any) {
+    e.preventDefault();
+
+    if (userType === "user") {
+      let user = await userLogin(username, password);
+      if (user !== undefined) {
+        navigate("/");
+      }
+
+      else
+        alert("Invalid login");
+    }
+  }
 
   return (
     <Grid container display="flex" alignItems="center" justifyContent="center" flexDirection="column">
       <Logo src={LogoImage} alt="logo" />
 
-      <LoginContainer>
+      <LoginContainer onSubmit={handleLoginSubmit}>
         <Grid container item lg={12} md={12} sm={12} style={{ marginBottom: "5%" }}>
           <Grid container item lg={6} md={6} sm={6}>
             <LoginTitle variant="h5" gutterBottom>Login</LoginTitle>
