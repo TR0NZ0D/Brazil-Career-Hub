@@ -1,5 +1,7 @@
 import { ReactNode, createContext, useState, useEffect } from 'react';
 import { getToken } from 'api/admin/admin-requests';
+import CompanyProfile from 'models/Company/CompanyProfile';
+import UserProfile from 'models/User/UserProfile';
 
 type ProviderProps = {
   children: ReactNode;
@@ -12,6 +14,7 @@ type AdminToken = {
 
 type AuthContextProps = {
   adminToken: string | undefined;
+  entityLogged: CompanyProfile | UserProfile | undefined;
 }
 
 export const AuthContext = createContext({} as AuthContextProps);
@@ -19,6 +22,7 @@ export const AuthContext = createContext({} as AuthContextProps);
 export const AuthContextProvider = ({ children }: ProviderProps) => {
 
   const [adminToken, setAdminToken] = useState<string | undefined>();
+  const [entityLogged, setEntityLogged] = useState<CompanyProfile | UserProfile>();
 
   useEffect(() => {
     function getData() {
@@ -35,7 +39,8 @@ export const AuthContextProvider = ({ children }: ProviderProps) => {
   return (
     <AuthContext.Provider value={{
       // states
-      adminToken
+      adminToken,
+      entityLogged
     }}>
       {children}
     </AuthContext.Provider>
