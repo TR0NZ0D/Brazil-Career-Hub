@@ -20,36 +20,373 @@ from typing import Any
 class ResumeTools:
     # ====== Generics ====== #
     @staticmethod
-    def get_resume_data(request: HttpRequest, bypass_required: bool):
-        pass
+    def get_resume_data(request: HttpRequest, bypass_required: bool) -> tuple[bool, dict[str, Any | None] | str]:
+        def generate_error_response(text: str):
+            return (False, text)
+
+        # required
+        profile_pk = request.data.get("profile_pk", None)  # type: ignore
+
+        # optional
+        title = request.data.get("title", None)  # type: ignore
+        description = request.data.get("description", None)  # type: ignore
+        experiences = request.data.get("experiences", None)  # type: ignore
+        competencies = request.data.get("competencies", None)  # type: ignore
+        courses = request.data.get("courses", None)  # type: ignore
+        references = request.data.get("references", None)  # type: ignore
+        graduations = request.data.get("graduations", None)  # type: ignore
+        projects = request.data.get("projects", None)  # type: ignore
+        links = request.data.get("links", None)  # type: ignore
+
+        # Profile PK validation
+        if profile_pk is None and not bypass_required:
+            return generate_error_response("Profile PK is required")
+
+        if profile_pk and not isinstance(profile_pk, str):
+            return generate_error_response("Profile PK should be a string")
+
+        if profile_pk and not UserProfile.objects.filter(pk=profile_pk).first():
+            return generate_error_response("Profile not found")
+
+        # Title validations
+        if title and not isinstance(title, str):
+            return generate_error_response("Title should be a string")
+
+        if title and len(title) > 255:
+            return generate_error_response("Title should have a max length of 255 characters")
+
+        # Description validations
+        if description and not isinstance(description, str):
+            return generate_error_response("Description should be a string")
+
+        data = {
+            "profile_pk": profile_pk,
+            "title": title,
+            "description": description
+        }
+
+        return (True, data)
 
     @staticmethod
-    def get_experience_data(request: HttpRequest, bypass_required: bool):
-        pass
+    def get_experience_data(request: HttpRequest, bypass_required: bool) -> tuple[bool, dict[str, Any | None] | str]:
+        def generate_error_response(text: str):
+            return (False, text)
+
+        # required
+        profile_pk = request.data.get("profile_pk", None)  # type: ignore
+
+        # optional
+        title = request.data.get("title", None)  # type: ignore
+        description = request.data.get("description", None)  # type: ignore
+        experience_company = request.data.get("experience_company", None)  # type: ignore
+        experience_role = request.data.get("experience_role", None)  # type: ignore
+        experience_description = request.data.get("experience_description", None)  # type: ignore
+        experience_start_time = request.data.get("experience_start_time", None)  # type: ignore
+        experience_end_time = request.data.get("experience_end_time", None)  # type: ignore
+
+        # Profile PK validation
+        if profile_pk is None and not bypass_required:
+            return generate_error_response("Profile PK is required")
+
+        if profile_pk and not isinstance(profile_pk, str):
+            return generate_error_response("Profile PK should be a string")
+
+        if profile_pk and not UserProfile.objects.filter(pk=profile_pk).first():
+            return generate_error_response("Profile not found")
+
+        # Title validations
+        if title and not isinstance(title, str):
+            return generate_error_response("Title should be a string")
+
+        if title and len(title) > 255:
+            return generate_error_response("Title should have a max length of 255 characters")
+
+        # Description validations
+        if description and not isinstance(description, str):
+            return generate_error_response("Description should be a string")
+
+        data = {
+            "profile_pk": profile_pk,
+            "title": title,
+            "description": description
+        }
+
+        return (True, data)
 
     @staticmethod
-    def get_competence_data(request: HttpRequest, bypass_required: bool):
-        pass
+    def get_competence_data(request: HttpRequest, bypass_required: bool) -> tuple[bool, dict[str, Any | None] | str]:
+        def generate_error_response(text: str):
+            return (False, text)
+
+        # required
+        profile_pk = request.data.get("profile_pk", None)  # type: ignore
+
+        # optional
+        title = request.data.get("title", None)  # type: ignore
+        description = request.data.get("description", None)  # type: ignore
+        competence_name = request.data.get("competence_name", None)  # type: ignore
+        competence_level = request.data.get("competence_level", None)  # type: ignore
+
+        # Profile PK validation
+        if profile_pk is None and not bypass_required:
+            return generate_error_response("Profile PK is required")
+
+        if profile_pk and not isinstance(profile_pk, str):
+            return generate_error_response("Profile PK should be a string")
+
+        if profile_pk and not UserProfile.objects.filter(pk=profile_pk).first():
+            return generate_error_response("Profile not found")
+
+        # Title validations
+        if title and not isinstance(title, str):
+            return generate_error_response("Title should be a string")
+
+        if title and len(title) > 255:
+            return generate_error_response("Title should have a max length of 255 characters")
+
+        # Description validations
+        if description and not isinstance(description, str):
+            return generate_error_response("Description should be a string")
+
+        data = {
+            "profile_pk": profile_pk,
+            "title": title,
+            "description": description
+        }
+
+        return (True, data)
 
     @staticmethod
-    def get_course_data(request: HttpRequest, bypass_required: bool):
-        pass
+    def get_course_data(request: HttpRequest, bypass_required: bool) -> tuple[bool, dict[str, Any | None] | str]:
+        def generate_error_response(text: str):
+            return (False, text)
+
+        # required
+        profile_pk = request.data.get("profile_pk", None)  # type: ignore
+
+        # optional
+        title = request.data.get("title", None)  # type: ignore
+        description = request.data.get("description", None)  # type: ignore
+        course_name = request.data.get("course_name", None)  # type: ignore
+        course_locale = request.data.get("course_locale", None)  # type: ignore
+        course_provider = request.data.get("course_provider", None)  # type: ignore
+        course_hours = request.data.get("course_hours", None)  # type: ignore
+        course_start_time = request.data.get("course_start_time", None)  # type: ignore
+        course_end_time = request.data.get("course_end_time", None)  # type: ignore
+
+        # Profile PK validation
+        if profile_pk is None and not bypass_required:
+            return generate_error_response("Profile PK is required")
+
+        if profile_pk and not isinstance(profile_pk, str):
+            return generate_error_response("Profile PK should be a string")
+
+        if profile_pk and not UserProfile.objects.filter(pk=profile_pk).first():
+            return generate_error_response("Profile not found")
+
+        # Title validations
+        if title and not isinstance(title, str):
+            return generate_error_response("Title should be a string")
+
+        if title and len(title) > 255:
+            return generate_error_response("Title should have a max length of 255 characters")
+
+        # Description validations
+        if description and not isinstance(description, str):
+            return generate_error_response("Description should be a string")
+
+        data = {
+            "profile_pk": profile_pk,
+            "title": title,
+            "description": description
+        }
+
+        return (True, data)
 
     @staticmethod
-    def get_reference_data(request: HttpRequest, bypass_required: bool):
-        pass
+    def get_reference_data(request: HttpRequest, bypass_required: bool) -> tuple[bool, dict[str, Any | None] | str]:
+        def generate_error_response(text: str):
+            return (False, text)
+
+        # required
+        profile_pk = request.data.get("profile_pk", None)  # type: ignore
+
+        # optional
+        title = request.data.get("title", None)  # type: ignore
+        description = request.data.get("description", None)  # type: ignore
+        reference_name = request.data.get("reference_name", None)  # type: ignore
+        reference_role = request.data.get("reference_role", None)  # type: ignore
+        reference_company = request.data.get("reference_company", None)  # type: ignore
+        reference_phone = request.data.get("reference_phone", None)  # type: ignore
+        reference_email = request.data.get("reference_email", None)  # type: ignore
+
+        # Profile PK validation
+        if profile_pk is None and not bypass_required:
+            return generate_error_response("Profile PK is required")
+
+        if profile_pk and not isinstance(profile_pk, str):
+            return generate_error_response("Profile PK should be a string")
+
+        if profile_pk and not UserProfile.objects.filter(pk=profile_pk).first():
+            return generate_error_response("Profile not found")
+
+        # Title validations
+        if title and not isinstance(title, str):
+            return generate_error_response("Title should be a string")
+
+        if title and len(title) > 255:
+            return generate_error_response("Title should have a max length of 255 characters")
+
+        # Description validations
+        if description and not isinstance(description, str):
+            return generate_error_response("Description should be a string")
+
+        data = {
+            "profile_pk": profile_pk,
+            "title": title,
+            "description": description
+        }
+
+        return (True, data)
 
     @staticmethod
-    def get_graduation_data(request: HttpRequest, bypass_required: bool):
-        pass
+    def get_graduation_data(request: HttpRequest, bypass_required: bool) -> tuple[bool, dict[str, Any | None] | str]:
+        def generate_error_response(text: str):
+            return (False, text)
+
+        # required
+        profile_pk = request.data.get("profile_pk", None)  # type: ignore
+
+        # optional
+        title = request.data.get("title", None)  # type: ignore
+        description = request.data.get("description", None)  # type: ignore
+        graduation_type = request.data.get("graduation_type", None)  # type: ignore
+        graduation_period = request.data.get("graduation_period", None)  # type: ignore
+        graduation_start_time = request.data.get("graduation_start_time", None)  # type: ignore
+        graduation_end_time = request.data.get("graduation_end_time", None)  # type: ignore
+
+        # Profile PK validation
+        if profile_pk is None and not bypass_required:
+            return generate_error_response("Profile PK is required")
+
+        if profile_pk and not isinstance(profile_pk, str):
+            return generate_error_response("Profile PK should be a string")
+
+        if profile_pk and not UserProfile.objects.filter(pk=profile_pk).first():
+            return generate_error_response("Profile not found")
+
+        # Title validations
+        if title and not isinstance(title, str):
+            return generate_error_response("Title should be a string")
+
+        if title and len(title) > 255:
+            return generate_error_response("Title should have a max length of 255 characters")
+
+        # Description validations
+        if description and not isinstance(description, str):
+            return generate_error_response("Description should be a string")
+
+        data = {
+            "profile_pk": profile_pk,
+            "title": title,
+            "description": description
+        }
+
+        return (True, data)
 
     @staticmethod
-    def get_project_data(request: HttpRequest, bypass_required: bool):
-        pass
+    def get_project_data(request: HttpRequest, bypass_required: bool) -> tuple[bool, dict[str, Any | None] | str]:
+        def generate_error_response(text: str):
+            return (False, text)
+
+        # required
+        profile_pk = request.data.get("profile_pk", None)  # type: ignore
+
+        # optional
+        title = request.data.get("title", None)  # type: ignore
+        description = request.data.get("description", None)  # type: ignore
+        project_name = request.data.get("project_name", None)  # type: ignore
+        project_description = request.data.get("project_description", None)  # type: ignore
+        project_link = request.data.get("project_link", None)  # type: ignore
+
+        # Profile PK validation
+        if profile_pk is None and not bypass_required:
+            return generate_error_response("Profile PK is required")
+
+        if profile_pk and not isinstance(profile_pk, str):
+            return generate_error_response("Profile PK should be a string")
+
+        if profile_pk and not UserProfile.objects.filter(pk=profile_pk).first():
+            return generate_error_response("Profile not found")
+
+        # Title validations
+        if title and not isinstance(title, str):
+            return generate_error_response("Title should be a string")
+
+        if title and len(title) > 255:
+            return generate_error_response("Title should have a max length of 255 characters")
+
+        # Description validations
+        if description and not isinstance(description, str):
+            return generate_error_response("Description should be a string")
+
+        data = {
+            "profile_pk": profile_pk,
+            "title": title,
+            "description": description
+        }
+
+        return (True, data)
 
     @staticmethod
-    def get_link_data(request: HttpRequest, bypass_required: bool):
-        pass
+    def get_link_data(request: HttpRequest, bypass_required: bool) -> tuple[bool, dict[str, Any | None] | str]:
+        def generate_error_response(text: str):
+            return (False, text)
+
+        # required
+        profile_pk = request.data.get("profile_pk", None)  # type: ignore
+        url = request.data.get("url", None)  # type: ignore
+
+        # optional
+        title = request.data.get("title", None)  # type: ignore
+        description = request.data.get("description", None)  # type: ignore
+
+        # Profile PK validation
+        if profile_pk is None and not bypass_required:
+            return generate_error_response("Profile PK is required")
+
+        if profile_pk and not isinstance(profile_pk, str):
+            return generate_error_response("Profile PK should be a string")
+
+        if profile_pk and not UserProfile.objects.filter(pk=profile_pk).first():
+            return generate_error_response("Profile not found")
+
+        # Url validation
+        if url is None and not bypass_required:
+            return generate_error_response("URL is required")
+
+        if url and not isinstance(url, str):
+            return generate_error_response("URL should be a string")
+
+        # Title validations
+        if title and not isinstance(title, str):
+            return generate_error_response("Title should be a string")
+
+        if title and len(title) > 255:
+            return generate_error_response("Title should have a max length of 255 characters")
+
+        # Description validations
+        if description and not isinstance(description, str):
+            return generate_error_response("Description should be a string")
+
+        data = {
+            "profile_pk": profile_pk,
+            "title": title,
+            "description": description,
+            "url": url
+        }
+
+        return (True, data)
 
     # ====== Resume ====== #
     @staticmethod
@@ -188,7 +525,7 @@ class ResumeTools:
         return None
 
     @staticmethod
-    def get_all_competences(request: HttpRequest) -> Any | None:
+    def get_all_competencies(request: HttpRequest) -> Any | None:
         user_pk = request.query_params.get("user_pk", None)  # type: ignore
 
         if user_pk:
@@ -1371,14 +1708,14 @@ class Competence(Base):
             response_data['content'] = serializer.data
             return Response(data=response_data, status=status.HTTP_200_OK)
 
-        competence_models: Any | None = ResumeTools.get_all_competences(request)
+        competence_models: Any | None = ResumeTools.get_all_competencies(request)
 
         if competence_models is None:
             return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
                                                 self.not_found_competence_str)
 
         response_data = self.generate_basic_response_data(status.HTTP_200_OK,
-                                                          "Competences found")
+                                                          "competencies found")
 
         serializer = serializers.CompetenceSerializer(competence_models, many=True)
         response_data['content'] = serializer.data
@@ -1903,7 +2240,7 @@ Inform reference PK if mentioning specific reference
                         description="Reference phone"
                     ),
                     coreapi.Field(
-                        name="refecence_email",
+                        name="reference_email",
                         location='form',
                         required=False,
                         schema=coreschema.String(),
@@ -1969,7 +2306,7 @@ Inform reference PK if mentioning specific reference
                         description="Reference phone"
                     ),
                     coreapi.Field(
-                        name="refecence_email",
+                        name="reference_email",
                         location='form',
                         required=False,
                         schema=coreschema.String(),
