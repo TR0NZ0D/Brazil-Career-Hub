@@ -1083,7 +1083,34 @@ class Experience(Base):
     not_found_experience_str = "Experience not found"
 
     def get(self, request, *args, **kwargs):
-        pass
+        pk = request.query_params.get("pk", None)  # type: ignore
+
+        if pk:
+            experience_model: models.ResumeExperience | None = ResumeTools.get_experience(request)
+
+            if experience_model is None:
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_experience_str)
+
+            response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                              "Experience found")
+
+            serializer = serializers.ExperienceSerializer(experience_model, many=False)
+            response_data['content'] = serializer.data
+            return Response(data=response_data, status=status.HTTP_200_OK)
+
+        experience_models: Any | None = ResumeTools.get_all_experiences(request)
+
+        if experience_models is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                self.not_found_experience_str)
+
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "Experiences found")
+
+        serializer = serializers.ExperienceSerializer(experience_models, many=True)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         pass
@@ -1328,7 +1355,34 @@ class Competence(Base):
     not_found_competence_str = "Competence not found"
 
     def get(self, request, *args, **kwargs):
-        pass
+        pk = request.query_params.get("pk", None)  # type: ignore
+
+        if pk:
+            competence_model: models.ResumeCompetence | None = ResumeTools.get_competence(request)
+
+            if competence_model is None:
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_competence_str)
+
+            response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                              "Competence found")
+
+            serializer = serializers.CompetenceSerializer(competence_model, many=False)
+            response_data['content'] = serializer.data
+            return Response(data=response_data, status=status.HTTP_200_OK)
+
+        competence_models: Any | None = ResumeTools.get_all_competences(request)
+
+        if competence_models is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                self.not_found_competence_str)
+
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "Competences found")
+
+        serializer = serializers.CompetenceSerializer(competence_models, many=True)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         pass
@@ -1629,7 +1683,34 @@ class Course(Base):
     not_found_course_str = "Course not found"
 
     def get(self, request, *args, **kwargs):
-        pass
+        pk = request.query_params.get("pk", None)  # type: ignore
+
+        if pk:
+            course_model: models.ResumeCourse | None = ResumeTools.get_course(request)
+
+            if course_model is None:
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_course_str)
+
+            response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                              "Course found")
+
+            serializer = serializers.CourseSerializer(course_model, many=False)
+            response_data['content'] = serializer.data
+            return Response(data=response_data, status=status.HTTP_200_OK)
+
+        course_models: Any | None = ResumeTools.get_all_courses(request)
+
+        if course_models is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                self.not_found_course_str)
+
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "Courses found")
+
+        serializer = serializers.CourseSerializer(course_models, many=True)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         pass
@@ -1916,7 +1997,34 @@ class Reference(Base):
     not_found_reference_str = "Reference not found"
 
     def get(self, request, *args, **kwargs):
-        pass
+        pk = request.query_params.get("pk", None)  # type: ignore
+
+        if pk:
+            reference_model: models.ResumeReference | None = ResumeTools.get_reference(request)
+
+            if reference_model is None:
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_reference_str)
+
+            response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                              "Reference found")
+
+            serializer = serializers.ReferenceSerializer(reference_model, many=False)
+            response_data['content'] = serializer.data
+            return Response(data=response_data, status=status.HTTP_200_OK)
+
+        reference_models: Any | None = ResumeTools.get_all_references(request)
+
+        if reference_models is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                self.not_found_reference_str)
+
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "References found")
+
+        serializer = serializers.ReferenceSerializer(reference_models, many=True)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         pass
@@ -2189,7 +2297,34 @@ class Graduation(Base):
     not_found_graduation_str = "Graduation not found"
 
     def get(self, request, *args, **kwargs):
-        pass
+        pk = request.query_params.get("pk", None)  # type: ignore
+
+        if pk:
+            graduation_model: models.ResumeGraduation | None = ResumeTools.get_graduation(request)
+
+            if graduation_model is None:
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_graduation_str)
+
+            response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                              "Graduation found")
+
+            serializer = serializers.GraduationSerializer(graduation_model, many=False)
+            response_data['content'] = serializer.data
+            return Response(data=response_data, status=status.HTTP_200_OK)
+
+        graduation_models: Any | None = ResumeTools.get_all_graduations(request)
+
+        if graduation_models is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                self.not_found_graduation_str)
+
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "Graduations found")
+
+        serializer = serializers.GraduationSerializer(graduation_models, many=True)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         pass
@@ -2448,7 +2583,34 @@ class Project(Base):
     not_found_project_str = "Project not found"
 
     def get(self, request, *args, **kwargs):
-        pass
+        pk = request.query_params.get("pk", None)  # type: ignore
+
+        if pk:
+            project_model: models.ResumeProject | None = ResumeTools.get_project(request)
+
+            if project_model is None:
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_project_str)
+
+            response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                              "Project found")
+
+            serializer = serializers.ProjectSerializer(project_model, many=False)
+            response_data['content'] = serializer.data
+            return Response(data=response_data, status=status.HTTP_200_OK)
+
+        project_models: Any | None = ResumeTools.get_all_projects(request)
+
+        if project_models is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                self.not_found_project_str)
+
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "Projects found")
+
+        serializer = serializers.ProjectSerializer(project_models, many=True)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         pass
@@ -2679,7 +2841,34 @@ class Link(Base):
     not_found_link_str = "Link not found"
 
     def get(self, request, *args, **kwargs):
-        pass
+        pk = request.query_params.get("pk", None)  # type: ignore
+
+        if pk:
+            link_model: models.ResumeLink | None = ResumeTools.get_link(request)
+
+            if link_model is None:
+                return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                    self.not_found_link_str)
+
+            response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                              "Link found")
+
+            serializer = serializers.LinkSerializer(link_model, many=False)
+            response_data['content'] = serializer.data
+            return Response(data=response_data, status=status.HTTP_200_OK)
+
+        link_models: Any | None = ResumeTools.get_all_links(request)
+
+        if link_models is None:
+            return self.generate_basic_response(status.HTTP_404_NOT_FOUND,
+                                                self.not_found_link_str)
+
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "Links found")
+
+        serializer = serializers.LinkSerializer(link_models, many=True)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         pass
