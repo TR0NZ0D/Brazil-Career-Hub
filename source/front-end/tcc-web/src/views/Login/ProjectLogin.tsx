@@ -8,7 +8,7 @@ import {
   TextField
 } from '@mui/material'
 import LogoImage from 'assets/images/logo.png';
-import { LoginContainer, LoginTitle, Logo } from './styles';
+import { LinkToSignup, LoginContainer, LoginTitle, Logo } from './styles';
 import { useState, useContext } from 'react';
 import { AuthContext } from 'contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -88,7 +88,8 @@ const Login = () => {
           />
         </Grid>
 
-        <Grid item container justifyContent="flex-end" alignItems="flex-end">
+        <Grid item container justifyContent="flex-end" alignItems="center" style={{ gap: "6%" }}>
+          <LinkToSignup to="/signup">Don't you have an account yet?</LinkToSignup>
           <Button variant="contained" type="submit" style={{ width: "15%" }}>Login</Button>
         </Grid>
       </LoginContainer>
