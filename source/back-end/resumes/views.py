@@ -14,10 +14,16 @@ from . import models
 from users.models import UserProfile
 from users.serializers import UserProfileSerializer
 from typing import Any
+from datetime import datetime
 
 
 # ========== Generics ========== #
 class ResumeTools:
+    # ====== Generic Validations ====== #
+    @staticmethod
+    def validate_date(date: str):
+        pass
+
     # ====== Generics ====== #
     @staticmethod
     def get_resume_data(request: HttpRequest, bypass_required: bool) -> tuple[bool, dict[str, Any | None] | str]:
@@ -59,30 +65,172 @@ class ResumeTools:
         if description and not isinstance(description, str):
             return generate_error_response("Description should be a string")
 
+        # Experience validations
+        if experiences and not isinstance(experiences, list):
+            return generate_error_response("Experiences should be an array")
+
+        is_experiences_dict = False
+        is_experiences_pk = False
+        is_experiences_both = False
+        if experiences:
+            for experience in experiences:
+                try:
+                    if isinstance(experience, str):
+                        if ResumeTools.get_experience_from(experience) is None:
+                            return generate_error_response(f"Experience in index {experiences.index(experience)} could not be found")
+
+                        is_experiences_pk = True
+                        if is_experiences_dict:
+                            is_experiences_both = True
+
+                        continue
+
+                    if isinstance(experience, dict):
+                        success, dict_or_error = ResumeTools.get_experience_data(None, False, experience)
+                        if not success:
+                            return generate_error_response(dict_or_error)  # type: ignore
+
+                        is_experiences_dict = True
+                        if is_experiences_pk:
+                            is_experiences_both = True
+
+                        continue
+                except Exception as e:
+                    return generate_error_response(f"Experiences list is invalid: {e}")
+
+                return generate_error_response("Experiences list should contain strings (pk) or experiences dict (json)")
+
+        # Competencies validations
+        if competencies and not isinstance(competencies, list):
+            return generate_error_response("Competencies should be an array")
+
+        is_competencies_dict = False
+        is_competencies_pk = False
+        is_competencies_both = False
+        if competencies:
+            for competence in competencies:
+                try:
+                    if isinstance(competence, str):
+                        if ResumeTools.get_competence_from(competence) is None:
+                            return generate_error_response(f"Competence in index {competencies.index(competence)} could not be found")
+
+                        is_competencies_pk = True
+                        if is_competencies_dict:
+                            is_competencies_both = True
+
+                        continue
+                    if isinstance(competence, dict):
+                        success, dict_or_error = ResumeTools.get_competence_data(None, False, competence)
+                        if not success:
+                            return generate_error_response(dict_or_error)  # type: ignore
+
+                        is_competencies_dict = True
+                        if is_competencies_pk:
+                            is_competencies_both = True
+
+                        continue
+                except Exception as e:
+                    return generate_error_response(f"Competencies list is invalid: {e}")
+
+                return generate_error_response("Competencies list should contain string (pk) or competencies dict (json)")
+
+        # Courses validations
+        if courses and not isinstance(courses, list):
+            return generate_error_response("Courses shold be an array")
+
+        is_courses_dict = False
+        is_courses_pk = False
+        is_courses_both = False
+        if courses:
+            for course in courses:
+                try:
+                    if isinstance(course, str):
+                        if ResumeTools.get_course_from(course) is None:
+                            return generate_error_response(f"Course in index {courses.index(course)} could not be found")
+
+                        is_courses_pk = True
+                        if is_courses_dict:
+                            is_courses_both = True
+
+                        continue
+                    if isinstance(course, dict):
+                        success, dict_or_error = ResumeTools.get_course_data(None, False, course)
+                        if not success:
+                            return generate_error_response(dict_or_error)  # type: ignore
+
+                        is_courses_dict = True
+                        if is_courses_pk:
+                            is_courses_both = True
+
+                        continue
+                except Exception as e:
+                    return generate_error_response(f"Courses list is invalid: {e}")
+
+                return generate_error_response("Courses list should contain string (pk) or courses dict (json)")
+
+        # References validations
+
+        # Graduations validations
+
+        # Projects validations
+
+        # Links validations
+
         data = {
             "profile_pk": profile_pk,
             "title": title,
-            "description": description
+            "description": description,
+            "experiences": {
+                "is_dict": is_experiences_dict,
+                "is_pk": is_experiences_pk,
+                "is_both": is_experiences_both,
+                "value": experiences
+            },
+            "competencies": {
+                "is_dict": is_competencies_dict,
+                "is_pk": is_competencies_pk,
+                "is_both": is_competencies_both,
+                "value": competencies
+            },
+            "courses": {
+                "is_dict": is_courses_dict,
+                "is_pk": is_courses_pk,
+                "is_both": is_courses_both,
+                "value": courses
+            }
         }
 
         return (True, data)
 
     @staticmethod
-    def get_experience_data(request: HttpRequest, bypass_required: bool) -> tuple[bool, dict[str, Any | None] | str]:
+    def get_experience_data(request, bypass_required: bool, json: dict | None = None) -> tuple[bool, dict[str, Any | None] | str]:
         def generate_error_response(text: str):
             return (False, text)
 
-        # required
-        profile_pk = request.data.get("profile_pk", None)  # type: ignore
+        if json is not None:
+            # required
+            profile_pk = json.get("profile_pk", None)  # type: ignore
 
-        # optional
-        title = request.data.get("title", None)  # type: ignore
-        description = request.data.get("description", None)  # type: ignore
-        experience_company = request.data.get("experience_company", None)  # type: ignore
-        experience_role = request.data.get("experience_role", None)  # type: ignore
-        experience_description = request.data.get("experience_description", None)  # type: ignore
-        experience_start_time = request.data.get("experience_start_time", None)  # type: ignore
-        experience_end_time = request.data.get("experience_end_time", None)  # type: ignore
+            # optional
+            title = json.get("title", None)  # type: ignore
+            description = json.get("description", None)  # type: ignore
+            experience_company = json.get("experience_company", None)  # type: ignore
+            experience_role = json.get("experience_role", None)  # type: ignore
+            experience_description = json.get("experience_description", None)  # type: ignore
+            experience_start_time = json.get("experience_start_time", None)  # type: ignore
+            experience_end_time = json.get("experience_end_time", None)  # type: ignore
+        else:
+            # required
+            profile_pk = request.data.get("profile_pk", None)  # type: ignore
+
+            # optional
+            title = request.data.get("title", None)  # type: ignore
+            description = request.data.get("description", None)  # type: ignore
+            experience_company = request.data.get("experience_company", None)  # type: ignore
+            experience_role = request.data.get("experience_role", None)  # type: ignore
+            experience_description = request.data.get("experience_description", None)  # type: ignore
+            experience_start_time = request.data.get("experience_start_time", None)  # type: ignore
+            experience_end_time = request.data.get("experience_end_time", None)  # type: ignore
 
         # Profile PK validation
         if profile_pk is None and not bypass_required:
@@ -105,27 +253,74 @@ class ResumeTools:
         if description and not isinstance(description, str):
             return generate_error_response("Description should be a string")
 
+        # Experience company validations
+        if experience_company and not isinstance(experience_company, str):
+            return generate_error_response("Experience company should be a string")
+
+        if experience_company and len(experience_company) > 255:
+            return generate_error_response("Experience company should have a max length of 255 characters")
+
+        # Experience role validations
+        if experience_role and not isinstance(experience_role, str):
+            return generate_error_response("Experience role should be a string")
+
+        if experience_role and len(experience_role) > 255:
+            return generate_error_response("Experience role should have a max length of 255 characters")
+
+        # Experience description validation
+        if experience_description and not isinstance(experience_description, str):
+            return generate_error_response("Experience description should be a string")
+
+        # Experience start time validations
+        if experience_start_time and not isinstance(experience_start_time, str):
+            return generate_error_response("Experience start time shold be a string")
+
+        if experience_start_time and not ResumeTools.validate_date(experience_start_time):
+            return generate_error_response("Experience start time should have an ISO date format")
+
+        # Experience end time validations
+        if experience_end_time and not isinstance(experience_end_time, str):
+            return generate_error_response("Experience end time should be a string")
+
+        if experience_end_time and not ResumeTools.validate_date(experience_end_time):
+            return generate_error_response("Experience end time should have an ISO date format")
+
         data = {
             "profile_pk": profile_pk,
             "title": title,
-            "description": description
+            "description": description,
+            "experience_company": experience_company,
+            "experience_role": experience_role,
+            "experience_description": experience_description,
+            "experience_start_time": experience_start_time,
+            "experience_end_time": experience_end_time
         }
 
         return (True, data)
 
     @staticmethod
-    def get_competence_data(request: HttpRequest, bypass_required: bool) -> tuple[bool, dict[str, Any | None] | str]:
+    def get_competence_data(request, bypass_required: bool, json: dict | None = None) -> tuple[bool, dict[str, Any | None] | str]:
         def generate_error_response(text: str):
             return (False, text)
 
-        # required
-        profile_pk = request.data.get("profile_pk", None)  # type: ignore
+        if json is not None:
+            # required
+            profile_pk = json.get("profile_pk", None)  # type: ignore
 
-        # optional
-        title = request.data.get("title", None)  # type: ignore
-        description = request.data.get("description", None)  # type: ignore
-        competence_name = request.data.get("competence_name", None)  # type: ignore
-        competence_level = request.data.get("competence_level", None)  # type: ignore
+            # optional
+            title = json.get("title", None)  # type: ignore
+            description = json.get("description", None)  # type: ignore
+            competence_name = json.get("competence_name", None)  # type: ignore
+            competence_level = json.get("competence_level", None)  # type: ignore
+        else:
+            # required
+            profile_pk = request.data.get("profile_pk", None)  # type: ignore
+
+            # optional
+            title = request.data.get("title", None)  # type: ignore
+            description = request.data.get("description", None)  # type: ignore
+            competence_name = request.data.get("competence_name", None)  # type: ignore
+            competence_level = request.data.get("competence_level", None)  # type: ignore
 
         # Profile PK validation
         if profile_pk is None and not bypass_required:
@@ -148,31 +343,61 @@ class ResumeTools:
         if description and not isinstance(description, str):
             return generate_error_response("Description should be a string")
 
+        # Competence name validation
+        if competence_name and not isinstance(competence_name, str):
+            return generate_error_response("Competence name should be a string")
+
+        if competence_name and len(competence_name) > 255:
+            return generate_error_response("Competence name should have a max length of 255 characters")
+
+        # Competence level validation
+        if competence_level and not isinstance(competence_level, str):
+            return generate_error_response("Competence level should be a string")
+
+        if competence_level and len(competence_level) > 255:
+            return generate_error_response("Competence level should have a max length of 255 characters")
+
         data = {
             "profile_pk": profile_pk,
             "title": title,
-            "description": description
+            "description": description,
+            "competence_name": competence_name,
+            "competence_level": competence_level
         }
 
         return (True, data)
 
     @staticmethod
-    def get_course_data(request: HttpRequest, bypass_required: bool) -> tuple[bool, dict[str, Any | None] | str]:
+    def get_course_data(request, bypass_required: bool, json: dict | None = None) -> tuple[bool, dict[str, Any | None] | str]:
         def generate_error_response(text: str):
             return (False, text)
 
-        # required
-        profile_pk = request.data.get("profile_pk", None)  # type: ignore
+        if json is not None:
+            # required
+            profile_pk = json.get("profile_pk", None)  # type: ignore
 
-        # optional
-        title = request.data.get("title", None)  # type: ignore
-        description = request.data.get("description", None)  # type: ignore
-        course_name = request.data.get("course_name", None)  # type: ignore
-        course_locale = request.data.get("course_locale", None)  # type: ignore
-        course_provider = request.data.get("course_provider", None)  # type: ignore
-        course_hours = request.data.get("course_hours", None)  # type: ignore
-        course_start_time = request.data.get("course_start_time", None)  # type: ignore
-        course_end_time = request.data.get("course_end_time", None)  # type: ignore
+            # optional
+            title = json.get("title", None)  # type: ignore
+            description = json.get("description", None)  # type: ignore
+            course_name = json.get("course_name", None)  # type: ignore
+            course_locale = json.get("course_locale", None)  # type: ignore
+            course_provider = json.get("course_provider", None)  # type: ignore
+            course_hours = json.get("course_hours", None)  # type: ignore
+            course_start_time = json.get("course_start_time", None)  # type: ignore
+            course_end_time = json.get("course_end_time", None)  # type: ignore
+        else:
+            # required
+            profile_pk = request.data.get("profile_pk", None)  # type: ignore
+
+            # optional
+            title = request.data.get("title", None)  # type: ignore
+            description = request.data.get("description", None)  # type: ignore
+            course_name = request.data.get("course_name", None)  # type: ignore
+            course_locale = request.data.get("course_locale", None)  # type: ignore
+            course_provider = request.data.get("course_provider", None)  # type: ignore
+            course_hours = request.data.get("course_hours", None)  # type: ignore
+            course_start_time = request.data.get("course_start_time", None)  # type: ignore
+            course_end_time = request.data.get("course_end_time", None)  # type: ignore
 
         # Profile PK validation
         if profile_pk is None and not bypass_required:
@@ -195,30 +420,91 @@ class ResumeTools:
         if description and not isinstance(description, str):
             return generate_error_response("Description should be a string")
 
+        # Course name validations
+        if course_name and not isinstance(course_name, str):
+            return generate_error_response("Course name should be a string")
+
+        if course_name and len(course_name) > 255:
+            return generate_error_response("Course name should have a max length of 255 characters")
+
+        # Course locale validations
+        if course_locale and not isinstance(course_locale, str):
+            return generate_error_response("Course locale should be a string")
+
+        if course_locale and len(course_locale) > 255:
+            return generate_error_response("Course locale should have a max length of 255 characters")
+
+        # Course provider validations
+        if course_provider and not isinstance(course_provider, str):
+            return generate_error_response("Course provider should be a string")
+
+        if course_provider and len(course_provider) > 255:
+            return generate_error_response("Course provider should have a max length of 255 characters")
+
+        # Course hours validations
+        if course_hours and not isinstance(course_hours, str):
+            return generate_error_response("Course hours should be a string")
+
+        if course_hours and len(course_hours) > 255:
+            return generate_error_response("Course hours should have a max length of 255 characters")
+
+        # Course start time validations
+        if course_start_time and not isinstance(course_start_time, str):
+            return generate_error_response("Course start time should be a string")
+
+        if course_start_time and not ResumeTools.validate_date(course_start_time):
+            return generate_error_response("Course start time should have an ISO date format")
+
+        # Course end time validations
+        if course_end_time and not isinstance(course_end_time, str):
+            return generate_error_response("Course end time should be a string")
+
+        if course_end_time and not ResumeTools.validate_date(course_end_time):
+            return generate_error_response("Course end time should have an ISO date format")
+
         data = {
             "profile_pk": profile_pk,
             "title": title,
-            "description": description
+            "description": description,
+            "course_name": course_name,
+            "course_locale": course_locale,
+            "course_provider": course_provider,
+            "course_hours": course_hours,
+            "course_start_time": course_start_time,
+            "course_end_time": course_end_time
         }
 
         return (True, data)
 
     @staticmethod
-    def get_reference_data(request: HttpRequest, bypass_required: bool) -> tuple[bool, dict[str, Any | None] | str]:
+    def get_reference_data(request, bypass_required: bool, json: dict | None = None) -> tuple[bool, dict[str, Any | None] | str]:
         def generate_error_response(text: str):
             return (False, text)
 
-        # required
-        profile_pk = request.data.get("profile_pk", None)  # type: ignore
+        if json is not None:
+            # required
+            profile_pk = json.get("profile_pk", None)  # type: ignore
 
-        # optional
-        title = request.data.get("title", None)  # type: ignore
-        description = request.data.get("description", None)  # type: ignore
-        reference_name = request.data.get("reference_name", None)  # type: ignore
-        reference_role = request.data.get("reference_role", None)  # type: ignore
-        reference_company = request.data.get("reference_company", None)  # type: ignore
-        reference_phone = request.data.get("reference_phone", None)  # type: ignore
-        reference_email = request.data.get("reference_email", None)  # type: ignore
+            # optional
+            title = json.get("title", None)  # type: ignore
+            description = json.get("description", None)  # type: ignore
+            reference_name = json.get("reference_name", None)  # type: ignore
+            reference_role = json.get("reference_role", None)  # type: ignore
+            reference_company = json.get("reference_company", None)  # type: ignore
+            reference_phone = json.get("reference_phone", None)  # type: ignore
+            reference_email = json.get("reference_email", None)  # type: ignore
+        else:
+            # required
+            profile_pk = request.data.get("profile_pk", None)  # type: ignore
+
+            # optional
+            title = request.data.get("title", None)  # type: ignore
+            description = request.data.get("description", None)  # type: ignore
+            reference_name = request.data.get("reference_name", None)  # type: ignore
+            reference_role = request.data.get("reference_role", None)  # type: ignore
+            reference_company = request.data.get("reference_company", None)  # type: ignore
+            reference_phone = request.data.get("reference_phone", None)  # type: ignore
+            reference_email = request.data.get("reference_email", None)  # type: ignore
 
         # Profile PK validation
         if profile_pk is None and not bypass_required:
@@ -241,29 +527,81 @@ class ResumeTools:
         if description and not isinstance(description, str):
             return generate_error_response("Description should be a string")
 
+        # Reference name validations
+        if reference_name and not isinstance(reference_name, str):
+            return generate_error_response("Reference name should be a string")
+
+        if reference_name and len(reference_name) > 255:
+            return generate_error_response("Reference name should have a max length of 255 characters")
+
+        # Reference role validations
+        if reference_role and not isinstance(reference_role, str):
+            return generate_error_response("Reference role should be a string")
+
+        if reference_role and len(reference_role) > 255:
+            return generate_error_response("Reference role should have a max length of 255 characters")
+
+        # Reference company validations
+        if reference_company and not isinstance(reference_company, str):
+            return generate_error_response("Reference company should be a string")
+
+        if reference_company and len(reference_company) > 255:
+            return generate_error_response("Reference company should have a max length of 255 characters")
+
+        # Reference phone validations
+        if reference_phone and not isinstance(reference_phone, str):
+            return generate_error_response("Reference phone should be a string")
+
+        if reference_phone and len(reference_phone) > 255:
+            return generate_error_response("Reference phone should have a max length of 255 characters")
+
+        # Reference email validations
+        if reference_email and not isinstance(reference_email, str):
+            return generate_error_response("Reference email should be a string")
+
+        if reference_email and len(reference_email) > 255:
+            return generate_error_response("Reference email should have a max length of 255 characters")
+
         data = {
             "profile_pk": profile_pk,
             "title": title,
-            "description": description
+            "description": description,
+            "reference_name": reference_name,
+            "reference_role": reference_role,
+            "reference_company": reference_company,
+            "reference_phone": reference_phone,
+            "reference_email": reference_email
         }
 
         return (True, data)
 
     @staticmethod
-    def get_graduation_data(request: HttpRequest, bypass_required: bool) -> tuple[bool, dict[str, Any | None] | str]:
+    def get_graduation_data(request, bypass_required: bool, json: dict | None = None) -> tuple[bool, dict[str, Any | None] | str]:
         def generate_error_response(text: str):
             return (False, text)
 
-        # required
-        profile_pk = request.data.get("profile_pk", None)  # type: ignore
+        if json is not None:
+            # required
+            profile_pk = json.get("profile_pk", None)  # type: ignore
 
-        # optional
-        title = request.data.get("title", None)  # type: ignore
-        description = request.data.get("description", None)  # type: ignore
-        graduation_type = request.data.get("graduation_type", None)  # type: ignore
-        graduation_period = request.data.get("graduation_period", None)  # type: ignore
-        graduation_start_time = request.data.get("graduation_start_time", None)  # type: ignore
-        graduation_end_time = request.data.get("graduation_end_time", None)  # type: ignore
+            # optional
+            title = json.get("title", None)  # type: ignore
+            description = json.get("description", None)  # type: ignore
+            graduation_type = json.get("graduation_type", None)  # type: ignore
+            graduation_period = json.get("graduation_period", None)  # type: ignore
+            graduation_start_time = json.get("graduation_start_time", None)  # type: ignore
+            graduation_end_time = json.get("graduation_end_time", None)  # type: ignore
+        else:
+            # required
+            profile_pk = request.data.get("profile_pk", None)  # type: ignore
+
+            # optional
+            title = request.data.get("title", None)  # type: ignore
+            description = request.data.get("description", None)  # type: ignore
+            graduation_type = request.data.get("graduation_type", None)  # type: ignore
+            graduation_period = request.data.get("graduation_period", None)  # type: ignore
+            graduation_start_time = request.data.get("graduation_start_time", None)  # type: ignore
+            graduation_end_time = request.data.get("graduation_end_time", None)  # type: ignore
 
         # Profile PK validation
         if profile_pk is None and not bypass_required:
@@ -286,28 +624,71 @@ class ResumeTools:
         if description and not isinstance(description, str):
             return generate_error_response("Description should be a string")
 
+        # Type validations
+        if graduation_type and not isinstance(graduation_type, str):
+            return generate_error_response("Graduation type should be a string")
+
+        if graduation_type and len(graduation_type) > 150:
+            return generate_error_response("Graduation type should have a max length of 150 characters")
+
+        # Period validations
+        if graduation_period and not isinstance(graduation_period, str):
+            return generate_error_response("Graduation period should be a string")
+
+        if graduation_period and len(graduation_period) > 150:
+            return generate_error_response("Graduation period should have a max length of 150 characters")
+
+        # Start time validations
+        if graduation_start_time and not isinstance(graduation_start_time, str):
+            return generate_error_response("Graduation start time should be a string")
+
+        if graduation_start_time and not ResumeTools.validate_date(graduation_start_time):
+            return generate_error_response("Graduation start time should have a ISO date format")
+
+        # End time validations
+        if graduation_end_time and not isinstance(graduation_end_time, str):
+            return generate_error_response("Graduation end time should be a string")
+
+        if graduation_end_time and not ResumeTools.validate_date(graduation_end_time):
+            return generate_error_response("Graduation end time should have a ISO date format")
+
         data = {
             "profile_pk": profile_pk,
             "title": title,
-            "description": description
+            "description": description,
+            "graduation_type": graduation_type,
+            "graduation_period": graduation_period,
+            "graduation_start_time": graduation_start_time,
+            "graduation_end_time": graduation_end_time
         }
 
         return (True, data)
 
     @staticmethod
-    def get_project_data(request: HttpRequest, bypass_required: bool) -> tuple[bool, dict[str, Any | None] | str]:
+    def get_project_data(request, bypass_required: bool, json: dict | None = None) -> tuple[bool, dict[str, Any | None] | str]:
         def generate_error_response(text: str):
             return (False, text)
 
-        # required
-        profile_pk = request.data.get("profile_pk", None)  # type: ignore
+        if json is not None:
+            # required
+            profile_pk = json.get("profile_pk", None)  # type: ignore
 
-        # optional
-        title = request.data.get("title", None)  # type: ignore
-        description = request.data.get("description", None)  # type: ignore
-        project_name = request.data.get("project_name", None)  # type: ignore
-        project_description = request.data.get("project_description", None)  # type: ignore
-        project_link = request.data.get("project_link", None)  # type: ignore
+            # optional
+            title = json.get("title", None)  # type: ignore
+            description = json.get("description", None)  # type: ignore
+            project_name = json.get("project_name", None)  # type: ignore
+            project_description = json.get("project_description", None)  # type: ignore
+            project_link = json.get("project_link", None)  # type: ignore
+        else:
+            # required
+            profile_pk = request.data.get("profile_pk", None)  # type: ignore
+
+            # optional
+            title = request.data.get("title", None)  # type: ignore
+            description = request.data.get("description", None)  # type: ignore
+            project_name = request.data.get("project_name", None)  # type: ignore
+            project_description = request.data.get("project_description", None)  # type: ignore
+            project_link = request.data.get("project_link", None)  # type: ignore
 
         # Profile PK validation
         if profile_pk is None and not bypass_required:
@@ -330,26 +711,53 @@ class ResumeTools:
         if description and not isinstance(description, str):
             return generate_error_response("Description should be a string")
 
+        # Project name validations
+        if project_name and not isinstance(project_name, str):
+            return generate_error_response("Project name should be a string")
+
+        if project_name and len(project_name) > 255:
+            return generate_error_response("Project name should have a max length of 255 characters")
+
+        # Project description validations
+        if project_description and not isinstance(project_description, str):
+            return generate_error_response("Project description should be a string")
+
+        # Project link validation
+        if project_link and not isinstance(project_link, str):
+            return generate_error_response("Project link should be a string")
+
         data = {
             "profile_pk": profile_pk,
             "title": title,
-            "description": description
+            "description": description,
+            "project_name": project_name,
+            "project_description": project_description,
+            "project_link": project_link
         }
 
         return (True, data)
 
     @staticmethod
-    def get_link_data(request: HttpRequest, bypass_required: bool) -> tuple[bool, dict[str, Any | None] | str]:
+    def get_link_data(request, bypass_required: bool, json: dict | None = None) -> tuple[bool, dict[str, Any | None] | str]:
         def generate_error_response(text: str):
             return (False, text)
 
-        # required
-        profile_pk = request.data.get("profile_pk", None)  # type: ignore
-        url = request.data.get("url", None)  # type: ignore
+        if json is not None:
+            # required
+            profile_pk = json.get("profile_pk", None)  # type: ignore
+            url = json.get("url", None)  # type: ignore
 
-        # optional
-        title = request.data.get("title", None)  # type: ignore
-        description = request.data.get("description", None)  # type: ignore
+            # optional
+            title = json.get("title", None)  # type: ignore
+            description = json.get("description", None)  # type: ignore
+        else:
+            # required
+            profile_pk = request.data.get("profile_pk", None)  # type: ignore
+            url = request.data.get("url", None)  # type: ignore
+
+            # optional
+            title = request.data.get("title", None)  # type: ignore
+            description = request.data.get("description", None)  # type: ignore
 
         # Profile PK validation
         if profile_pk is None and not bypass_required:
@@ -389,6 +797,13 @@ class ResumeTools:
         return (True, data)
 
     # ====== Resume ====== #
+    @staticmethod
+    def get_resume_from(pk: str) -> models.ResumeModel | None:
+        if pk:
+            return models.ResumeModel.objects.filter(pk=pk).first()
+
+        return None
+
     @staticmethod
     def get_resume(request: HttpRequest) -> models.ResumeModel | None:
         pk = request.query_params.get("pk", None)  # type: ignore
@@ -467,6 +882,13 @@ class ResumeTools:
 
     # ====== Experience ====== #
     @staticmethod
+    def get_experience_from(pk: str) -> models.ResumeExperience | None:
+        if pk:
+            return models.ResumeExperience.objects.filter(pk=pk).first()
+
+        return None
+
+    @staticmethod
     def get_experience(request: HttpRequest) -> models.ResumeExperience | None:
         pk = request.query_params.get("pk", None)  # type: ignore
 
@@ -515,6 +937,13 @@ class ResumeTools:
         experience.delete()
 
     # ====== Competence ====== #
+    @staticmethod
+    def get_competence_from(pk: str) -> models.ResumeCompetence | None:
+        if pk:
+            return models.ResumeCompetence.objects.filter(pk=pk).first()
+
+        return None
+
     @staticmethod
     def get_competence(request: HttpRequest) -> models.ResumeCompetence | None:
         pk = request.query_params.get("pk", None)  # type: ignore
@@ -565,6 +994,13 @@ class ResumeTools:
 
     # ====== Course ====== #
     @staticmethod
+    def get_course_from(pk: str) -> models.ResumeCourse | None:
+        if pk:
+            return models.ResumeCourse.objects.filter(pk=pk).first()
+
+        return None
+
+    @staticmethod
     def get_course(request: HttpRequest) -> models.ResumeCourse | None:
         pk = request.query_params.get("pk", None)  # type: ignore
 
@@ -613,6 +1049,13 @@ class ResumeTools:
         course.delete()
 
     # ====== Reference ====== #
+    @staticmethod
+    def get_reference_from(pk: str) -> models.ResumeReference | None:
+        if pk:
+            return models.ResumeReference.objects.filter(pk=pk).first()
+
+        return None
+
     @staticmethod
     def get_reference(request: HttpRequest) -> models.ResumeReference | None:
         pk = request.query_params.get("pk", None)  # type: ignore
@@ -663,6 +1106,13 @@ class ResumeTools:
 
     # ====== Graduation ====== #
     @staticmethod
+    def get_graduation_from(pk: str) -> models.ResumeGraduation | None:
+        if pk:
+            return models.ResumeGraduation.objects.filter(pk=pk).first()
+
+        return None
+
+    @staticmethod
     def get_graduation(request: HttpRequest) -> models.ResumeGraduation | None:
         pk = request.query_params.get("pk", None)  # type: ignore
 
@@ -712,6 +1162,13 @@ class ResumeTools:
 
     # ====== Project ====== #
     @staticmethod
+    def get_project_from(pk: str) -> models.ResumeProject | None:
+        if pk:
+            return models.ResumeProject.objects.filter(pk=pk).first()
+
+        return None
+
+    @staticmethod
     def get_project(request: HttpRequest) -> models.ResumeProject | None:
         pk = request.query_params.get("pk", None)  # type: ignore
 
@@ -760,6 +1217,13 @@ class ResumeTools:
         project.delete()
 
     # ====== Link ====== #
+    @staticmethod
+    def get_link_from(pk: str) -> models.ResumeLink | None:
+        if pk:
+            return models.ResumeLink.objects.filter(pk=pk).first()
+
+        return None
+
     @staticmethod
     def get_link(request: HttpRequest) -> models.ResumeLink | None:
         pk = request.query_params.get("pk", None)  # type: ignore
@@ -958,50 +1422,50 @@ Inform resume PK if mentioning specific resume
                         name="experiences",
                         location='form',
                         required=False,
-                        schema=coreschema.Object(),
-                        description="Experiences dict or PK"
+                        schema=coreschema.Array(coreschema.Object()),
+                        description="Experiences dict or PK array"
                     ),
                     coreapi.Field(
                         name="competencies",
                         location='form',
                         required=False,
-                        schema=coreschema.Object(),
-                        description="Competencies dict or PK"
+                        schema=coreschema.Array(coreschema.Object()),
+                        description="Competencies dict or PK array"
                     ),
                     coreapi.Field(
                         name="courses",
                         location='form',
                         required=False,
-                        schema=coreschema.Object(),
-                        description="Courses dict or PK"
+                        schema=coreschema.Array(coreschema.Object()),
+                        description="Courses dict or PK array"
                     ),
                     coreapi.Field(
                         name="references",
                         location='form',
                         required=False,
-                        schema=coreschema.Object(),
-                        description="References dict or PK"
+                        schema=coreschema.Array(coreschema.Object()),
+                        description="References dict or PK array"
                     ),
                     coreapi.Field(
                         name="graduations",
                         location='form',
                         required=False,
-                        schema=coreschema.Object(),
-                        description="Graduations dict or PK"
+                        schema=coreschema.Array(coreschema.Object()),
+                        description="Graduations dict or PK array"
                     ),
                     coreapi.Field(
                         name="projects",
                         location='form',
                         required=False,
-                        schema=coreschema.Object(),
-                        description="Projects dict or PK"
+                        schema=coreschema.Array(coreschema.Object()),
+                        description="Projects dict or PK array"
                     ),
                     coreapi.Field(
                         name="links",
                         location='form',
                         required=False,
-                        schema=coreschema.Object(),
-                        description="Links dict or PK"
+                        schema=coreschema.Array(coreschema.Object()),
+                        description="Links dict or PK array"
                     )
                 ]
             case 'PATCH':
@@ -1038,50 +1502,50 @@ Inform resume PK if mentioning specific resume
                         name="experiences",
                         location='form',
                         required=False,
-                        schema=coreschema.Object(),
-                        description="Experiences dict or PK"
+                        schema=coreschema.Array(coreschema.Object()),
+                        description="Experiences dict or PK array"
                     ),
                     coreapi.Field(
                         name="competencies",
                         location='form',
                         required=False,
-                        schema=coreschema.Object(),
-                        description="Competencies dict or PK"
+                        schema=coreschema.Array(coreschema.Object()),
+                        description="Competencies dict or PK array"
                     ),
                     coreapi.Field(
                         name="courses",
                         location='form',
                         required=False,
-                        schema=coreschema.Object(),
-                        description="Courses dict or PK"
+                        schema=coreschema.Array(coreschema.Object()),
+                        description="Courses dict or PK array"
                     ),
                     coreapi.Field(
                         name="references",
                         location='form',
                         required=False,
-                        schema=coreschema.Object(),
-                        description="References dict or PK"
+                        schema=coreschema.Array(coreschema.Object()),
+                        description="References dict or PK array"
                     ),
                     coreapi.Field(
                         name="graduations",
                         location='form',
                         required=False,
-                        schema=coreschema.Object(),
-                        description="Graduations dict or PK"
+                        schema=coreschema.Array(coreschema.Object()),
+                        description="Graduations dict or PK array"
                     ),
                     coreapi.Field(
                         name="projects",
                         location='form',
                         required=False,
-                        schema=coreschema.Object(),
-                        description="Projects dict or PK"
+                        schema=coreschema.Array(coreschema.Object()),
+                        description="Projects dict or PK array"
                     ),
                     coreapi.Field(
                         name="links",
                         location='form',
                         required=False,
-                        schema=coreschema.Object(),
-                        description="Links dict or PK"
+                        schema=coreschema.Array(coreschema.Object()),
+                        description="Links dict or PK array"
                     )
                 ]
             case 'DELETE':
