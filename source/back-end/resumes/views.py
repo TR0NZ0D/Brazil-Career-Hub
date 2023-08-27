@@ -21,8 +21,18 @@ from datetime import datetime
 class ResumeTools:
     # ====== Generic Validations ====== #
     @staticmethod
-    def validate_date(date: str):
-        pass
+    def validate_date(date: str) -> bool:
+        if date and not isinstance(date, str):
+            return False
+
+        if date:
+            try:
+                formatted_date = datetime.fromisoformat(date)
+                return formatted_date.isoformat() == date
+            except ValueError:
+                return False
+
+        return False
 
     # ====== Generics ====== #
     @staticmethod
