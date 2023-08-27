@@ -3,6 +3,7 @@ import { getToken } from 'api/admin/admin-requests';
 import CompanyProfile from 'models/Company/CompanyProfile';
 import UserProfile from 'models/User/UserProfile';
 import { loginUser } from 'api/users-requests/auth-requests';
+import { loginCompany } from 'api/company-requests/company-auth-requests';
 
 type ProviderProps = {
   children: ReactNode;
@@ -18,6 +19,7 @@ type AuthContextProps = {
   entityLogged: CompanyProfile | UserProfile | undefined;
 
   userLogin: (username: string, pass: string) => Promise<UserProfile | undefined>;
+  companyLogin: (cnpj: string, pass: string) => Promise<CompanyProfile | undefined>;
 }
 
 export const AuthContext = createContext({} as AuthContextProps);
@@ -55,12 +57,31 @@ export const AuthContextProvider = ({ children }: ProviderProps) => {
     return user;
   }
 
+  async function companyLogin(cnpj: string, pass: string): Promise<CompanyProfile | undefined> {
+    let company: CompanyProfile | undefined;
+    try {
+      const response = await loginCompany(cnpj, pass, adminToken!);
+      if (response.status === 200) {
+        company = response.data.content as CompanyProfile;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
+    setEntityLogged(company);
+    localStorage.setItem("entity-logged", JSON.stringify(company));
+    return company;
+  }
+
   return (
     <AuthContext.Provider value={{
       // states
       adminToken,
       entityLogged,
-      userLogin
+
+      // methods
+      userLogin,
+      companyLogin
     }}>
       {children}
     </AuthContext.Provider>

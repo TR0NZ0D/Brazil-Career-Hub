@@ -12,6 +12,7 @@ import { LinkToSignup, LoginContainer, LoginTitle, Logo } from './styles';
 import { useState, useContext } from 'react';
 import { AuthContext } from 'contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import FieldMasker from 'utilities/FieldMasker';
 
 const Login = () => {
 
@@ -20,22 +21,25 @@ const Login = () => {
   const [password, setPassword] = useState<string>("");
   const [userType, setUserType] = useState<"company" | "user">("user");
 
-  const { userLogin } = useContext(AuthContext);
+  const { userLogin, companyLogin } = useContext(AuthContext);
 
   const navigate = useNavigate();
 
   async function handleLoginSubmit(e: any) {
     e.preventDefault();
 
-    if (userType === "user") {
-      let user = await userLogin(username, password);
-      if (user !== undefined) {
-        navigate("/");
-      }
+    let entity;
+    if (userType === "user")
+      entity = await userLogin(username, password);
+    else
+      entity = await companyLogin(cnpj, password);
 
-      else
-        alert("Invalid login");
+    if (entity !== undefined) {
+      navigate("/");
     }
+
+    else
+      alert("Invalid login");
   }
 
   return (
@@ -64,16 +68,31 @@ const Login = () => {
         </Grid>
 
         <Grid item container display="flex" flexDirection="column" justifyContent="space-between" alignItems="flex-start">
-          <TextField
-            id="user-text"
-            label="Username"
-            variant="outlined"
-            required
-            fullWidth
-            style={{ marginBottom: "5%" }}
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
+
+          {userType === "user" &&
+            <TextField
+              id="user-text"
+              label="Username"
+              variant="outlined"
+              required
+              fullWidth
+              style={{ marginBottom: "5%" }}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />}
+
+          {userType === "company" &&
+            <TextField
+              id="cnpj-text"
+              label="CNPJ"
+              variant="outlined"
+              required
+              fullWidth
+              inputProps={{ maxLength: 18 }}
+              style={{ marginBottom: "5%" }}
+              value={cnpj}
+              onChange={(e) => setCnpj(FieldMasker.maskCnpj(e.target.value))}
+            />}
 
           <TextField
             id="password-input"
