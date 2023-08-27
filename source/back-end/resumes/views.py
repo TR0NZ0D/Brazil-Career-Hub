@@ -998,11 +998,11 @@ class ResumeTools:
         return None
 
     @staticmethod
-    def create_resume(request: HttpRequest) -> models.ResumeModel:
+    def create_resume(request: HttpRequest) -> tuple[bool, models.ResumeModel | str]:
         pass
 
     @staticmethod
-    def edit_resume(request: HttpRequest, resume: models.ResumeModel):
+    def edit_resume(request: HttpRequest, resume: models.ResumeModel) -> tuple[bool, str | None]:
         pass
 
     @staticmethod
@@ -1018,31 +1018,31 @@ class ResumeTools:
         resume.delete()
 
     @staticmethod
-    def add_experience_to_resume(request: HttpRequest, resume: models.ResumeModel, experience: models.ResumeExperience):
+    def add_experience_to_resume(request: HttpRequest, resume: models.ResumeModel, experience: models.ResumeExperience) -> tuple[bool, str | None]:
         pass
 
     @staticmethod
-    def add_competence_to_resume(request: HttpRequest, resume: models.ResumeModel, competence: models.ResumeCompetence):
+    def add_competence_to_resume(request: HttpRequest, resume: models.ResumeModel, competence: models.ResumeCompetence) -> tuple[bool, str | None]:
         pass
 
     @staticmethod
-    def add_course_to_resume(request: HttpRequest, resume: models.ResumeModel, course: models.ResumeCourse):
+    def add_course_to_resume(request: HttpRequest, resume: models.ResumeModel, course: models.ResumeCourse) -> tuple[bool, str | None]:
         pass
 
     @staticmethod
-    def add_reference_to_resume(request: HttpRequest, resume: models.ResumeModel, reference: models.ResumeReference):
+    def add_reference_to_resume(request: HttpRequest, resume: models.ResumeModel, reference: models.ResumeReference) -> tuple[bool, str | None]:
         pass
 
     @staticmethod
-    def add_graduation_to_resume(request: HttpRequest, resume: models.ResumeModel, graduation: models.ResumeGraduation):
+    def add_graduation_to_resume(request: HttpRequest, resume: models.ResumeModel, graduation: models.ResumeGraduation) -> tuple[bool, str | None]:
         pass
 
     @staticmethod
-    def add_project_to_resume(request: HttpRequest, resume: models.ResumeModel, project: models.ResumeProject):
+    def add_project_to_resume(request: HttpRequest, resume: models.ResumeModel, project: models.ResumeProject) -> tuple[bool, str | None]:
         pass
 
     @staticmethod
-    def add_link_to_resume(request: HttpRequest, resume: models.ResumeModel, link: models.ResumeLink):
+    def add_link_to_resume(request: HttpRequest, resume: models.ResumeModel, link: models.ResumeLink) -> tuple[bool, str | None]:
         pass
 
     # ====== Experience ====== #
@@ -1082,11 +1082,11 @@ class ResumeTools:
         return None
 
     @staticmethod
-    def create_experience(request: HttpRequest) -> models.ResumeExperience:
+    def create_experience(request: HttpRequest) -> tuple[bool, models.ResumeExperience | str]:
         pass
 
     @staticmethod
-    def edit_experience(request: HttpRequest, experience: models.ResumeExperience):
+    def edit_experience(request: HttpRequest, experience: models.ResumeExperience) -> tuple[bool, str | None]:
         pass
 
     @staticmethod
@@ -1138,11 +1138,11 @@ class ResumeTools:
         return None
 
     @staticmethod
-    def create_competence(request: HttpRequest) -> models.ResumeCompetence:
+    def create_competence(request: HttpRequest) -> tuple[bool, models.ResumeCompetence | str]:
         pass
 
     @staticmethod
-    def edit_competence(request: HttpRequest, competence: models.ResumeCompetence):
+    def edit_competence(request: HttpRequest, competence: models.ResumeCompetence) -> tuple[bool, str | None]:
         pass
 
     @staticmethod
@@ -1194,11 +1194,11 @@ class ResumeTools:
         return None
 
     @staticmethod
-    def create_course(request: HttpRequest) -> models.ResumeCourse:
+    def create_course(request: HttpRequest) -> tuple[bool, models.ResumeCourse | str]:
         pass
 
     @staticmethod
-    def edit_course(request: HttpRequest, course: models.ResumeCourse):
+    def edit_course(request: HttpRequest, course: models.ResumeCourse) -> tuple[bool, str | None]:
         pass
 
     @staticmethod
@@ -1250,11 +1250,11 @@ class ResumeTools:
         return None
 
     @staticmethod
-    def create_reference(request: HttpRequest) -> models.ResumeReference:
+    def create_reference(request: HttpRequest) -> tuple[bool, models.ResumeReference | str]:
         pass
 
     @staticmethod
-    def edit_reference(request: HttpRequest, reference: models.ResumeReference):
+    def edit_reference(request: HttpRequest, reference: models.ResumeReference) -> tuple[bool, str | None]:
         pass
 
     @staticmethod
@@ -1306,11 +1306,11 @@ class ResumeTools:
         return None
 
     @staticmethod
-    def create_graduation(request: HttpRequest) -> models.ResumeGraduation:
+    def create_graduation(request: HttpRequest) -> tuple[bool, models.ResumeGraduation | str]:
         pass
 
     @staticmethod
-    def edit_graduation(request: HttpRequest, graduation: models.ResumeGraduation):
+    def edit_graduation(request: HttpRequest, graduation: models.ResumeGraduation) -> tuple[bool, str | None]:
         pass
 
     @staticmethod
@@ -1362,11 +1362,11 @@ class ResumeTools:
         return None
 
     @staticmethod
-    def create_project(request: HttpRequest) -> models.ResumeProject:
+    def create_project(request: HttpRequest) -> tuple[bool, models.ResumeProject | str]:
         pass
 
     @staticmethod
-    def edit_project(request: HttpRequest, project: models.ResumeProject):
+    def edit_project(request: HttpRequest, project: models.ResumeProject) -> tuple[bool, str | None]:
         pass
 
     @staticmethod
@@ -1418,11 +1418,11 @@ class ResumeTools:
         return None
 
     @staticmethod
-    def create_link(request: HttpRequest) -> models.ResumeLink:
+    def create_link(request: HttpRequest) -> tuple[bool, models.ResumeLink | str]:
         pass
 
     @staticmethod
-    def edit_link(request: HttpRequest, link: models.ResumeLink):
+    def edit_link(request: HttpRequest, link: models.ResumeLink) -> tuple[bool, str | None]:
         pass
 
     @staticmethod
