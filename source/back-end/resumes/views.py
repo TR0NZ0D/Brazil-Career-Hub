@@ -77,7 +77,7 @@ class ResumeTools:
                 try:
                     if isinstance(experience, str):
                         if ResumeTools.get_experience_from(experience) is None:
-                            return generate_error_response(f"Experience in index {experiences.index(experience)} could not be found")
+                            return generate_error_response(f"Experience PK {experience} in index {experiences.index(experience)} could not be found")
 
                         is_experiences_pk = True
                         if is_experiences_dict:
@@ -88,7 +88,7 @@ class ResumeTools:
                     if isinstance(experience, dict):
                         success, dict_or_error = ResumeTools.get_experience_data(None, False, experience)
                         if not success:
-                            return generate_error_response(dict_or_error)  # type: ignore
+                            return generate_error_response(f"Experience dict in index {experiences.index(experience)} is invalid: {dict_or_error}")
 
                         is_experiences_dict = True
                         if is_experiences_pk:
@@ -112,7 +112,7 @@ class ResumeTools:
                 try:
                     if isinstance(competence, str):
                         if ResumeTools.get_competence_from(competence) is None:
-                            return generate_error_response(f"Competence in index {competencies.index(competence)} could not be found")
+                            return generate_error_response(f"Competence PK {competence} in index {competencies.index(competence)} could not be found")
 
                         is_competencies_pk = True
                         if is_competencies_dict:
@@ -122,7 +122,7 @@ class ResumeTools:
                     if isinstance(competence, dict):
                         success, dict_or_error = ResumeTools.get_competence_data(None, False, competence)
                         if not success:
-                            return generate_error_response(dict_or_error)  # type: ignore
+                            return generate_error_response(f"Competence dict in index {competencies.index(competence)} is invalid: {dict_or_error}")
 
                         is_competencies_dict = True
                         if is_competencies_pk:
@@ -146,7 +146,7 @@ class ResumeTools:
                 try:
                     if isinstance(course, str):
                         if ResumeTools.get_course_from(course) is None:
-                            return generate_error_response(f"Course in index {courses.index(course)} could not be found")
+                            return generate_error_response(f"Course PK {course} in index {courses.index(course)} could not be found")
 
                         is_courses_pk = True
                         if is_courses_dict:
@@ -156,7 +156,7 @@ class ResumeTools:
                     if isinstance(course, dict):
                         success, dict_or_error = ResumeTools.get_course_data(None, False, course)
                         if not success:
-                            return generate_error_response(dict_or_error)  # type: ignore
+                            return generate_error_response(f"Course dict in index {courses.index(course)} is invalid: {dict_or_error}")
 
                         is_courses_dict = True
                         if is_courses_pk:
@@ -169,12 +169,143 @@ class ResumeTools:
                 return generate_error_response("Courses list should contain string (pk) or courses dict (json)")
 
         # References validations
+        if references and not isinstance(references, list):
+            return generate_error_response("References should be an array")
+
+        is_references_pk = False
+        is_references_dict = False
+        is_references_both = False
+        if references:
+            for reference in references:
+                try:
+                    if isinstance(reference, str):
+                        if ResumeTools.get_reference_from(reference) is None:
+                            return generate_error_response(f"Reference PK {reference} in index {references.index(reference)} could not be found")
+
+                        is_references_pk = True
+                        if is_references_dict:
+                            is_references_both = True
+
+                        continue
+
+                    if isinstance(reference, dict):
+                        success, dict_or_error = ResumeTools.get_reference_data(None, False, reference)
+                        if not success:
+                            return generate_error_response(f"Reference dict in index {references.index(reference)} is invalid: {dict_or_error}")
+
+                        is_references_dict = True
+                        if is_references_pk:
+                            is_references_both = True
+
+                        continue
+                except Exception as e:
+                    return generate_error_response(f"References list is invalid: {e}")
+
+                return generate_error_response("References list should contain strings (pk) or references dict (json)")
 
         # Graduations validations
+        if graduations and not isinstance(graduations, list):
+            return generate_error_response("Graduations should be an array")
+
+        is_graduations_pk = False
+        is_graduations_dict = False
+        is_graduations_both = False
+        if graduations:
+            for graduation in graduations:
+                try:
+                    if isinstance(graduation, str):
+                        if ResumeTools.get_reference_from(graduation) is None:
+                            return generate_error_response(f"Graduation PK {graduation} in index {graduations.index(graduation)} could not be found")
+
+                        is_graduations_pk = True
+                        if is_graduations_dict:
+                            is_graduations_both = True
+
+                        continue
+
+                    if isinstance(graduation, dict):
+                        success, dict_or_error = ResumeTools.get_graduation_data(None, False, graduation)
+                        if not success:
+                            return generate_error_response(f"Graduation dict in index {graduations.index(graduation)} is invalid: {dict_or_error}")
+
+                        is_graduations_dict = True
+                        if is_graduations_pk:
+                            is_graduations_both = True
+
+                        continue
+                except Exception as e:
+                    return generate_error_response(f"Graduations list is invalid: {e}")
+
+                return generate_error_response("Graduations list should contain strings (pk) or graduations dict (json)")
 
         # Projects validations
+        if projects and not isinstance(projects, list):
+            return generate_error_response("Projects should be an array")
+
+        is_projects_pk = False
+        is_projects_dict = False
+        is_projects_both = False
+        if projects:
+            for project in projects:
+                try:
+                    if isinstance(project, str):
+                        if ResumeTools.get_project_from(project) is None:
+                            return generate_error_response(f"Project PK {project} in index {projects.index(project)} could not be found")
+
+                        is_projects_pk = True
+                        if is_projects_dict:
+                            is_projects_both = True
+
+                        continue
+
+                    if isinstance(project, dict):
+                        success, dict_or_error = ResumeTools.get_project_data(None, False, project)
+                        if not success:
+                            return generate_error_response(f"Project dict in index {projects.index(project)} is invalid: {dict_or_error}")
+
+                        is_projects_dict = True
+                        if is_projects_pk:
+                            is_projects_both = True
+
+                        continue
+                except Exception as e:
+                    return generate_error_response(f"Projects list is invalid: {e}")
+
+                return generate_error_response("Projects list should contain strings (pk) or graduations dict (json)")
 
         # Links validations
+        if links and not isinstance(links, list):
+            return generate_error_response("Links should be an array")
+
+        is_links_pk = False
+        is_links_dict = False
+        is_links_both = False
+        if links:
+            for link in links:
+                try:
+                    if isinstance(link, str):
+                        if ResumeTools.get_link_from(link) is None:
+                            return generate_error_response(f"Link PK {link} in index {links.index(link)} could not be found")
+
+                        is_links_pk = True
+                        if is_links_dict:
+                            is_links_both = True
+
+                        continue
+                    if isinstance(link, dict):
+                        success, dict_or_error = ResumeTools.get_link_data(None, False, link)
+                        if not success:
+                            return generate_error_response(f"Link dict in index {links.index(link)} is invalid: {dict_or_error}")
+
+                        is_links_dict = True
+                        if is_links_pk:
+                            is_links_both = True
+
+                        continue
+                except Exception as e:
+                    return generate_error_response(f"Links list is invalid: {e}")
+
+                return generate_error_response("Links list should contain strings (pk) or links dict (json)")
 
         data = {
             "profile_pk": profile_pk,
@@ -197,6 +328,30 @@ class ResumeTools:
                 "is_pk": is_courses_pk,
                 "is_both": is_courses_both,
                 "value": courses
+            },
+            "references": {
+                "is_dict": is_references_dict,
+                "is_pk": is_references_pk,
+                "is_both": is_references_both,
+                "value": references
+            },
+            "graduations": {
+                "is_dict": is_graduations_dict,
+                "is_pk": is_graduations_pk,
+                "is_both": is_graduations_both,
+                "value": graduations
+            },
+            "projects": {
+                "is_dict": is_projects_dict,
+                "is_pk": is_projects_pk,
+                "is_both": is_projects_both,
+                "value": projects
+            },
+            "links": {
+                "is_dict": is_links_dict,
+                "is_pk": is_links_pk,
+                "is_both": is_links_both,
+                "value": links
             }
         }
 
