@@ -2,7 +2,6 @@ import coreapi
 import coreschema
 
 from django.http import HttpRequest
-from django.core.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.schemas.coreapi import AutoSchema
@@ -12,7 +11,6 @@ from api.views import Base
 from . import serializers
 from . import models
 from users.models import UserProfile
-from users.serializers import UserProfileSerializer
 from typing import Any
 from datetime import datetime
 
@@ -35,6 +33,20 @@ class ResumeTools:
         return False
 
     # ====== Generics ====== #
+    @staticmethod
+    def convert_time(date: str) -> datetime | None:
+        if date and not isinstance(date, str):
+            return None
+
+        if date:
+            try:
+                formatted_date = datetime.fromisoformat(date)
+                return formatted_date
+            except ValueError:
+                return None
+
+        return None
+
     @staticmethod
     def get_resume_data(request: HttpRequest, bypass_required: bool) -> tuple[bool, dict[str, Any | None] | str]:
         def generate_error_response(text: str):
@@ -1083,7 +1095,35 @@ class ResumeTools:
 
     @staticmethod
     def create_experience(request: HttpRequest) -> tuple[bool, models.ResumeExperience | str]:
-        pass
+        success, data_or_error = ResumeTools.get_experience_data(request, False)
+        if not success:
+            return (False, data_or_error)  # type: ignore
+
+        data: dict = data_or_error  # type: ignore
+        profile_pk = data.get("profile_pk", 0)
+        title = data.get("title", "")
+        description = data.get("description", "")
+        experience_company = data.get("experience_company", "")
+        experience_role = data.get("experience_role", "")
+        experience_description = data.get("experience_description", "")
+        experience_start_time = ResumeTools.convert_time(data.get("experience_start_time", ""))
+        experience_end_time = ResumeTools.convert_time(data.get("experience_end_time", ""))
+
+        profile = UserProfile.objects.filter(pk=profile_pk).first
+
+        if not profile:
+            return (False, "Profile not found")
+
+        experience = models.ResumeExperience.objects.create(profile=profile,
+                                                            title=title,
+                                                            description=description,
+                                                            experience_company=experience_company,
+                                                            experience_role=experience_role,
+                                                            experience_description=experience_description,
+                                                            experience_start_time=experience_start_time,
+                                                            experience_end_time=experience_end_time)
+
+        return (True, experience)
 
     @staticmethod
     def edit_experience(request: HttpRequest, experience: models.ResumeExperience) -> tuple[bool, str | None]:
@@ -1139,7 +1179,29 @@ class ResumeTools:
 
     @staticmethod
     def create_competence(request: HttpRequest) -> tuple[bool, models.ResumeCompetence | str]:
-        pass
+        success, data_or_error = ResumeTools.get_competence_data(request, False)
+        if not success:
+            return (False, data_or_error)  # type: ignore
+
+        data: dict = data_or_error  # type: ignore
+        profile_pk = data.get("profile_pk", 0)
+        title = data.get("title", "")
+        description = data.get("description", "")
+        competence_name = data.get("competence_name", "")
+        competence_level = data.get("competence_level", "")
+
+        profile = UserProfile.objects.filter(pk=profile_pk).first
+
+        if not profile:
+            return (False, "Profile not found")
+
+        competence = models.ResumeCompetence.objects.create(profile=profile,
+                                                            title=title,
+                                                            description=description,
+                                                            competence_name=competence_name,
+                                                            competence_level=competence_level)
+
+        return (True, competence)
 
     @staticmethod
     def edit_competence(request: HttpRequest, competence: models.ResumeCompetence) -> tuple[bool, str | None]:
@@ -1195,7 +1257,37 @@ class ResumeTools:
 
     @staticmethod
     def create_course(request: HttpRequest) -> tuple[bool, models.ResumeCourse | str]:
-        pass
+        success, data_or_error = ResumeTools.get_course_data(request, False)
+        if not success:
+            return (False, data_or_error)  # type: ignore
+
+        data: dict = data_or_error  # type: ignore
+        profile_pk = data.get("profile_pk", 0)
+        title = data.get("title", "")
+        description = data.get("description", "")
+        course_name = data.get("course_name", "")
+        course_locale = data.get("course_locale", "")
+        course_provider = data.get("course_provider", "")
+        course_hours = data.get("course_hours", "")
+        course_start_time = ResumeTools.convert_time(data.get("course_start_time", ""))
+        course_end_time = ResumeTools.convert_time(data.get("course_end_time", ""))
+
+        profile = UserProfile.objects.filter(pk=profile_pk).first
+
+        if not profile:
+            return (False, "Profile not found")
+
+        course = models.ResumeCourse.objects.create(profile=profile,
+                                                    title=title,
+                                                    description=description,
+                                                    course_name=course_name,
+                                                    course_locale=course_locale,
+                                                    course_provider=course_provider,
+                                                    course_hours=course_hours,
+                                                    course_start_time=course_start_time,
+                                                    course_end_time=course_end_time)
+
+        return (True, course)
 
     @staticmethod
     def edit_course(request: HttpRequest, course: models.ResumeCourse) -> tuple[bool, str | None]:
@@ -1251,7 +1343,35 @@ class ResumeTools:
 
     @staticmethod
     def create_reference(request: HttpRequest) -> tuple[bool, models.ResumeReference | str]:
-        pass
+        success, data_or_error = ResumeTools.get_reference_data(request, False)
+        if not success:
+            return (False, data_or_error)  # type: ignore
+
+        data: dict = data_or_error  # type: ignore
+        profile_pk = data.get("profile_pk", 0)
+        title = data.get("title", "")
+        description = data.get("description", "")
+        reference_name = data.get("reference_name", "")
+        reference_role = data.get("reference_role", "")
+        reference_company = data.get("reference_company", "")
+        reference_phone = data.get("reference_phone", "")
+        reference_email = data.get("reference_email", "")
+
+        profile = UserProfile.objects.filter(pk=profile_pk).first
+
+        if not profile:
+            return (False, "Profile not found")
+
+        reference = models.ResumeReference.objects.create(profile=profile,
+                                                          title=title,
+                                                          description=description,
+                                                          reference_name=reference_name,
+                                                          reference_role=reference_role,
+                                                          reference_company=reference_company,
+                                                          reference_phone=reference_phone,
+                                                          reference_email=reference_email)
+
+        return (True, reference)
 
     @staticmethod
     def edit_reference(request: HttpRequest, reference: models.ResumeReference) -> tuple[bool, str | None]:
@@ -1307,7 +1427,33 @@ class ResumeTools:
 
     @staticmethod
     def create_graduation(request: HttpRequest) -> tuple[bool, models.ResumeGraduation | str]:
-        pass
+        success, data_or_error = ResumeTools.get_graduation_data(request, False)
+        if not success:
+            return (False, data_or_error)  # type: ignore
+
+        data: dict = data_or_error  # type: ignore
+        profile_pk = data.get("profile_pk", 0)
+        title = data.get("title", "")
+        description = data.get("description", "")
+        graduation_type = data.get("graduation_type", "")
+        graduation_period = data.get("graduation_period", "")
+        graduation_start_time = ResumeTools.convert_time(data.get("graduation_start_time", ""))
+        graduation_end_time = ResumeTools.convert_time(data.get("graduation_end_time", ""))
+
+        profile = UserProfile.objects.filter(pk=profile_pk).first
+
+        if not profile:
+            return (False, "Profile not found")
+
+        graduation = models.ResumeGraduation.objects.create(profile=profile,
+                                                            title=title,
+                                                            description=description,
+                                                            graduation_type=graduation_type,
+                                                            graduation_period=graduation_period,
+                                                            graduation_start_time=graduation_start_time,
+                                                            graduation_end_time=graduation_end_time)
+
+        return (True, graduation)
 
     @staticmethod
     def edit_graduation(request: HttpRequest, graduation: models.ResumeGraduation) -> tuple[bool, str | None]:
@@ -1363,7 +1509,31 @@ class ResumeTools:
 
     @staticmethod
     def create_project(request: HttpRequest) -> tuple[bool, models.ResumeProject | str]:
-        pass
+        success, data_or_error = ResumeTools.get_project_data(request, False)
+        if not success:
+            return (False, data_or_error)  # type: ignore
+
+        data: dict = data_or_error  # type: ignore
+        profile_pk = data.get("profile_pk", 0)
+        title = data.get("title", "")
+        description = data.get("description", "")
+        project_name = data.get("project_name", "")
+        project_description = data.get("project_description", "")
+        project_link = data.get("project_link", "")
+
+        profile = UserProfile.objects.filter(pk=profile_pk).first
+
+        if not profile:
+            return (False, "Profile not found")
+
+        project = models.ResumeProject(profile=profile,
+                                       title=title,
+                                       description=description,
+                                       project_name=project_name,
+                                       project_description=project_description,
+                                       project_link=project_link)
+
+        return (True, project)
 
     @staticmethod
     def edit_project(request: HttpRequest, project: models.ResumeProject) -> tuple[bool, str | None]:
@@ -1419,7 +1589,27 @@ class ResumeTools:
 
     @staticmethod
     def create_link(request: HttpRequest) -> tuple[bool, models.ResumeLink | str]:
-        pass
+        success, data_or_error = ResumeTools.get_link_data(request, False)
+        if not success:
+            return (False, data_or_error)  # type: ignore
+
+        data: dict = data_or_error  # type: ignore
+        profile_pk = data.get("profile_pk", 0)
+        title = data.get("title", "")
+        description = data.get("description", "")
+        url = data.get("url", "")
+
+        profile = UserProfile.objects.filter(pk=profile_pk).first
+
+        if not profile:
+            return (False, "Profile not found")
+
+        link = models.ResumeLink.objects.create(profile=profile,
+                                                title=title,
+                                                description=description,
+                                                url=url)
+
+        return (True, link)
 
     @staticmethod
     def edit_link(request: HttpRequest, link: models.ResumeLink) -> tuple[bool, str | None]:
@@ -2079,7 +2269,18 @@ class Experience(Base):
         return Response(data=response_data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
-        pass
+        success, object_or_error = ResumeTools.create_experience(request)
+        if not success:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, object_or_error)  # type: ignore
+
+        model_object: models.ResumeExperience = object_or_error  # type: ignore
+
+        response_data = self.generate_basic_response_data(status.HTTP_201_CREATED,
+                                                          " created")
+
+        serializer = serializers.ExperienceSerializer(model_object, many=False)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_201_CREATED)
 
     def patch(self, request, *args, **kwargs):
         pass
@@ -2351,7 +2552,18 @@ class Competence(Base):
         return Response(data=response_data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
-        pass
+        success, object_or_error = ResumeTools.create_competence(request)
+        if not success:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, object_or_error)  # type: ignore
+
+        model_object: models.ResumeCompetence = object_or_error  # type: ignore
+
+        response_data = self.generate_basic_response_data(status.HTTP_201_CREATED,
+                                                          "Competence created")
+
+        serializer = serializers.CompetenceSerializer(model_object, many=False)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_201_CREATED)
 
     def patch(self, request, *args, **kwargs):
         pass
@@ -2679,7 +2891,18 @@ class Course(Base):
         return Response(data=response_data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
-        pass
+        success, object_or_error = ResumeTools.create_course(request)
+        if not success:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, object_or_error)  # type: ignore
+
+        model_object: models.ResumeCourse = object_or_error  # type: ignore
+
+        response_data = self.generate_basic_response_data(status.HTTP_201_CREATED,
+                                                          "Course created")
+
+        serializer = serializers.CourseSerializer(model_object, many=False)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_201_CREATED)
 
     def patch(self, request, *args, **kwargs):
         pass
@@ -2993,7 +3216,18 @@ class Reference(Base):
         return Response(data=response_data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
-        pass
+        success, object_or_error = ResumeTools.create_reference(request)
+        if not success:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, object_or_error)  # type: ignore
+
+        model_object: models.ResumeReference = object_or_error  # type: ignore
+
+        response_data = self.generate_basic_response_data(status.HTTP_201_CREATED,
+                                                          "Reference created")
+
+        serializer = serializers.ReferenceSerializer(model_object, many=False)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_201_CREATED)
 
     def patch(self, request, *args, **kwargs):
         pass
@@ -3293,7 +3527,18 @@ class Graduation(Base):
         return Response(data=response_data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
-        pass
+        success, object_or_error = ResumeTools.create_graduation(request)
+        if not success:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, object_or_error)  # type: ignore
+
+        model_object: models.ResumeGraduation = object_or_error  # type: ignore
+
+        response_data = self.generate_basic_response_data(status.HTTP_201_CREATED,
+                                                          "Graduation created")
+
+        serializer = serializers.GraduationSerializer(model_object, many=False)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_201_CREATED)
 
     def patch(self, request, *args, **kwargs):
         pass
@@ -3579,7 +3824,18 @@ class Project(Base):
         return Response(data=response_data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
-        pass
+        success, object_or_error = ResumeTools.create_project(request)
+        if not success:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, object_or_error)  # type: ignore
+
+        model_object: models.ResumeProject = object_or_error  # type: ignore
+
+        response_data = self.generate_basic_response_data(status.HTTP_201_CREATED,
+                                                          "Project created")
+
+        serializer = serializers.ProjectSerializer(model_object, many=False)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_201_CREATED)
 
     def patch(self, request, *args, **kwargs):
         pass
@@ -3837,7 +4093,18 @@ class Link(Base):
         return Response(data=response_data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
-        pass
+        success, object_or_error = ResumeTools.create_link(request)
+        if not success:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, object_or_error)  # type: ignore
+
+        model_object: models.ResumeLink = object_or_error  # type: ignore
+
+        response_data = self.generate_basic_response_data(status.HTTP_201_CREATED,
+                                                          "Link created")
+
+        serializer = serializers.LinkSerializer(model_object, many=False)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_201_CREATED)
 
     def patch(self, request, *args, **kwargs):
         pass
