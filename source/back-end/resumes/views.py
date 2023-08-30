@@ -1011,10 +1011,56 @@ class ResumeTools:
 
     @staticmethod
     def create_resume(request: HttpRequest) -> tuple[bool, models.ResumeModel | str]:
-        pass
+        success, data_or_error = ResumeTools.get_resume_data(request, False)
+        if not success:
+            return (False, data_or_error)  # type: ignore
+
+        data: dict = data_or_error  # type: ignore
+
+        profile_pk = data.get("profile_pk", 0)
+        title = data.get("title", "")
+        description = data.get("description", "")
+        experiences_dict: dict | None = data.get("experiences", None)
+        competencies_dict: dict | None = data.get("competencies", None)
+        courses_dict: dict | None = data.get("courses", None)
+        references_dict: dict | None = data.get("references", None)
+        graduations_dict: dict | None = data.get("graduations", None)
+        projects_dict: dict | None = data.get("projects", None)
+        links_dict: dict | None = data.get("links", None)
+
+        profile = UserProfile.objects.filter(pk=profile_pk).first()
+
+        if profile is None:
+            return (False, "Profile not found")
+
+        resume = models.ResumeModel.objects.create(profile=profile,
+                                                   title=title,
+                                                   description=description)
+
+        # Experiences
+        if experiences_dict is not None:
+            experiences = experiences_dict.get("value", None)
+
+            if experiences is not None and isinstance(experiences, list):
+                for experience in experiences:
+                    exp_obj = ResumeTools.get_experience_obj(request, experience)
+                    if exp_obj is None:
+                        continue
+
+                    success, obj_or_error = exp_obj
+                    if not success:
+                        return (False, obj_or_error)  # type: ignore
+
+                    if not isinstance(obj_or_error, models.ResumeExperience):
+                        continue
+
+                    success, model_or_error = ResumeTools.add_experience_to_resume(request, resume, obj_or_error)
+                    if not success:
+                        return (False, model_or_error)  # type: ignore
+
 
     @staticmethod
-    def edit_resume(request: HttpRequest, resume: models.ResumeModel) -> tuple[bool, str | None]:
+    def edit_resume(request: HttpRequest, resume: models.ResumeModel) -> tuple[bool, str | models.ResumeModel]:
         pass
 
     @staticmethod
@@ -1030,38 +1076,155 @@ class ResumeTools:
         resume.delete()
 
     @staticmethod
-    def add_experience_to_resume(request: HttpRequest, resume: models.ResumeModel, experience: models.ResumeExperience) -> tuple[bool, str | None]:
-        pass
+    def add_experience_to_resume(request: HttpRequest, resume: models.ResumeModel, experience: models.ResumeExperience) -> tuple[bool, str | models.ResumeModel]:
+        try:
+            resume.experiences.add(experience)
+            resume.save()
+            return (True, resume)
+        except Exception as e:
+            return (False, f"Error while adding experience to resume: {e}")
 
     @staticmethod
-    def add_competence_to_resume(request: HttpRequest, resume: models.ResumeModel, competence: models.ResumeCompetence) -> tuple[bool, str | None]:
-        pass
+    def add_competence_to_resume(request: HttpRequest, resume: models.ResumeModel, competence: models.ResumeCompetence) -> tuple[bool, str | models.ResumeModel]:
+        try:
+            resume.competencies.add(competence)
+            resume.save()
+            return (True, resume)
+        except Exception as e:
+            return (False, f"Error while adding competence to resume: {e}")
 
     @staticmethod
-    def add_course_to_resume(request: HttpRequest, resume: models.ResumeModel, course: models.ResumeCourse) -> tuple[bool, str | None]:
-        pass
+    def add_course_to_resume(request: HttpRequest, resume: models.ResumeModel, course: models.ResumeCourse) -> tuple[bool, str | models.ResumeModel]:
+        try:
+            resume.courses.add(course)
+            resume.save()
+            return (True, resume)
+        except Exception as e:
+            return (False, f"Error while adding course to resume: {e}")
 
     @staticmethod
-    def add_reference_to_resume(request: HttpRequest, resume: models.ResumeModel, reference: models.ResumeReference) -> tuple[bool, str | None]:
-        pass
+    def add_reference_to_resume(request: HttpRequest, resume: models.ResumeModel, reference: models.ResumeReference) -> tuple[bool, str | models.ResumeModel]:
+        try:
+            resume.references.add(reference)
+            resume.save()
+            return (True, resume)
+        except Exception as e:
+            return (False, f"Error while adding reference to resume: {e}")
 
     @staticmethod
-    def add_graduation_to_resume(request: HttpRequest, resume: models.ResumeModel, graduation: models.ResumeGraduation) -> tuple[bool, str | None]:
-        pass
+    def add_graduation_to_resume(request: HttpRequest, resume: models.ResumeModel, graduation: models.ResumeGraduation) -> tuple[bool, str | models.ResumeModel]:
+        try:
+            resume.graduations.add(graduation)
+            resume.save()
+            return (True, resume)
+        except Exception as e:
+            return (False, f"Error while adding graduation to resume: {e}")
 
     @staticmethod
-    def add_project_to_resume(request: HttpRequest, resume: models.ResumeModel, project: models.ResumeProject) -> tuple[bool, str | None]:
-        pass
+    def add_project_to_resume(request: HttpRequest, resume: models.ResumeModel, project: models.ResumeProject) -> tuple[bool, str | models.ResumeModel]:
+        try:
+            resume.projects.add(project)
+            resume.save()
+            return (True, resume)
+        except Exception as e:
+            return (False, f"Error while adding project to resume: {e}")
 
     @staticmethod
-    def add_link_to_resume(request: HttpRequest, resume: models.ResumeModel, link: models.ResumeLink) -> tuple[bool, str | None]:
-        pass
+    def add_link_to_resume(request: HttpRequest, resume: models.ResumeModel, link: models.ResumeLink) -> tuple[bool, str | models.ResumeModel]:
+        try:
+            resume.links.add(link)
+            resume.save()
+            return (True, resume)
+        except Exception as e:
+            return (False, f"Error while adding link to resume: {e}")
+
+    @staticmethod
+    def remove_experience_from_resume(request: HttpRequest, resume: models.ResumeModel, experience: models.ResumeExperience) -> tuple[bool, str | models.ResumeModel]:
+        try:
+            resume.experiences.remove(experience)
+            resume.save()
+            return (True, resume)
+        except Exception as e:
+            return (False, f"Error while removing experience from resume: {e}")
+
+    @staticmethod
+    def remove_competence_from_resume(request: HttpRequest, resume: models.ResumeModel, competence: models.ResumeCompetence) -> tuple[bool, str | models.ResumeModel]:
+        try:
+            resume.competencies.remove(competence)
+            resume.save()
+            return (True, resume)
+        except Exception as e:
+            return (False, f"Error while removing competence from resume: {e}")
+
+    @staticmethod
+    def remove_course_from_resume(request: HttpRequest, resume: models.ResumeModel, course: models.ResumeCourse) -> tuple[bool, str | models.ResumeModel]:
+        try:
+            resume.courses.remove(course)
+            resume.save()
+            return (True, resume)
+        except Exception as e:
+            return (False, f"Error while removing course from resume: {e}")
+
+    @staticmethod
+    def remove_reference_from_resume(request: HttpRequest, resume: models.ResumeModel, reference: models.ResumeReference) -> tuple[bool, str | models.ResumeModel]:
+        try:
+            resume.references.remove(reference)
+            resume.save()
+            return (True, resume)
+        except Exception as e:
+            return (False, f"Error while removing reference from resume: {e}")
+
+    @staticmethod
+    def remove_graduation_from_resume(request: HttpRequest, resume: models.ResumeModel, graduation: models.ResumeGraduation) -> tuple[bool, str | models.ResumeModel]:
+        try:
+            resume.graduations.remove(graduation)
+            resume.save()
+            return (True, resume)
+        except Exception as e:
+            return (False, f"Error while removing graduation from resume: {e}")
+
+    @staticmethod
+    def remove_project_from_resume(request: HttpRequest, resume: models.ResumeModel, project: models.ResumeProject) -> tuple[bool, str | models.ResumeModel]:
+        try:
+            resume.projects.remove(project)
+            resume.save()
+            return (True, resume)
+        except Exception as e:
+            return (False, f"Error while removing project from resume: {e}")
+
+    @staticmethod
+    def remove_link_from_resume(request: HttpRequest, resume: models.ResumeModel, link: models.ResumeLink) -> tuple[bool, str | models.ResumeModel]:
+        try:
+            resume.links.remove(link)
+            resume.save()
+            return (True, resume)
+        except Exception as e:
+            return (False, f"Error while removing link from resume: {e}")
 
     # ====== Experience ====== #
     @staticmethod
     def get_experience_from(pk: str) -> models.ResumeExperience | None:
         if pk:
             return models.ResumeExperience.objects.filter(pk=pk).first()
+
+        return None
+
+    @staticmethod
+    def get_experience_obj(request, source: dict | str | None = None) -> tuple[bool, models.ResumeExperience | str] | None:
+        if isinstance(source, dict):
+            success, exp_obj_or_error = ResumeTools.create_experience(request, source)
+            if not success:
+                return (False, exp_obj_or_error)  # type: ignore
+
+            exp_obj: models.ResumeExperience = exp_obj_or_error  # type: ignore
+            return (True, exp_obj)
+
+        if isinstance(source, str):
+            exp_obj = ResumeTools.get_experience_from(source)  # type: ignore
+            if exp_obj is None:
+                return (False, f"Experience ID #{source} not found")
+
+            return (True, exp_obj)
 
         return None
 
@@ -1094,8 +1257,8 @@ class ResumeTools:
         return None
 
     @staticmethod
-    def create_experience(request: HttpRequest) -> tuple[bool, models.ResumeExperience | str]:
-        success, data_or_error = ResumeTools.get_experience_data(request, False)
+    def create_experience(request: HttpRequest, json: dict | None = None) -> tuple[bool, models.ResumeExperience | str]:
+        success, data_or_error = ResumeTools.get_experience_data(request, False, json)
         if not success:
             return (False, data_or_error)  # type: ignore
 
@@ -1109,7 +1272,7 @@ class ResumeTools:
         experience_start_time = ResumeTools.convert_time(data.get("experience_start_time", ""))
         experience_end_time = ResumeTools.convert_time(data.get("experience_end_time", ""))
 
-        profile = UserProfile.objects.filter(pk=profile_pk).first
+        profile = UserProfile.objects.filter(pk=profile_pk).first()
 
         if not profile:
             return (False, "Profile not found")
@@ -1126,8 +1289,53 @@ class ResumeTools:
         return (True, experience)
 
     @staticmethod
-    def edit_experience(request: HttpRequest, experience: models.ResumeExperience) -> tuple[bool, str | None]:
-        pass
+    def edit_experience(request: HttpRequest, experience: models.ResumeExperience) -> tuple[bool, models.ResumeExperience | str]:
+        success, data_or_error = ResumeTools.get_experience_data(request, True)
+        if not success:
+            return (False, data_or_error)  # type: ignore
+
+        data: dict = data_or_error  # type: ignore
+        profile_pk = data.get("profile_pk", None)
+        title = data.get("title", None)
+        description = data.get("description", None)
+        experience_company = data.get("experience_company", None)
+        experience_role = data.get("experience_role", None)
+        experience_description = data.get("experience_description", None)
+        experience_start_time = ResumeTools.convert_time(data.get("experience_start_time", ""))
+        experience_end_time = ResumeTools.convert_time(data.get("experience_end_time", ""))
+
+        if profile_pk is not None:
+            profile = UserProfile.objects.filter(pk=profile_pk).first()
+
+            if not profile:
+                return (False, "Profile not found")
+
+            experience.profile = profile
+
+        if title is not None:
+            experience.title = title
+
+        if description is not None:
+            experience.description = description
+
+        if experience_company is not None:
+            experience.experience_company = experience_company
+
+        if experience_role is not None:
+            experience.experience_role = experience_role
+
+        if experience_description is not None:
+            experience.experience_description = experience_description
+
+        if experience_start_time is not None:
+            experience.experience_start_time = experience_start_time
+
+        if experience_end_time is not None:
+            experience.experience_end_time = experience_end_time
+
+        experience.save()
+
+        return (True, experience)
 
     @staticmethod
     def delete_experience(request: HttpRequest, experience: models.ResumeExperience):
@@ -1146,6 +1354,25 @@ class ResumeTools:
     def get_competence_from(pk: str) -> models.ResumeCompetence | None:
         if pk:
             return models.ResumeCompetence.objects.filter(pk=pk).first()
+
+        return None
+
+    @staticmethod
+    def get_competence_obj(request, source: dict | str | None = None) -> tuple[bool, models.ResumeCompetence | str] | None:
+        if isinstance(source, dict):
+            success, comp_obj_or_error = ResumeTools.create_competence(request, source)
+            if not success:
+                return (False, comp_obj_or_error)  # type: ignore
+
+            comp_obj: models.ResumeCompetence = comp_obj_or_error  # type: ignore
+            return (True, comp_obj)
+
+        if isinstance(source, str):
+            comp_obj = ResumeTools.get_competence_from(source)  # type: ignore
+            if comp_obj is None:
+                return (False, f"Competence ID #{source} not found")
+
+            return (True, comp_obj)
 
         return None
 
@@ -1178,8 +1405,8 @@ class ResumeTools:
         return None
 
     @staticmethod
-    def create_competence(request: HttpRequest) -> tuple[bool, models.ResumeCompetence | str]:
-        success, data_or_error = ResumeTools.get_competence_data(request, False)
+    def create_competence(request: HttpRequest, json: dict | None = None) -> tuple[bool, models.ResumeCompetence | str]:
+        success, data_or_error = ResumeTools.get_competence_data(request, False, json)
         if not success:
             return (False, data_or_error)  # type: ignore
 
@@ -1190,7 +1417,7 @@ class ResumeTools:
         competence_name = data.get("competence_name", "")
         competence_level = data.get("competence_level", "")
 
-        profile = UserProfile.objects.filter(pk=profile_pk).first
+        profile = UserProfile.objects.filter(pk=profile_pk).first()
 
         if not profile:
             return (False, "Profile not found")
@@ -1204,8 +1431,41 @@ class ResumeTools:
         return (True, competence)
 
     @staticmethod
-    def edit_competence(request: HttpRequest, competence: models.ResumeCompetence) -> tuple[bool, str | None]:
-        pass
+    def edit_competence(request: HttpRequest, competence: models.ResumeCompetence) -> tuple[bool, models.ResumeCompetence | str]:
+        success, data_or_error = ResumeTools.get_competence_data(request, True)
+        if not success:
+            return (False, data_or_error)  # type: ignore
+
+        data: dict = data_or_error  # type: ignore
+        profile_pk = data.get("profile_pk", None)
+        title = data.get("title", None)
+        description = data.get("description", None)
+        competence_name = data.get("competence_name", None)
+        competence_level = data.get("competence_level", None)
+
+        if profile_pk is not None:
+            profile = UserProfile.objects.filter(pk=profile_pk).first()
+
+            if not profile:
+                return (False, "Profile not found")
+
+            competence.profile = profile
+
+        if title is not None:
+            competence.title = title
+
+        if description is not None:
+            competence.description = description
+
+        if competence_name is not None:
+            competence.competence_name = competence_name
+
+        if competence_level is not None:
+            competence.competence_level = competence_level
+
+        competence.save()
+
+        return (True, competence)
 
     @staticmethod
     def delete_competence(request: HttpRequest, competence: models.ResumeCompetence):
@@ -1224,6 +1484,25 @@ class ResumeTools:
     def get_course_from(pk: str) -> models.ResumeCourse | None:
         if pk:
             return models.ResumeCourse.objects.filter(pk=pk).first()
+
+        return None
+
+    @staticmethod
+    def get_course_obj(request, source: dict | str | None = None) -> tuple[bool, models.ResumeCourse | str] | None:
+        if isinstance(source, dict):
+            success, course_obj_or_error = ResumeTools.create_course(request, source)
+            if not success:
+                return (False, course_obj_or_error)  # type: ignore
+
+            course_obj: models.ResumeCourse = course_obj_or_error  # type: ignore
+            return (True, course_obj)
+
+        if isinstance(source, str):
+            course_obj = ResumeTools.get_course_from(source)  # type: ignore
+            if course_obj is None:
+                return (False, f"Course ID #{source} not found")
+
+            return (True, course_obj)
 
         return None
 
@@ -1256,8 +1535,8 @@ class ResumeTools:
         return None
 
     @staticmethod
-    def create_course(request: HttpRequest) -> tuple[bool, models.ResumeCourse | str]:
-        success, data_or_error = ResumeTools.get_course_data(request, False)
+    def create_course(request: HttpRequest, json: dict | None = None) -> tuple[bool, models.ResumeCourse | str]:
+        success, data_or_error = ResumeTools.get_course_data(request, False, json)
         if not success:
             return (False, data_or_error)  # type: ignore
 
@@ -1272,7 +1551,7 @@ class ResumeTools:
         course_start_time = ResumeTools.convert_time(data.get("course_start_time", ""))
         course_end_time = ResumeTools.convert_time(data.get("course_end_time", ""))
 
-        profile = UserProfile.objects.filter(pk=profile_pk).first
+        profile = UserProfile.objects.filter(pk=profile_pk).first()
 
         if not profile:
             return (False, "Profile not found")
@@ -1290,8 +1569,57 @@ class ResumeTools:
         return (True, course)
 
     @staticmethod
-    def edit_course(request: HttpRequest, course: models.ResumeCourse) -> tuple[bool, str | None]:
-        pass
+    def edit_course(request: HttpRequest, course: models.ResumeCourse) -> tuple[bool, models.ResumeCourse | str]:
+        success, data_or_error = ResumeTools.get_course_data(request, True)
+        if not success:
+            return (False, data_or_error)  # type: ignore
+
+        data: dict = data_or_error  # type: ignore
+        profile_pk = data.get("profile_pk", None)
+        title = data.get("title", None)
+        description = data.get("description", None)
+        course_name = data.get("course_name", None)
+        course_locale = data.get("course_locale", None)
+        course_provider = data.get("course_provider", None)
+        course_hours = data.get("course_hours", None)
+        course_start_time = ResumeTools.convert_time(data.get("course_start_time", ""))
+        course_end_time = ResumeTools.convert_time(data.get("course_end_time", ""))
+
+        if profile_pk is not None:
+            profile = UserProfile.objects.filter(pk=profile_pk).first()
+
+            if not profile:
+                return (False, "Profile not found")
+
+            course.profile = profile
+
+        if title is not None:
+            course.title = title
+
+        if description is not None:
+            course.description = description
+
+        if course_name is not None:
+            course.course_name = course_name
+
+        if course_locale is not None:
+            course.course_locale = course_locale
+
+        if course_provider is not None:
+            course.course_provider = course_provider
+
+        if course_hours is not None:
+            course.course_hours = course_hours
+
+        if course_start_time is not None:
+            course.course_start_time = course_start_time
+
+        if course_end_time is not None:
+            course.course_end_time = course_end_time
+
+        course.save()
+
+        return (True, course)
 
     @staticmethod
     def delete_course(request: HttpRequest, course: models.ResumeCourse):
@@ -1310,6 +1638,25 @@ class ResumeTools:
     def get_reference_from(pk: str) -> models.ResumeReference | None:
         if pk:
             return models.ResumeReference.objects.filter(pk=pk).first()
+
+        return None
+
+    @staticmethod
+    def get_reference_obj(request, source: dict | str | None = None) -> tuple[bool, models.ResumeReference | str] | None:
+        if isinstance(source, dict):
+            success, ref_obj_or_error = ResumeTools.create_reference(request, source)
+            if not success:
+                return (False, ref_obj_or_error)  # type: ignore
+
+            ref_obj: models.ResumeReference = ref_obj_or_error  # type: ignore
+            return (True, ref_obj)
+
+        if isinstance(source, str):
+            ref_obj = ResumeTools.get_reference_from(source)  # type: ignore
+            if ref_obj is None:
+                return (False, f"Reference ID #{source} not found")
+
+            return (True, ref_obj)
 
         return None
 
@@ -1342,8 +1689,8 @@ class ResumeTools:
         return None
 
     @staticmethod
-    def create_reference(request: HttpRequest) -> tuple[bool, models.ResumeReference | str]:
-        success, data_or_error = ResumeTools.get_reference_data(request, False)
+    def create_reference(request: HttpRequest, json: dict | None = None) -> tuple[bool, models.ResumeReference | str]:
+        success, data_or_error = ResumeTools.get_reference_data(request, False, json)
         if not success:
             return (False, data_or_error)  # type: ignore
 
@@ -1357,7 +1704,7 @@ class ResumeTools:
         reference_phone = data.get("reference_phone", "")
         reference_email = data.get("reference_email", "")
 
-        profile = UserProfile.objects.filter(pk=profile_pk).first
+        profile = UserProfile.objects.filter(pk=profile_pk).first()
 
         if not profile:
             return (False, "Profile not found")
@@ -1374,8 +1721,53 @@ class ResumeTools:
         return (True, reference)
 
     @staticmethod
-    def edit_reference(request: HttpRequest, reference: models.ResumeReference) -> tuple[bool, str | None]:
-        pass
+    def edit_reference(request: HttpRequest, reference: models.ResumeReference) -> tuple[bool, models.ResumeReference | str]:
+        success, data_or_error = ResumeTools.get_reference_data(request, True)
+        if not success:
+            return (False, data_or_error)  # type: ignore
+
+        data: dict = data_or_error  # type: ignore
+        profile_pk = data.get("profile_pk", None)
+        title = data.get("title", None)
+        description = data.get("description", None)
+        reference_name = data.get("reference_name", None)
+        reference_role = data.get("reference_role", None)
+        reference_company = data.get("reference_company", None)
+        reference_phone = data.get("reference_phone", None)
+        reference_email = data.get("reference_email", None)
+
+        if profile_pk is not None:
+            profile = UserProfile.objects.filter(pk=profile_pk).first()
+
+            if not profile:
+                return (False, "Profile not found")
+
+            reference.profile = profile
+
+        if title is not None:
+            reference.title = title
+
+        if description is not None:
+            reference.description = description
+
+        if reference_name is not None:
+            reference.reference_name = reference_name
+
+        if reference_role is not None:
+            reference.reference_role = reference_role
+
+        if reference_company is not None:
+            reference.reference_company = reference_company
+
+        if reference_phone is not None:
+            reference.reference_phone = reference_phone
+
+        if reference_email is not None:
+            reference.reference_email = reference_email
+
+        reference.save()
+
+        return (True, reference)
 
     @staticmethod
     def delete_reference(request: HttpRequest, reference: models.ResumeReference):
@@ -1394,6 +1786,25 @@ class ResumeTools:
     def get_graduation_from(pk: str) -> models.ResumeGraduation | None:
         if pk:
             return models.ResumeGraduation.objects.filter(pk=pk).first()
+
+        return None
+
+    @staticmethod
+    def get_graduation_obj(request, source: dict | str | None = None) -> tuple[bool, models.ResumeGraduation | str] | None:
+        if isinstance(source, dict):
+            success, grad_obj_or_error = ResumeTools.create_graduation(request, source)
+            if not success:
+                return (False, grad_obj_or_error)  # type: ignore
+
+            grad_obj: models.ResumeGraduation = grad_obj_or_error  # type: ignore
+            return (True, grad_obj)
+
+        if isinstance(source, str):
+            grad_obj = ResumeTools.get_graduation_from(source)  # type: ignore
+            if grad_obj is None:
+                return (False, f"Graduation ID #{source} not found")
+
+            return (True, grad_obj)
 
         return None
 
@@ -1426,8 +1837,8 @@ class ResumeTools:
         return None
 
     @staticmethod
-    def create_graduation(request: HttpRequest) -> tuple[bool, models.ResumeGraduation | str]:
-        success, data_or_error = ResumeTools.get_graduation_data(request, False)
+    def create_graduation(request: HttpRequest, json: dict | None = None) -> tuple[bool, models.ResumeGraduation | str]:
+        success, data_or_error = ResumeTools.get_graduation_data(request, False, json)
         if not success:
             return (False, data_or_error)  # type: ignore
 
@@ -1440,7 +1851,7 @@ class ResumeTools:
         graduation_start_time = ResumeTools.convert_time(data.get("graduation_start_time", ""))
         graduation_end_time = ResumeTools.convert_time(data.get("graduation_end_time", ""))
 
-        profile = UserProfile.objects.filter(pk=profile_pk).first
+        profile = UserProfile.objects.filter(pk=profile_pk).first()
 
         if not profile:
             return (False, "Profile not found")
@@ -1456,8 +1867,49 @@ class ResumeTools:
         return (True, graduation)
 
     @staticmethod
-    def edit_graduation(request: HttpRequest, graduation: models.ResumeGraduation) -> tuple[bool, str | None]:
-        pass
+    def edit_graduation(request: HttpRequest, graduation: models.ResumeGraduation) -> tuple[bool, models.ResumeGraduation | str]:
+        success, data_or_error = ResumeTools.get_graduation_data(request, True)
+        if not success:
+            return (False, data_or_error)  # type: ignore
+
+        data: dict = data_or_error  # type: ignore
+        profile_pk = data.get("profile_pk", None)
+        title = data.get("title", None)
+        description = data.get("description", None)
+        graduation_type = data.get("graduation_type", None)
+        graduation_period = data.get("graduation_period", None)
+        graduation_start_time = ResumeTools.convert_time(data.get("graduation_start_time", ""))
+        graduation_end_time = ResumeTools.convert_time(data.get("graduation_end_time", ""))
+
+        if profile_pk is not None:
+            profile = UserProfile.objects.filter(pk=profile_pk).first()
+
+            if not profile:
+                return (False, "Profile not found")
+
+            graduation.profile = profile
+
+        if title is not None:
+            graduation.title = title
+
+        if description is not None:
+            graduation.description = description
+
+        if graduation_type is not None:
+            graduation.graduation_type = graduation_type
+
+        if graduation_period is not None:
+            graduation.graduation_period = graduation_period
+
+        if graduation_start_time is not None:
+            graduation.graduation_start_time = graduation_start_time
+
+        if graduation_end_time is not None:
+            graduation.graduation_end_time = graduation_end_time
+
+        graduation.save()
+
+        return (True, graduation)
 
     @staticmethod
     def delete_graduation(request: HttpRequest, graduation: models.ResumeGraduation):
@@ -1476,6 +1928,25 @@ class ResumeTools:
     def get_project_from(pk: str) -> models.ResumeProject | None:
         if pk:
             return models.ResumeProject.objects.filter(pk=pk).first()
+
+        return None
+
+    @staticmethod
+    def get_project_obj(request, source: dict | str | None = None) -> tuple[bool, models.ResumeProject | str] | None:
+        if isinstance(source, dict):
+            success, proj_obj_or_error = ResumeTools.create_project(request, source)
+            if not success:
+                return (False, proj_obj_or_error)  # type: ignore
+
+            proj_obj: models.ResumeProject = proj_obj_or_error  # type: ignore
+            return (True, proj_obj)
+
+        if isinstance(source, str):
+            proj_obj = ResumeTools.get_project_from(source)  # type: ignore
+            if proj_obj is None:
+                return (False, f"Project ID #{source} not found")
+
+            return (True, proj_obj)
 
         return None
 
@@ -1508,8 +1979,8 @@ class ResumeTools:
         return None
 
     @staticmethod
-    def create_project(request: HttpRequest) -> tuple[bool, models.ResumeProject | str]:
-        success, data_or_error = ResumeTools.get_project_data(request, False)
+    def create_project(request: HttpRequest, json: dict | None = None) -> tuple[bool, models.ResumeProject | str]:
+        success, data_or_error = ResumeTools.get_project_data(request, False, json)
         if not success:
             return (False, data_or_error)  # type: ignore
 
@@ -1521,7 +1992,7 @@ class ResumeTools:
         project_description = data.get("project_description", "")
         project_link = data.get("project_link", "")
 
-        profile = UserProfile.objects.filter(pk=profile_pk).first
+        profile = UserProfile.objects.filter(pk=profile_pk).first()
 
         if not profile:
             return (False, "Profile not found")
@@ -1536,8 +2007,45 @@ class ResumeTools:
         return (True, project)
 
     @staticmethod
-    def edit_project(request: HttpRequest, project: models.ResumeProject) -> tuple[bool, str | None]:
-        pass
+    def edit_project(request: HttpRequest, project: models.ResumeProject) -> tuple[bool, models.ResumeProject | str]:
+        success, data_or_error = ResumeTools.get_project_data(request, True)
+        if not success:
+            return (False, data_or_error)  # type: ignore
+
+        data: dict = data_or_error  # type: ignore
+        profile_pk = data.get("profile_pk", None)
+        title = data.get("title", None)
+        description = data.get("description", None)
+        project_name = data.get("project_name", None)
+        project_description = data.get("project_description", None)
+        project_link = data.get("project_link", None)
+
+        if profile_pk is not None:
+            profile = UserProfile.objects.filter(pk=profile_pk).first()
+
+            if not profile:
+                return (False, "Profile not found")
+
+            project.profile = profile
+
+        if title is not None:
+            project.title = title
+
+        if description is not None:
+            project.description = description
+
+        if project_name is not None:
+            project.project_name = project_name
+
+        if project_description is not None:
+            project.project_description = project_description
+
+        if project_link is not None:
+            project.project_link = project_link
+
+        project.save()
+
+        return (True, project)
 
     @staticmethod
     def delete_project(request: HttpRequest, project: models.ResumeProject):
@@ -1556,6 +2064,25 @@ class ResumeTools:
     def get_link_from(pk: str) -> models.ResumeLink | None:
         if pk:
             return models.ResumeLink.objects.filter(pk=pk).first()
+
+        return None
+
+    @staticmethod
+    def get_link_obj(request, source: dict | str | None = None) -> tuple[bool, models.ResumeLink | str] | None:
+        if isinstance(source, dict):
+            success, link_obj_or_error = ResumeTools.create_link(request, source)
+            if not success:
+                return (False, link_obj_or_error)  # type: ignore
+
+            link_obj: models.ResumeLink = link_obj_or_error  # type: ignore
+            return (True, link_obj)
+
+        if isinstance(source, str):
+            link_obj = ResumeTools.get_link_from(source)  # type: ignore
+            if link_obj is None:
+                return (False, f"Link ID #{source} not found")
+
+            return (True, link_obj)
 
         return None
 
@@ -1588,8 +2115,8 @@ class ResumeTools:
         return None
 
     @staticmethod
-    def create_link(request: HttpRequest) -> tuple[bool, models.ResumeLink | str]:
-        success, data_or_error = ResumeTools.get_link_data(request, False)
+    def create_link(request: HttpRequest, json: dict | None = None) -> tuple[bool, models.ResumeLink | str]:
+        success, data_or_error = ResumeTools.get_link_data(request, False, json)
         if not success:
             return (False, data_or_error)  # type: ignore
 
@@ -1599,7 +2126,7 @@ class ResumeTools:
         description = data.get("description", "")
         url = data.get("url", "")
 
-        profile = UserProfile.objects.filter(pk=profile_pk).first
+        profile = UserProfile.objects.filter(pk=profile_pk).first()
 
         if not profile:
             return (False, "Profile not found")
@@ -1612,8 +2139,37 @@ class ResumeTools:
         return (True, link)
 
     @staticmethod
-    def edit_link(request: HttpRequest, link: models.ResumeLink) -> tuple[bool, str | None]:
-        pass
+    def edit_link(request: HttpRequest, link: models.ResumeLink) -> tuple[bool, models.ResumeLink | str]:
+        success, data_or_error = ResumeTools.get_link_data(request, True)
+        if not success:
+            return (False, data_or_error)  # type: ignore
+
+        data: dict = data_or_error  # type: ignore
+        profile_pk = data.get("profile_pk", None)
+        title = data.get("title", None)
+        description = data.get("description", None)
+        url = data.get("url", None)
+
+        if profile_pk is not None:
+            profile = UserProfile.objects.filter(pk=profile_pk).first()
+
+            if not profile:
+                return (False, "Profile not found")
+
+            link.profile = profile
+
+        if title is not None:
+            link.title = title
+
+        if description is not None:
+            link.description = description
+
+        if url is not None:
+            link.url = url
+
+        link.save()
+
+        return (True, link)
 
     @staticmethod
     def delete_link(request: HttpRequest, link: models.ResumeLink):
@@ -2283,7 +2839,24 @@ class Experience(Base):
         return Response(data=response_data, status=status.HTTP_201_CREATED)
 
     def patch(self, request, *args, **kwargs):
-        pass
+        editing_object = ResumeTools.get_experience(request)
+
+        if not editing_object:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST,
+                                                self.not_found_experience_str)
+
+        success, object_or_error = ResumeTools.edit_experience(request, editing_object)
+        if not success:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, object_or_error)  # type: ignore
+
+        model_object: models.ResumeExperience = object_or_error  # type: ignore
+
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "Experience Updated")
+
+        serializer = serializers.ExperienceSerializer(model_object, many=False)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_200_OK)
 
     def delete(self, request, *args, **kwargs):
         experience_model = ResumeTools.get_experience(request)
@@ -2566,7 +3139,24 @@ class Competence(Base):
         return Response(data=response_data, status=status.HTTP_201_CREATED)
 
     def patch(self, request, *args, **kwargs):
-        pass
+        editing_object = ResumeTools.get_competence(request)
+
+        if not editing_object:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST,
+                                                self.not_found_competence_str)
+
+        success, object_or_error = ResumeTools.edit_competence(request, editing_object)
+        if not success:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, object_or_error)  # type: ignore
+
+        model_object: models.ResumeCompetence = object_or_error  # type: ignore
+
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "Competence Updated")
+
+        serializer = serializers.CompetenceSerializer(model_object, many=False)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_200_OK)
 
     def delete(self, request, *args, **kwargs):
         competence_model = ResumeTools.get_competence(request)
@@ -2905,7 +3495,24 @@ class Course(Base):
         return Response(data=response_data, status=status.HTTP_201_CREATED)
 
     def patch(self, request, *args, **kwargs):
-        pass
+        editing_object = ResumeTools.get_course(request)
+
+        if not editing_object:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST,
+                                                self.not_found_course_str)
+
+        success, object_or_error = ResumeTools.edit_course(request, editing_object)
+        if not success:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, object_or_error)  # type: ignore
+
+        model_object: models.ResumeCourse = object_or_error  # type: ignore
+
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "Course Updated")
+
+        serializer = serializers.CourseSerializer(model_object, many=False)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_200_OK)
 
     def delete(self, request, *args, **kwargs):
         course_model = ResumeTools.get_course(request)
@@ -3230,7 +3837,24 @@ class Reference(Base):
         return Response(data=response_data, status=status.HTTP_201_CREATED)
 
     def patch(self, request, *args, **kwargs):
-        pass
+        editing_object = ResumeTools.get_reference(request)
+
+        if not editing_object:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST,
+                                                self.not_found_reference_str)
+
+        success, object_or_error = ResumeTools.edit_reference(request, editing_object)
+        if not success:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, object_or_error)  # type: ignore
+
+        model_object: models.ResumeReference = object_or_error  # type: ignore
+
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "Reference Updated")
+
+        serializer = serializers.ReferenceSerializer(model_object, many=False)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_200_OK)
 
     def delete(self, request, *args, **kwargs):
         reference_model = ResumeTools.get_reference(request)
@@ -3541,7 +4165,24 @@ class Graduation(Base):
         return Response(data=response_data, status=status.HTTP_201_CREATED)
 
     def patch(self, request, *args, **kwargs):
-        pass
+        editing_object = ResumeTools.get_graduation(request)
+
+        if not editing_object:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST,
+                                                self.not_found_graduation_str)
+
+        success, object_or_error = ResumeTools.edit_graduation(request, editing_object)
+        if not success:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, object_or_error)  # type: ignore
+
+        model_object: models.ResumeGraduation = object_or_error  # type: ignore
+
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "Graduation Updated")
+
+        serializer = serializers.GraduationSerializer(model_object, many=False)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_200_OK)
 
     def delete(self, request, *args, **kwargs):
         graduation_model = ResumeTools.get_graduation(request)
@@ -3838,7 +4479,24 @@ class Project(Base):
         return Response(data=response_data, status=status.HTTP_201_CREATED)
 
     def patch(self, request, *args, **kwargs):
-        pass
+        editing_object = ResumeTools.get_project(request)
+
+        if not editing_object:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST,
+                                                self.not_found_project_str)
+
+        success, object_or_error = ResumeTools.edit_project(request, editing_object)
+        if not success:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, object_or_error)  # type: ignore
+
+        model_object: models.ResumeProject = object_or_error  # type: ignore
+
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "Project Updated")
+
+        serializer = serializers.ProjectSerializer(model_object, many=False)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_200_OK)
 
     def delete(self, request, *args, **kwargs):
         project_model = ResumeTools.get_project(request)
@@ -4107,7 +4765,24 @@ class Link(Base):
         return Response(data=response_data, status=status.HTTP_201_CREATED)
 
     def patch(self, request, *args, **kwargs):
-        pass
+        editing_object = ResumeTools.get_link(request)
+
+        if not editing_object:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST,
+                                                self.not_found_link_str)
+
+        success, object_or_error = ResumeTools.edit_link(request, editing_object)
+        if not success:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, object_or_error)  # type: ignore
+
+        model_object: models.ResumeLink = object_or_error  # type: ignore
+
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "Link Updated")
+
+        serializer = serializers.LinkSerializer(model_object, many=False)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_200_OK)
 
     def delete(self, request, *args, **kwargs):
         link_model = ResumeTools.get_link(request)

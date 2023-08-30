@@ -124,7 +124,7 @@ class ResumeReference(models.Model):
     reference_phone = models.CharField("Reference Phone",
                                        blank=True,
                                        max_length=255)
-    refecence_email = models.EmailField("Reference email",
+    reference_email = models.EmailField("Reference email",
                                         blank=True,
                                         max_length=255)
 
