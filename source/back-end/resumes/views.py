@@ -1058,10 +1058,340 @@ class ResumeTools:
                     if not success:
                         return (False, model_or_error)  # type: ignore
 
+        # Competencies
+        if competencies_dict is not None:
+            competencies = competencies_dict.get("value", None)
+
+            if competencies is not None and isinstance(competencies, list):
+                for competence in competencies:
+                    competence_obj = ResumeTools.get_competence_obj(request, competence)
+                    if competence_obj is None:
+                        continue
+
+                    success, obj_or_error = competence_obj
+                    if not success:
+                        return (False, obj_or_error)  # type: ignore
+
+                    if not isinstance(obj_or_error, models.ResumeCompetence):
+                        continue
+
+                    success, model_or_error = ResumeTools.add_competence_to_resume(request, resume, obj_or_error)
+                    if not success:
+                        return (False, model_or_error)  # type: ignore
+
+        # Courses
+        if courses_dict is not None:
+            courses = courses_dict.get("value", None)
+
+            if courses is not None and isinstance(courses, list):
+                for course in courses:
+                    course_obj = ResumeTools.get_course_obj(request, course)
+                    if course_obj is None:
+                        continue
+
+                    success, obj_or_error = course_obj
+                    if not success:
+                        return (False, obj_or_error)  # type: ignore
+
+                    if not isinstance(obj_or_error, models.ResumeCourse):
+                        continue
+
+                    success, model_or_error = ResumeTools.add_course_to_resume(request, resume, obj_or_error)
+                    if not success:
+                        return (False, model_or_error)  # type: ignore
+
+        # References
+        if references_dict is not None:
+            references = references_dict.get("value", None)
+
+            if references is not None and isinstance(references, list):
+                for reference in references:
+                    reference_obj = ResumeTools.get_reference_obj(request, reference)
+                    if reference_obj is None:
+                        continue
+
+                    success, obj_or_error = reference_obj
+                    if not success:
+                        return (False, obj_or_error)  # type: ignore
+
+                    if not isinstance(obj_or_error, models.ResumeReference):
+                        continue
+
+                    success, model_or_error = ResumeTools.add_reference_to_resume(request, resume, obj_or_error)
+                    if not success:
+                        return (False, model_or_error)  # type: ignore
+
+        # Graduations
+        if graduations_dict is not None:
+            graduations = graduations_dict.get("value", None)
+
+            if graduations is not None and isinstance(graduations, list):
+                for graduation in graduations:
+                    graduation_obj = ResumeTools.get_graduation_obj(request, graduation)
+                    if graduation_obj is None:
+                        continue
+
+                    success, obj_or_error = graduation_obj
+                    if not success:
+                        return (False, obj_or_error)  # type: ignore
+
+                    if not isinstance(obj_or_error, models.ResumeGraduation):
+                        continue
+
+                    success, model_or_error = ResumeTools.add_graduation_to_resume(request, resume, obj_or_error)
+                    if not success:
+                        return (False, model_or_error)  # type: ignore
+
+        # Projects
+        if projects_dict is not None:
+            projects = projects_dict.get("value", None)
+
+            if projects is not None and isinstance(projects, list):
+                for project in projects:
+                    project_obj = ResumeTools.get_project_obj(request, project)
+                    if project_obj is None:
+                        continue
+
+                    success, obj_or_error = project_obj
+                    if not success:
+                        return (False, obj_or_error)  # type: ignore
+
+                    if not isinstance(obj_or_error, models.ResumeProject):
+                        continue
+
+                    success, model_or_error = ResumeTools.add_project_to_resume(request, resume, obj_or_error)
+                    if not success:
+                        return (False, model_or_error)  # type: ignore
+
+        # Links
+        if links_dict is not None:
+            links = links_dict.get("value", None)
+
+            if links is not None and isinstance(links, list):
+                for link in links:
+                    link_obj = ResumeTools.get_link_obj(request, link)
+                    if link_obj is None:
+                        continue
+
+                    success, obj_or_error = link_obj
+                    if not success:
+                        return (False, obj_or_error)  # type: ignore
+
+                    if not isinstance(obj_or_error, models.ResumeLink):
+                        continue
+
+                    success, model_or_error = ResumeTools.add_link_to_resume(request, resume, obj_or_error)
+                    if not success:
+                        return (False, model_or_error)  # type: ignore
+
+        resume.save()
+
+        return (True, resume)
 
     @staticmethod
     def edit_resume(request: HttpRequest, resume: models.ResumeModel) -> tuple[bool, str | models.ResumeModel]:
-        pass
+        success, data_or_error = ResumeTools.get_resume_data(request, False)
+        if not success:
+            return (False, data_or_error)  # type: ignore
+
+        data: dict = data_or_error  # type: ignore
+
+        profile_pk = data.get("profile_pk", 0)
+        title = data.get("title", "")
+        description = data.get("description", "")
+        experiences_dict: dict | None = data.get("experiences", None)
+        competencies_dict: dict | None = data.get("competencies", None)
+        courses_dict: dict | None = data.get("courses", None)
+        references_dict: dict | None = data.get("references", None)
+        graduations_dict: dict | None = data.get("graduations", None)
+        projects_dict: dict | None = data.get("projects", None)
+        links_dict: dict | None = data.get("links", None)
+
+        if profile_pk is not None:
+            profile = UserProfile.objects.filter(pk=profile_pk).first()
+
+            if not profile:
+                return (False, "Profile not found")
+
+            resume.profile = profile
+
+        if title is not None:
+            resume.title = title
+
+        if description is not None:
+            resume.description = description
+
+        # Experiences
+        if experiences_dict is not None:
+            resume.experiences.clear()
+            resume.save()
+
+            experiences = experiences_dict.get("value", None)
+
+            if experiences is not None and isinstance(experiences, list):
+                for experience in experiences:
+                    exp_obj = ResumeTools.get_experience_obj(request, experience)
+                    if exp_obj is None:
+                        continue
+
+                    success, obj_or_error = exp_obj
+                    if not success:
+                        return (False, obj_or_error)  # type: ignore
+
+                    if not isinstance(obj_or_error, models.ResumeExperience):
+                        continue
+
+                    success, model_or_error = ResumeTools.add_experience_to_resume(request, resume, obj_or_error)
+                    if not success:
+                        return (False, model_or_error)  # type: ignore
+
+        # Competencies
+        if competencies_dict is not None:
+            resume.competencies.clear()
+            resume.save()
+
+            competencies = competencies_dict.get("value", None)
+
+            if competencies is not None and isinstance(competencies, list):
+                for competence in competencies:
+                    competence_obj = ResumeTools.get_competence_obj(request, competence)
+                    if competence_obj is None:
+                        continue
+
+                    success, obj_or_error = competence_obj
+                    if not success:
+                        return (False, obj_or_error)  # type: ignore
+
+                    if not isinstance(obj_or_error, models.ResumeCompetence):
+                        continue
+
+                    success, model_or_error = ResumeTools.add_competence_to_resume(request, resume, obj_or_error)
+                    if not success:
+                        return (False, model_or_error)  # type: ignore
+
+        # Courses
+        if courses_dict is not None:
+            resume.courses.clear()
+            resume.save()
+
+            courses = courses_dict.get("value", None)
+
+            if courses is not None and isinstance(courses, list):
+                for course in courses:
+                    course_obj = ResumeTools.get_course_obj(request, course)
+                    if course_obj is None:
+                        continue
+
+                    success, obj_or_error = course_obj
+                    if not success:
+                        return (False, obj_or_error)  # type: ignore
+
+                    if not isinstance(obj_or_error, models.ResumeCourse):
+                        continue
+
+                    success, model_or_error = ResumeTools.add_course_to_resume(request, resume, obj_or_error)
+                    if not success:
+                        return (False, model_or_error)  # type: ignore
+
+        # References
+        if references_dict is not None:
+            resume.references.clear()
+            resume.save()
+
+            references = references_dict.get("value", None)
+
+            if references is not None and isinstance(references, list):
+                for reference in references:
+                    reference_obj = ResumeTools.get_reference_obj(request, reference)
+                    if reference_obj is None:
+                        continue
+
+                    success, obj_or_error = reference_obj
+                    if not success:
+                        return (False, obj_or_error)  # type: ignore
+
+                    if not isinstance(obj_or_error, models.ResumeReference):
+                        continue
+
+                    success, model_or_error = ResumeTools.add_reference_to_resume(request, resume, obj_or_error)
+                    if not success:
+                        return (False, model_or_error)  # type: ignore
+
+        # Graduations
+        if graduations_dict is not None:
+            resume.graduations.clear()
+            resume.save()
+
+            graduations = graduations_dict.get("value", None)
+
+            if graduations is not None and isinstance(graduations, list):
+                for graduation in graduations:
+                    graduation_obj = ResumeTools.get_graduation_obj(request, graduation)
+                    if graduation_obj is None:
+                        continue
+
+                    success, obj_or_error = graduation_obj
+                    if not success:
+                        return (False, obj_or_error)  # type: ignore
+
+                    if not isinstance(obj_or_error, models.ResumeGraduation):
+                        continue
+
+                    success, model_or_error = ResumeTools.add_graduation_to_resume(request, resume, obj_or_error)
+                    if not success:
+                        return (False, model_or_error)  # type: ignore
+
+        # Projects
+        if projects_dict is not None:
+            resume.projects.clear()
+            resume.save()
+
+            projects = projects_dict.get("value", None)
+
+            if projects is not None and isinstance(projects, list):
+                for project in projects:
+                    project_obj = ResumeTools.get_project_obj(request, project)
+                    if project_obj is None:
+                        continue
+
+                    success, obj_or_error = project_obj
+                    if not success:
+                        return (False, obj_or_error)  # type: ignore
+
+                    if not isinstance(obj_or_error, models.ResumeProject):
+                        continue
+
+                    success, model_or_error = ResumeTools.add_project_to_resume(request, resume, obj_or_error)
+                    if not success:
+                        return (False, model_or_error)  # type: ignore
+
+        # Links
+        if links_dict is not None:
+            resume.links.clear()
+            resume.save()
+
+            links = links_dict.get("value", None)
+
+            if links is not None and isinstance(links, list):
+                for link in links:
+                    link_obj = ResumeTools.get_link_obj(request, link)
+                    if link_obj is None:
+                        continue
+
+                    success, obj_or_error = link_obj
+                    if not success:
+                        return (False, obj_or_error)  # type: ignore
+
+                    if not isinstance(obj_or_error, models.ResumeLink):
+                        continue
+
+                    success, model_or_error = ResumeTools.add_link_to_resume(request, resume, obj_or_error)
+                    if not success:
+                        return (False, model_or_error)  # type: ignore
+
+        resume.save()
+
+        return (True, resume)
 
     @staticmethod
     def delete_resume(request: HttpRequest, resume: models.ResumeModel):
@@ -2511,10 +2841,38 @@ class Resume(Base):
         return Response(data=response_data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
-        pass
+        success, object_or_error = ResumeTools.create_resume(request)
+        if not success:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, object_or_error)  # type: ignore
+
+        model_object: models.ResumeModel = object_or_error  # type: ignore
+
+        response_data = self.generate_basic_response_data(status.HTTP_201_CREATED,
+                                                          "Resume created")
+
+        serializer = serializers.ResumeModelSerializer(model_object, many=False)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_201_CREATED)
 
     def patch(self, request, *args, **kwargs):
-        pass
+        editing_object = ResumeTools.get_resume(request)
+
+        if not editing_object:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST,
+                                                self.not_found_resume_str)
+
+        success, object_or_error = ResumeTools.edit_resume(request, editing_object)
+        if not success:
+            return self.generate_basic_response(status.HTTP_400_BAD_REQUEST, object_or_error)  # type: ignore
+
+        model_object: models.ResumeModel = object_or_error  # type: ignore
+
+        response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                          "Resume Updated")
+
+        serializer = serializers.ResumeModelSerializer(model_object, many=False)
+        response_data['content'] = serializer.data
+        return Response(data=response_data, status=status.HTTP_200_OK)
 
     def delete(self, request, *args, **kwargs):
         resume_model = ResumeTools.get_resume(request)
@@ -2832,7 +3190,7 @@ class Experience(Base):
         model_object: models.ResumeExperience = object_or_error  # type: ignore
 
         response_data = self.generate_basic_response_data(status.HTTP_201_CREATED,
-                                                          " created")
+                                                          "Experience created")
 
         serializer = serializers.ExperienceSerializer(model_object, many=False)
         response_data['content'] = serializer.data

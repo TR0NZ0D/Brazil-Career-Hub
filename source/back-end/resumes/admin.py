@@ -32,11 +32,11 @@ class ResumeCoursesAdmin(admin.ModelAdmin):
 
 class ResumeReferencesAdmin(admin.ModelAdmin):
     list_display = ("pk", "profile", "title", "reference_name", "reference_role",
-                    "reference_company", "reference_phone", "refecence_email")
+                    "reference_company", "reference_phone", "reference_email")
     list_display_links = ("pk", "profile")
     list_per_page = 50
     search_fields = ('description', "reference_name", "reference_role",
-                     "reference_company", "reference_phone", "refecence_email")
+                     "reference_company", "reference_phone", "reference_email")
 
 
 class ResumeGraduationAdmin(admin.ModelAdmin):
