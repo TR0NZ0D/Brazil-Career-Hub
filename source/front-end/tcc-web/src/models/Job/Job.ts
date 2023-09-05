@@ -6,4 +6,5 @@ export type Job = {
   modality: "remote" | "onsite";
   salary: number | undefined;
   address?: CompanyAddress | null;
+  companyId?: number;
 }

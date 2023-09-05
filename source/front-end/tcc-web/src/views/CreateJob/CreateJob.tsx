@@ -15,10 +15,11 @@ import { useContext, useState } from 'react';
 import { createJob } from 'api/job/job-requests';
 import { Job } from 'models/Job/Job';
 import { AuthContext } from 'contexts/AuthContext';
+import CompanyProfile from 'models/Company/CompanyProfile';
 
 const CreateJob = () => {
 
-  const { adminToken } = useContext(AuthContext);
+  const { adminToken, entityLogged } = useContext(AuthContext);
 
   const [role, setRole] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -33,12 +34,14 @@ const CreateJob = () => {
     e.preventDefault();
 
     try {
+      const entity = entityLogged as CompanyProfile;
       let jobData: Job = {
         role,
         description,
         modality,
         salary,
-        address: null
+        address: null,
+        companyId: entity.id
       }
 
       if (modality === "onsite") {

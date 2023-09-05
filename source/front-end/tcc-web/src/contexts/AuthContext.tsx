@@ -41,6 +41,14 @@ export const AuthContextProvider = ({ children }: ProviderProps) => {
     getData();
   }, []);
 
+  useEffect(() => {
+    const entityOnStorage = localStorage.getItem("entity-logged");
+    if (entityOnStorage !== null) {
+      const entity = JSON.parse(entityOnStorage);
+      setEntityLogged(entity);
+    }
+  })
+
   async function userLogin(username: string, pass: string): Promise<UserProfile | undefined> {
     let user: UserProfile | undefined;
     try {
