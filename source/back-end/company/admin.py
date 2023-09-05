@@ -11,9 +11,9 @@ from . import models
 
 class CompanyAccountAdmin(admin.ModelAdmin):
     """Admin model for company account"""
-    list_display = ("cnpj", 'slug', 'registration_status', 'cnae', 'legal_nature', "deactivated",
+    list_display = ("pk", "cnpj", 'slug', 'registration_status', 'cnae', 'legal_nature', "deactivated",
                     "should_change_password", "banned")
-    list_display_links = ("cnpj", 'slug')
+    list_display_links = ("pk", "cnpj", 'slug')
     list_per_page = 50
     list_filter = ('registration_status', 'legal_nature', "deactivated", "should_change_password", "banned")
     search_fields = ('corporate_name', 'fantasy_name', 'cnae')
