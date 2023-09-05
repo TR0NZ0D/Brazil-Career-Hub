@@ -13,6 +13,7 @@ from . import models
 from users.models import UserProfile
 from typing import Any
 from datetime import datetime
+from datetime import date as datetime_date
 
 
 # ========== Generics ========== #
@@ -25,7 +26,7 @@ class ResumeTools:
 
         if date:
             try:
-                formatted_date = datetime.fromisoformat(date)
+                formatted_date = datetime_date.fromisoformat(date)
                 return formatted_date.isoformat() == date
             except ValueError:
                 return False
@@ -34,13 +35,13 @@ class ResumeTools:
 
     # ====== Generics ====== #
     @staticmethod
-    def convert_time(date: str) -> datetime | None:
+    def convert_time(date: str) -> datetime_date | None:
         if date and not isinstance(date, str):
             return None
 
         if date:
             try:
-                formatted_date = datetime.fromisoformat(date)
+                formatted_date = datetime_date.fromisoformat(date)
                 return formatted_date
             except ValueError:
                 return None
@@ -453,14 +454,14 @@ class ResumeTools:
             return generate_error_response("Experience start time shold be a string")
 
         if experience_start_time and not ResumeTools.validate_date(experience_start_time):
-            return generate_error_response("Experience start time should have an ISO date format")
+            return generate_error_response("Experience start time should have an ISO date format (yyyy-MM-dd)")
 
         # Experience end time validations
         if experience_end_time and not isinstance(experience_end_time, str):
             return generate_error_response("Experience end time should be a string")
 
         if experience_end_time and not ResumeTools.validate_date(experience_end_time):
-            return generate_error_response("Experience end time should have an ISO date format")
+            return generate_error_response("Experience end time should have an ISO date format (yyyy-MM-dd)")
 
         data = {
             "profile_pk": profile_pk,
@@ -630,14 +631,14 @@ class ResumeTools:
             return generate_error_response("Course start time should be a string")
 
         if course_start_time and not ResumeTools.validate_date(course_start_time):
-            return generate_error_response("Course start time should have an ISO date format")
+            return generate_error_response("Course start time should have an ISO date format (yyyy-MM-dd)")
 
         # Course end time validations
         if course_end_time and not isinstance(course_end_time, str):
             return generate_error_response("Course end time should be a string")
 
         if course_end_time and not ResumeTools.validate_date(course_end_time):
-            return generate_error_response("Course end time should have an ISO date format")
+            return generate_error_response("Course end time should have an ISO date format (yyyy-MM-dd)")
 
         data = {
             "profile_pk": profile_pk,
@@ -1190,7 +1191,7 @@ class ResumeTools:
 
     @staticmethod
     def edit_resume(request: HttpRequest, resume: models.ResumeModel) -> tuple[bool, str | models.ResumeModel]:
-        success, data_or_error = ResumeTools.get_resume_data(request, False)
+        success, data_or_error = ResumeTools.get_resume_data(request, True)
         if not success:
             return (False, data_or_error)  # type: ignore
 
@@ -2327,12 +2328,12 @@ class ResumeTools:
         if not profile:
             return (False, "Profile not found")
 
-        project = models.ResumeProject(profile=profile,
-                                       title=title,
-                                       description=description,
-                                       project_name=project_name,
-                                       project_description=project_description,
-                                       project_link=project_link)
+        project = models.ResumeProject.objects.create(profile=profile,
+                                                      title=title,
+                                                      description=description,
+                                                      project_name=project_name,
+                                                      project_description=project_description,
+                                                      project_link=project_link)
 
         return (True, project)
 
@@ -3056,14 +3057,14 @@ Inform experience PK if mentioning specific experience
                         location='form',
                         required=False,
                         schema=coreschema.String(),
-                        description="Experience start date (ISO format)"
+                        description="Experience start date (ISO format [yyyy-MM-dd])"
                     ),
                     coreapi.Field(
                         name="experience_end_time",
                         location='form',
                         required=False,
                         schema=coreschema.String(),
-                        description="Experience end date (ISO format)"
+                        description="Experience end date (ISO format [yyyy-MM-dd])"
                     )
                 ]
             case 'PATCH':
@@ -3122,14 +3123,14 @@ Inform experience PK if mentioning specific experience
                         location='form',
                         required=False,
                         schema=coreschema.String(),
-                        description="Experience start date (ISO format)"
+                        description="Experience start date (ISO format [yyyy-MM-dd])"
                     ),
                     coreapi.Field(
                         name="experience_end_time",
                         location='form',
                         required=False,
                         schema=coreschema.String(),
-                        description="Experience end date (ISO format)"
+                        description="Experience end date (ISO format [yyyy-MM-dd])"
                     )
                 ]
             case 'DELETE':
@@ -3705,14 +3706,14 @@ Inform course PK if mentioning specific course
                         location='form',
                         required=False,
                         schema=coreschema.String(),
-                        description="Course start date (ISO format)"
+                        description="Course start date (ISO format [yyyy-MM-dd])"
                     ),
                     coreapi.Field(
                         name="course_end_time",
                         location='form',
                         required=False,
                         schema=coreschema.String(),
-                        description="Course end date (ISO format)"
+                        description="Course end date (ISO format [yyyy-MM-dd])"
                     )
                 ]
             case 'PATCH':
@@ -3778,14 +3779,14 @@ Inform course PK if mentioning specific course
                         location='form',
                         required=False,
                         schema=coreschema.String(),
-                        description="Course start date (ISO format)"
+                        description="Course start date (ISO format [yyyy-MM-dd])"
                     ),
                     coreapi.Field(
                         name="course_end_time",
                         location='form',
                         required=False,
                         schema=coreschema.String(),
-                        description="Course end date (ISO format)"
+                        description="Course end date (ISO format [yyyy-MM-dd])"
                     )
                 ]
             case 'DELETE':
@@ -4389,14 +4390,14 @@ Inform graduation PK if mentioning specific graduation
                         location='form',
                         required=False,
                         schema=coreschema.String(),
-                        description="Graduation start date (ISO format)"
+                        description="Graduation start date (ISO format [yyyy-MM-dd])"
                     ),
                     coreapi.Field(
                         name="graduation_end_time",
                         location='form',
                         required=False,
                         schema=coreschema.String(),
-                        description="Graduation end date (ISO format)"
+                        description="Graduation end date (ISO format [yyyy-MM-dd])"
                     )
                 ]
             case 'PATCH':
@@ -4448,14 +4449,14 @@ Inform graduation PK if mentioning specific graduation
                         location='form',
                         required=False,
                         schema=coreschema.String(),
-                        description="Graduation start date (ISO format)"
+                        description="Graduation start date (ISO format [yyyy-MM-dd])"
                     ),
                     coreapi.Field(
                         name="graduation_end_time",
                         location='form',
                         required=False,
                         schema=coreschema.String(),
-                        description="Graduation end date (ISO format)"
+                        description="Graduation end date (ISO format [yyyy-MM-dd])"
                     )
                 ]
             case 'DELETE':
