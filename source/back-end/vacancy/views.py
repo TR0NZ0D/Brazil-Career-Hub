@@ -11,6 +11,9 @@ from api.views import Base
 from .serializers import VacancyModelSerializer
 from . import models
 
+from company.models import CompanyProfileModel
+from resumes.models import ResumeModel
+
 
 # =================== Vacancy =================== #
 class VacancySchema(AutoSchema):
@@ -25,6 +28,7 @@ class VacancySchema(AutoSchema):
 ## Query Parameters
 
 Inform PK if mentioning specific vacancy
+Inform company_pk to get all vacancies from that company (company account ID)
 
 """
 
@@ -34,6 +38,10 @@ Inform PK if mentioning specific vacancy
                     "200": {
                         'description': 'OK',
                         'reason': 'Vacancy found'
+                    },
+                    "204": {
+                        'description': 'NO CONTENT',
+                        'reason': 'No vacancies found for the specific company'
                     },
                     "404": {
                         'description': 'NOT FOUND',
@@ -65,7 +73,7 @@ Inform PK if mentioning specific vacancy
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy ID not found'
+                        'reason': 'Vacancy ID or Resume ID not found'
                     },
                     "400": {
                         'description': "BAD REQUEST",
@@ -103,10 +111,24 @@ Inform PK if mentioning specific vacancy
                         required=False,
                         schema=coreschema.Integer(minimum=1),
                         description="Vacancy ID"
+                    ),
+                    coreapi.Field(
+                        name="company_pk",
+                        location="query",
+                        required=False,
+                        schema=coreschema.Integer(minimum=1),
+                        description="Company account ID (all vacancies)"
                     )
                 ]
             case 'POST':
                 return [
+                    coreapi.Field(
+                        name="created_by",
+                        location="form",
+                        required=True,
+                        schema=coreschema.Integer(),
+                        description="Company account ID"
+                    ),
                     coreapi.Field(
                         name="role",
                         location="form",
@@ -153,6 +175,13 @@ Inform PK if mentioning specific vacancy
                         description="Vacancy ID"
                     ),
                     coreapi.Field(
+                        name="created_by",
+                        location="form",
+                        required=False,
+                        schema=coreschema.Integer(),
+                        description="Company account ID"
+                    ),
+                    coreapi.Field(
                         name="role",
                         location="form",
                         required=False,
@@ -186,6 +215,13 @@ Inform PK if mentioning specific vacancy
                         required=False,
                         schema=coreschema.Array(coreschema.String(255)),
                         description="Vacancy address (JSON should contain two strings and an integer)"
+                    ),
+                    coreapi.Field(
+                        name="resumes",
+                        location='form',
+                        required=False,
+                        schema=coreschema.Array(coreschema.Integer()),
+                        description="Vacancy resumes PK (add or remove resume)"
                     )
                 ]
             case 'DELETE':
@@ -212,12 +248,32 @@ class Vacancy(Base):
         def generate_error_response(text: str):
             return (False, self.generate_basic_response(status.HTTP_400_BAD_REQUEST, text))
         # Required
+        created_by = request.data.get("created_by", None)
         role = request.data.get("role", None)
         description = request.data.get("description", None)
         modality = request.data.get("modality", None)
         salary = request.data.get("salary", None)
         # Optionals
         address = request.data.get("address", None)
+        resumes = request.data.get("resumes", None)
+
+        # Company account validations
+        if created_by is None and not bypass_required:
+            return generate_error_response("Company ID is required")
+
+        if created_by and not isinstance(created_by, int):
+            return generate_error_response("created_by should be an integer (Company account ID)")
+
+        if created_by:
+            try:
+                company_pk = int(created_by)
+                company = CompanyProfileModel.objects.filter(company_account__pk=company_pk).first()
+                if company is None:
+                    return generate_error_response(f"Company with PK {company_pk} not found")
+            except Exception as e:
+                return generate_error_response(f"Invalid account ID: {e}")
+        else:
+            company = None
 
         # Role validations
         if role is None and not bypass_required:
@@ -257,18 +313,42 @@ class Vacancy(Base):
             return generate_error_response("Salary should be a positive integer")
 
         # Address validations
-        if not isinstance(address, dict):
+        if address and not isinstance(address, dict):
             return generate_error_response("Could not parse address JSON: address is not a json-like object")
 
         if address and (not address.get("title") or not address.get("address") or not address.get("number")):
             return generate_error_response("Could not parse address JSON: missing required address fields")
 
+        # Resumes validations
+        if resumes and not isinstance(resumes, list):
+            return generate_error_response("Resumes should be an array")
+
+        if resumes:
+            resume_array: list[ResumeModel] = []
+            for resume in resumes:
+                if not isinstance(resume, int):
+                    try:
+                        return generate_error_response(f"Resume pk {resume} in index {resumes.index(resume)} should be an integer")
+                    except Exception:
+                        return generate_error_response("Resume array is invalid")
+
+                res_obj = ResumeModel.objects.filter(pk=resume).first()
+
+                if res_obj is None:
+                    return generate_error_response(f"Resume pk {resume} in index {resumes.index(resume)} could not be found")
+
+                resume_array.append(res_obj)
+        else:
+            resume_array: list[ResumeModel] = []
+
         data = {
+            "created_by": company,
             "role": role,
             "description": description,
             "modality": modality,
             "salary": salary,
-            "address": address
+            "address": address,
+            "resumes": resume_array
         }
 
         return (True, data)
@@ -289,6 +369,21 @@ class Vacancy(Base):
 
             return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_vacancy_str)
 
+        company_pk = request.query_params.get('company_pk', None)
+
+        if company_pk:
+            company_vacancies = models.VacancyModel.objects.filter(created_by__pk=company_pk)
+
+            response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                              "Vacancies found")
+
+            if company_vacancies:
+                serializer = VacancyModelSerializer(company_vacancies, many=True)
+                response_data['content'] = serializer.data
+                return Response(data=response_data, status=status.HTTP_200_OK)
+
+            return self.generate_basic_response(status.HTTP_204_NO_CONTENT, "No vacancies found for this company")
+
         vacancies = models.VacancyModel.objects.all()
 
         response_data = self.generate_basic_response_data(status.HTTP_200_OK,
@@ -299,27 +394,31 @@ class Vacancy(Base):
             response_data['content'] = serializer.data
             return Response(data=response_data, status=status.HTTP_200_OK)
 
-        response_data['content'] = []
-        return Response(data=response_data, status=status.HTTP_200_OK)
+        return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_vacancy_str)
 
     def post(self, request):
         data_valid, data_or_response = self.handle_vacancy_data(request, False)
         if not data_valid:
             return data_or_response
         vacancy_data = data_or_response
+        created_by = vacancy_data.get("created_by", None)
         role = vacancy_data.get("role", "")
         description = vacancy_data.get("description", "")
         modality = vacancy_data.get("modality", "")
         salary = vacancy_data.get("salary", 0)
         address = vacancy_data.get("address", {})
 
-        address_model = models.VacancyAddress.objects.create(
-            title=address.get('title', ''),
-            address=address.get('address', ''),
-            number=address.get('number', 0)
-        )
+        if address:
+            address_model = models.VacancyAddress.objects.create(
+                title=address.get('title', ''),
+                address=address.get('address', ''),
+                number=address.get('number', 0)
+            )
+        else:
+            address_model = None
 
         vacancy = models.VacancyModel(
+            created_by=created_by.company_account,
             role=role,
             description=description,
             modality=modality,
@@ -353,6 +452,9 @@ class Vacancy(Base):
             return data_or_response
         vacancy_data = data_or_response
 
+        if vacancy_data.get("created_by", None):
+            created_by = vacancy_data.get("created_by", None)
+            vacancy.created_by = created_by
         if vacancy_data.get("role", None):
             role = vacancy_data.get("role", "")
             vacancy.role = role
@@ -373,6 +475,13 @@ class Vacancy(Base):
                 number=address.get('number', 0)
             )
             vacancy.address = address_model
+        if vacancy_data.get("resumes", None) is not None:
+            vacancy.resumes.clear()
+            vacancy.save()
+
+            resumes = vacancy_data.get("resumes", [])
+            for resume in resumes:
+                vacancy.resumes.add(resume)
 
         try:
             vacancy.clean_fields()

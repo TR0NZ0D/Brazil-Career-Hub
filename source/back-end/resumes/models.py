@@ -3,7 +3,7 @@ from django.db import models
 from users.models import UserProfile
 
 
-class ResumeExperiences(models.Model):
+class ResumeExperience(models.Model):
     profile = models.ForeignKey(UserProfile,
                                 verbose_name="Profile",
                                 on_delete=models.CASCADE)
@@ -39,7 +39,7 @@ class ResumeExperiences(models.Model):
         verbose_name_plural = 'Resume experiencies'
 
 
-class ResumeCompetences(models.Model):
+class ResumeCompetence(models.Model):
     profile = models.ForeignKey(UserProfile,
                                 verbose_name="Profile",
                                 on_delete=models.CASCADE)
@@ -48,22 +48,22 @@ class ResumeCompetences(models.Model):
                              max_length=255)
     description = models.TextField("Description",
                                    blank=True)
-    competency_name = models.CharField("Competency name",
+    competence_name = models.CharField("Competence name",
                                        blank=True,
                                        max_length=255)
-    competency_level = models.CharField("Competency level",
+    competence_level = models.CharField("Competence level",
                                         blank=True,
                                         max_length=255)
 
     def __str__(self) -> str:
-        return f"{self.profile.user.first_name}'s competency: {self.title}"  # type: ignore
+        return f"{self.profile.user.first_name}'s competence: {self.title}"  # type: ignore
 
     class Meta:
-        verbose_name = 'Resume competency'
+        verbose_name = 'Resume competence'
         verbose_name_plural = 'Resume competencies'
 
 
-class ResumeCourses(models.Model):
+class ResumeCourse(models.Model):
     profile = models.ForeignKey(UserProfile,
                                 verbose_name="Profile",
                                 on_delete=models.CASCADE)
@@ -103,7 +103,7 @@ class ResumeCourses(models.Model):
         verbose_name_plural = 'Resume courses'
 
 
-class ResumeReferences(models.Model):
+class ResumeReference(models.Model):
     profile = models.ForeignKey(UserProfile,
                                 verbose_name="Profile",
                                 on_delete=models.CASCADE)
@@ -124,7 +124,7 @@ class ResumeReferences(models.Model):
     reference_phone = models.CharField("Reference Phone",
                                        blank=True,
                                        max_length=255)
-    refecence_email = models.EmailField("Reference email",
+    reference_email = models.EmailField("Reference email",
                                         blank=True,
                                         max_length=255)
 
@@ -170,7 +170,7 @@ class ResumeGraduation(models.Model):
         verbose_name_plural = 'Resume graduations'
 
 
-class ResumeProjects(models.Model):
+class ResumeProject(models.Model):
     profile = models.ForeignKey(UserProfile,
                                 verbose_name="Profile",
                                 on_delete=models.CASCADE)
@@ -224,22 +224,22 @@ class ResumeModel(models.Model):
                              max_length=255)
     description = models.TextField("Description",
                                    blank=True)
-    experiences = models.ManyToManyField(ResumeExperiences,
+    experiences = models.ManyToManyField(ResumeExperience,
                                          blank=True,
                                          verbose_name="Experiences")
-    competences = models.ManyToManyField(ResumeCompetences,
-                                         blank=True,
-                                         verbose_name="Competences")
-    courses = models.ManyToManyField(ResumeCourses,
+    competencies = models.ManyToManyField(ResumeCompetence,
+                                          blank=True,
+                                          verbose_name="Competencies")
+    courses = models.ManyToManyField(ResumeCourse,
                                      blank=True,
                                      verbose_name="Courses")
-    references = models.ManyToManyField(ResumeReferences,
+    references = models.ManyToManyField(ResumeReference,
                                         blank=True,
                                         verbose_name="References")
     graduations = models.ManyToManyField(ResumeGraduation,
                                          blank=True,
                                          verbose_name="Graduations")
-    projects = models.ManyToManyField(ResumeProjects,
+    projects = models.ManyToManyField(ResumeProject,
                                       blank=True,
                                       verbose_name="Projects")
     links = models.ManyToManyField(ResumeLink,

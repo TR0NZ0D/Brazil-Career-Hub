@@ -13,11 +13,11 @@ class ResumeExperiencesAdmin(admin.ModelAdmin):
                      'experience_role', 'experience_description')
 
 
-class ResumeCompetencesAdmin(admin.ModelAdmin):
-    list_display = ("pk", "profile", "title", "competency_name", "competency_level")
+class ResumeCompetenciesAdmin(admin.ModelAdmin):
+    list_display = ("pk", "profile", "title", "competence_name", "competence_level")
     list_display_links = ("pk", "profile")
     list_per_page = 50
-    search_fields = ('description', "competency_name", "competency_level")
+    search_fields = ('description', "competence_name", "competence_level")
 
 
 class ResumeCoursesAdmin(admin.ModelAdmin):
@@ -32,11 +32,11 @@ class ResumeCoursesAdmin(admin.ModelAdmin):
 
 class ResumeReferencesAdmin(admin.ModelAdmin):
     list_display = ("pk", "profile", "title", "reference_name", "reference_role",
-                    "reference_company", "reference_phone", "refecence_email")
+                    "reference_company", "reference_phone", "reference_email")
     list_display_links = ("pk", "profile")
     list_per_page = 50
     search_fields = ('description', "reference_name", "reference_role",
-                     "reference_company", "reference_phone", "refecence_email")
+                     "reference_company", "reference_phone", "reference_email")
 
 
 class ResumeGraduationAdmin(admin.ModelAdmin):
@@ -70,11 +70,11 @@ class ResumeModelAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at",)
 
 
-admin.site.register(models.ResumeExperiences, ResumeExperiencesAdmin)
-admin.site.register(models.ResumeCompetences, ResumeCompetencesAdmin)
-admin.site.register(models.ResumeCourses, ResumeCoursesAdmin)
-admin.site.register(models.ResumeReferences, ResumeReferencesAdmin)
+admin.site.register(models.ResumeExperience, ResumeExperiencesAdmin)
+admin.site.register(models.ResumeCompetence, ResumeCompetenciesAdmin)
+admin.site.register(models.ResumeCourse, ResumeCoursesAdmin)
+admin.site.register(models.ResumeReference, ResumeReferencesAdmin)
 admin.site.register(models.ResumeGraduation, ResumeGraduationAdmin)
-admin.site.register(models.ResumeProjects, ResumeProjectsAdmin)
+admin.site.register(models.ResumeProject, ResumeProjectsAdmin)
 admin.site.register(models.ResumeLink, ResumeLinkAdmin)
 admin.site.register(models.ResumeModel, ResumeModelAdmin)

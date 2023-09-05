@@ -1,5 +1,7 @@
 from typing import Any
 from django.db import models
+from company.models import CompanyAccountModel
+from resumes.models import ResumeModel
 
 
 class VacancyAddress(models.Model):
@@ -29,6 +31,9 @@ class VacancyAddress(models.Model):
 
 
 class VacancyModel(models.Model):
+    created_by = models.ForeignKey(CompanyAccountModel,
+                                   verbose_name="Created by",
+                                   on_delete=models.CASCADE)
     role = models.CharField(verbose_name="Role", max_length=255)
     description = models.TextField(verbose_name="Description")
     modality = models.CharField(verbose_name="Modality", max_length=255)
@@ -41,6 +46,9 @@ class VacancyModel(models.Model):
                                 on_delete=models.SET_NULL,
                                 null=True,
                                 blank=True)
+    resumes = models.ManyToManyField(ResumeModel,
+                                     verbose_name="Resumes",
+                                     blank=True)
 
     def __str__(self) -> str:
         return self.role

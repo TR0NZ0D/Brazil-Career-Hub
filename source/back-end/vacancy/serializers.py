@@ -7,8 +7,11 @@ class VacancyModelSerializer(serializers.ModelSerializer):
     addresses = serializers.SerializerMethodField()
 
     def get_addresses(self, obj):
-        return obj.address.__getattribute__("serialize")
+        if obj.address:
+            return obj.address.__getattribute__("serialize")
+
+        return []
 
     class Meta:
         model = models.VacancyModel
-        fields = ["pk", "role", "description", "modality", "created_at", "salary", "addresses"]
+        fields = ["pk", "created_by", "role", "description", "modality", "created_at", "salary", "addresses", "resumes"]
