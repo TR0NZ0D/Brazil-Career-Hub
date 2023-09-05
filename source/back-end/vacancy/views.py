@@ -12,6 +12,7 @@ from .serializers import VacancyModelSerializer
 from . import models
 
 from company.models import CompanyProfileModel
+from resumes.models import ResumeModel
 
 
 # =================== Vacancy =================== #
@@ -72,7 +73,7 @@ Inform company_pk to get all vacancies from that company (company account ID)
                     },
                     "404": {
                         'description': 'NOT FOUND',
-                        'reason': 'Vacancy ID not found'
+                        'reason': 'Vacancy ID or Resume ID not found'
                     },
                     "400": {
                         'description': "BAD REQUEST",
@@ -214,6 +215,13 @@ Inform company_pk to get all vacancies from that company (company account ID)
                         required=False,
                         schema=coreschema.Array(coreschema.String(255)),
                         description="Vacancy address (JSON should contain two strings and an integer)"
+                    ),
+                    coreapi.Field(
+                        name="resumes",
+                        location='form',
+                        required=False,
+                        schema=coreschema.Array(coreschema.Integer()),
+                        description="Vacancy resumes PK (add or remove resume)"
                     )
                 ]
             case 'DELETE':
@@ -247,6 +255,7 @@ class Vacancy(Base):
         salary = request.data.get("salary", None)
         # Optionals
         address = request.data.get("address", None)
+        resumes = request.data.get("resumes", None)
 
         # Company account validations
         if created_by is None and not bypass_required:
@@ -255,13 +264,16 @@ class Vacancy(Base):
         if created_by and not isinstance(created_by, int):
             return generate_error_response("created_by should be an integer (Company account ID)")
 
-        try:
-            company_pk = int(created_by)
-            company = CompanyProfileModel.objects.filter(company_account__pk=company_pk).first()
-            if company is None:
-                return generate_error_response(f"Company with PK {company_pk} not found")
-        except Exception as e:
-            return generate_error_response(f"Invalid account ID: {e}")
+        if created_by:
+            try:
+                company_pk = int(created_by)
+                company = CompanyProfileModel.objects.filter(company_account__pk=company_pk).first()
+                if company is None:
+                    return generate_error_response(f"Company with PK {company_pk} not found")
+            except Exception as e:
+                return generate_error_response(f"Invalid account ID: {e}")
+        else:
+            company = None
 
         # Role validations
         if role is None and not bypass_required:
@@ -307,13 +319,36 @@ class Vacancy(Base):
         if address and (not address.get("title") or not address.get("address") or not address.get("number")):
             return generate_error_response("Could not parse address JSON: missing required address fields")
 
+        # Resumes validations
+        if resumes and not isinstance(resumes, list):
+            return generate_error_response("Resumes should be an array")
+
+        if resumes:
+            resume_array: list[ResumeModel] = []
+            for resume in resumes:
+                if not isinstance(resume, int):
+                    try:
+                        return generate_error_response(f"Resume pk {resume} in index {resumes.index(resume)} should be an integer")
+                    except Exception:
+                        return generate_error_response("Resume array is invalid")
+
+                res_obj = ResumeModel.objects.filter(pk=resume).first()
+
+                if res_obj is None:
+                    return generate_error_response(f"Resume pk {resume} in index {resumes.index(resume)} could not be found")
+
+                resume_array.append(res_obj)
+        else:
+            resume_array: list[ResumeModel] = []
+
         data = {
             "created_by": company,
             "role": role,
             "description": description,
             "modality": modality,
             "salary": salary,
-            "address": address
+            "address": address,
+            "resumes": resume_array
         }
 
         return (True, data)
@@ -373,11 +408,14 @@ class Vacancy(Base):
         salary = vacancy_data.get("salary", 0)
         address = vacancy_data.get("address", {})
 
-        address_model = models.VacancyAddress.objects.create(
-            title=address.get('title', ''),
-            address=address.get('address', ''),
-            number=address.get('number', 0)
-        )
+        if address:
+            address_model = models.VacancyAddress.objects.create(
+                title=address.get('title', ''),
+                address=address.get('address', ''),
+                number=address.get('number', 0)
+            )
+        else:
+            address_model = None
 
         vacancy = models.VacancyModel(
             created_by=created_by.company_account,
@@ -437,6 +475,13 @@ class Vacancy(Base):
                 number=address.get('number', 0)
             )
             vacancy.address = address_model
+        if vacancy_data.get("resumes", None) is not None:
+            vacancy.resumes.clear()
+            vacancy.save()
+
+            resumes = vacancy_data.get("resumes", [])
+            for resume in resumes:
+                vacancy.resumes.add(resume)
 
         try:
             vacancy.clean_fields()
