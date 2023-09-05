@@ -297,7 +297,7 @@ class Vacancy(Base):
             return generate_error_response("Salary should be a positive integer")
 
         # Address validations
-        if not isinstance(address, dict):
+        if address and not isinstance(address, dict):
             return generate_error_response("Could not parse address JSON: address is not a json-like object")
 
         if address and (not address.get("title") or not address.get("address") or not address.get("number")):
