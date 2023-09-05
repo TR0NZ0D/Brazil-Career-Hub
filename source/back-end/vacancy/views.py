@@ -38,6 +38,10 @@ Inform company_pk to get all vacancies from that company (company account ID)
                         'description': 'OK',
                         'reason': 'Vacancy found'
                     },
+                    "204": {
+                        'description': 'NO CONTENT',
+                        'reason': 'No vacancies found for the specific company'
+                    },
                     "404": {
                         'description': 'NOT FOUND',
                         'reason': 'Vacancy not found'
