@@ -1,6 +1,7 @@
 from typing import Any
 from django.db import models
 from company.models import CompanyAccountModel
+from resumes.models import ResumeModel
 
 
 class VacancyAddress(models.Model):
@@ -45,6 +46,9 @@ class VacancyModel(models.Model):
                                 on_delete=models.SET_NULL,
                                 null=True,
                                 blank=True)
+    resumes = models.ManyToManyField(ResumeModel,
+                                     verbose_name="Resumes",
+                                     blank=True)
 
     def __str__(self) -> str:
         return self.role
