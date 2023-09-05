@@ -10,8 +10,8 @@ class VacancyAddressAdmin(admin.ModelAdmin):
 
 
 class VacancyAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'role', 'description', 'modality', 'created_at', 'salary')
-    list_display_links = ('pk', 'role')
+    list_display = ('pk', 'created_by', 'role', 'description', 'modality', 'created_at', 'salary')
+    list_display_links = ('pk', 'created_by')
     list_per_page = 35
     list_filter = ('created_at',)
     search_fields = ('role', 'description', 'modality')

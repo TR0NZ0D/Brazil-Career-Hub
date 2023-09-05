@@ -1,5 +1,6 @@
 from typing import Any
 from django.db import models
+from company.models import CompanyAccountModel
 
 
 class VacancyAddress(models.Model):
@@ -29,6 +30,9 @@ class VacancyAddress(models.Model):
 
 
 class VacancyModel(models.Model):
+    created_by = models.ForeignKey(CompanyAccountModel,
+                                   verbose_name="Created by",
+                                   on_delete=models.CASCADE)
     role = models.CharField(verbose_name="Role", max_length=255)
     description = models.TextField(verbose_name="Description")
     modality = models.CharField(verbose_name="Modality", max_length=255)

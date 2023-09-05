@@ -11,6 +11,8 @@ from api.views import Base
 from .serializers import VacancyModelSerializer
 from . import models
 
+from company.models import CompanyProfileModel
+
 
 # =================== Vacancy =================== #
 class VacancySchema(AutoSchema):
@@ -25,6 +27,7 @@ class VacancySchema(AutoSchema):
 ## Query Parameters
 
 Inform PK if mentioning specific vacancy
+Inform company_pk to get all vacancies from that company (company account ID)
 
 """
 
@@ -103,10 +106,24 @@ Inform PK if mentioning specific vacancy
                         required=False,
                         schema=coreschema.Integer(minimum=1),
                         description="Vacancy ID"
+                    ),
+                    coreapi.Field(
+                        name="company_pk",
+                        location="query",
+                        required=False,
+                        schema=coreschema.Integer(minimum=1),
+                        description="Company account ID (all vacancies)"
                     )
                 ]
             case 'POST':
                 return [
+                    coreapi.Field(
+                        name="created_by",
+                        location="form",
+                        required=True,
+                        schema=coreschema.Integer(),
+                        description="Company account ID"
+                    ),
                     coreapi.Field(
                         name="role",
                         location="form",
@@ -151,6 +168,13 @@ Inform PK if mentioning specific vacancy
                         required=True,
                         schema=coreschema.Integer(minimum=1),
                         description="Vacancy ID"
+                    ),
+                    coreapi.Field(
+                        name="created_by",
+                        location="form",
+                        required=False,
+                        schema=coreschema.Integer(),
+                        description="Company account ID"
                     ),
                     coreapi.Field(
                         name="role",
@@ -212,12 +236,28 @@ class Vacancy(Base):
         def generate_error_response(text: str):
             return (False, self.generate_basic_response(status.HTTP_400_BAD_REQUEST, text))
         # Required
+        created_by = request.data.get("created_by", None)
         role = request.data.get("role", None)
         description = request.data.get("description", None)
         modality = request.data.get("modality", None)
         salary = request.data.get("salary", None)
         # Optionals
         address = request.data.get("address", None)
+
+        # Company account validations
+        if created_by is None and not bypass_required:
+            return generate_error_response("Company ID is required")
+
+        if created_by and not isinstance(created_by, int):
+            return generate_error_response("created_by should be an integer (Company account ID)")
+
+        try:
+            company_pk = int(created_by)
+            company = CompanyProfileModel.objects.filter(company_account__pk=company_pk).first()
+            if company is None:
+                return generate_error_response(f"Company with PK {company_pk} not found")
+        except Exception as e:
+            return generate_error_response(f"Invalid account ID: {e}")
 
         # Role validations
         if role is None and not bypass_required:
@@ -264,6 +304,7 @@ class Vacancy(Base):
             return generate_error_response("Could not parse address JSON: missing required address fields")
 
         data = {
+            "created_by": company,
             "role": role,
             "description": description,
             "modality": modality,
@@ -289,6 +330,21 @@ class Vacancy(Base):
 
             return self.generate_basic_response(status.HTTP_404_NOT_FOUND, self.not_found_vacancy_str)
 
+        company_pk = request.query_params.get('company_pk', None)
+
+        if company_pk:
+            company_vacancies = models.VacancyModel.objects.filter(created_by__pk=company_pk)
+
+            response_data = self.generate_basic_response_data(status.HTTP_200_OK,
+                                                              "Vacancies found")
+
+            if company_vacancies:
+                serializer = VacancyModelSerializer(company_vacancies, many=True)
+                response_data['content'] = serializer.data
+                return Response(data=response_data, status=status.HTTP_200_OK)
+
+            return self.generate_basic_response(status.HTTP_204_NO_CONTENT, "No vacancies found for this company")
+
         vacancies = models.VacancyModel.objects.all()
 
         response_data = self.generate_basic_response_data(status.HTTP_200_OK,
@@ -306,6 +362,7 @@ class Vacancy(Base):
         if not data_valid:
             return data_or_response
         vacancy_data = data_or_response
+        created_by = vacancy_data.get("created_by", None)
         role = vacancy_data.get("role", "")
         description = vacancy_data.get("description", "")
         modality = vacancy_data.get("modality", "")
@@ -319,6 +376,7 @@ class Vacancy(Base):
         )
 
         vacancy = models.VacancyModel(
+            created_by=created_by.company_account,
             role=role,
             description=description,
             modality=modality,
@@ -352,6 +410,9 @@ class Vacancy(Base):
             return data_or_response
         vacancy_data = data_or_response
 
+        if vacancy_data.get("created_by", None):
+            created_by = vacancy_data.get("created_by", None)
+            vacancy.created_by = created_by
         if vacancy_data.get("role", None):
             role = vacancy_data.get("role", "")
             vacancy.role = role
