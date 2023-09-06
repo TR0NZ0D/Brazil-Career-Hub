@@ -1,9 +1,9 @@
 import { ReactNode, createContext, useState, useEffect } from 'react';
 import { getToken } from 'api/admin/admin-requests';
-import CompanyProfile from 'models/Company/CompanyProfile';
 import UserProfile from 'models/User/UserProfile';
 import { loginUser } from 'api/users-requests/auth-requests';
 import { loginCompany } from 'api/company-requests/company-auth-requests';
+import { CompanyAuth } from 'models/Company/CompanyAuth';
 
 type ProviderProps = {
   children: ReactNode;
@@ -16,10 +16,10 @@ type AdminToken = {
 
 type AuthContextProps = {
   adminToken: string | undefined;
-  entityLogged: CompanyProfile | UserProfile | undefined;
+  entityLogged: CompanyAuth | UserProfile | undefined;
 
   userLogin: (username: string, pass: string) => Promise<UserProfile | undefined>;
-  companyLogin: (cnpj: string, pass: string) => Promise<CompanyProfile | undefined>;
+  companyLogin: (cnpj: string, pass: string) => Promise<CompanyAuth | undefined>;
 }
 
 export const AuthContext = createContext({} as AuthContextProps);
@@ -27,7 +27,7 @@ export const AuthContext = createContext({} as AuthContextProps);
 export const AuthContextProvider = ({ children }: ProviderProps) => {
 
   const [adminToken, setAdminToken] = useState<string | undefined>();
-  const [entityLogged, setEntityLogged] = useState<CompanyProfile | UserProfile>();
+  const [entityLogged, setEntityLogged] = useState<CompanyAuth | UserProfile>();
 
   useEffect(() => {
     function getData() {
@@ -40,6 +40,14 @@ export const AuthContextProvider = ({ children }: ProviderProps) => {
 
     getData();
   }, []);
+
+  useEffect(() => {
+    const entityOnStorage = localStorage.getItem("entity-logged");
+    if (entityOnStorage !== null) {
+      const entity = JSON.parse(entityOnStorage);
+      setEntityLogged(entity);
+    }
+  })
 
   async function userLogin(username: string, pass: string): Promise<UserProfile | undefined> {
     let user: UserProfile | undefined;
@@ -57,12 +65,12 @@ export const AuthContextProvider = ({ children }: ProviderProps) => {
     return user;
   }
 
-  async function companyLogin(cnpj: string, pass: string): Promise<CompanyProfile | undefined> {
-    let company: CompanyProfile | undefined;
+  async function companyLogin(cnpj: string, pass: string): Promise<CompanyAuth | undefined> {
+    let company: CompanyAuth | undefined;
     try {
       const response = await loginCompany(cnpj, pass, adminToken!);
       if (response.status === 200) {
-        company = response.data.content as CompanyProfile;
+        company = response.data.content as CompanyAuth;
       }
     } catch (error) {
       console.log(error);

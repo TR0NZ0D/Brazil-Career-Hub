@@ -1,0 +1,22 @@
+export type CompanyAuth = {
+  cnpj: string;
+  corporate_name: string;
+  registration_status_display: string;
+  fantasy_name: string;
+  cnae: number;
+  legal_nature_display: string;
+  slug: string;
+  id: number;
+  company_account: number;
+  addresses: [];
+  contact: string;
+  creation_date: string;
+  financial_capital: number;
+  employees: number;
+  site_url: string;
+  social_medias: [];
+  password: string;
+  deactivated: boolean;
+  should_change_password: boolean;
+  banned: boolean;
+};
