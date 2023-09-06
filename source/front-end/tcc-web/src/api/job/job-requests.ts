@@ -9,7 +9,12 @@ function createJobAccordingToAddress(job: Job): object {
       role: job.role,
       description: job.description,
       modality: job.modality,
-      salary: job.salary
+      salary: job.salary,
+      address: {
+        address: job.address.address,
+        title: job.address.title,
+        number: job.address.number
+      }
     }
   }
 

@@ -15,7 +15,8 @@ import { useContext, useState } from 'react';
 import { createJob } from 'api/job/job-requests';
 import { Job } from 'models/Job/Job';
 import { AuthContext } from 'contexts/AuthContext';
-import CompanyProfile from 'models/Company/CompanyProfile';
+import { CompanyAuth } from 'models/Company/CompanyAuth';
+import { useNavigate } from 'react-router-dom';
 
 const CreateJob = () => {
 
@@ -30,18 +31,20 @@ const CreateJob = () => {
   const [address, setAddress] = useState<string>("");
   const [addressNumber, setAddressNumber] = useState<number>(100);
 
+  const navigate = useNavigate();
+
   async function handleCreateJobSubmit(e: any) {
     e.preventDefault();
 
     try {
-      const entity = entityLogged as CompanyProfile;
+      const entity = entityLogged as CompanyAuth;
       let jobData: Job = {
         role,
         description,
         modality,
         salary,
         address: null,
-        companyId: entity.id
+        companyId: entity.company_account
       }
 
       if (modality === "onsite") {
@@ -52,8 +55,10 @@ const CreateJob = () => {
         }
       }
       await createJob(jobData, adminToken!);
+      navigate("/");
     } catch (error) {
       console.log(error);
+      alert("An error happened while creating this job");
     }
   }
 
