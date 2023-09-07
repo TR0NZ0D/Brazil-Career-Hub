@@ -7,4 +7,5 @@ export type Job = {
   salary: number | undefined;
   address?: CompanyAddress | null;
   companyId?: number;
+  resumes?: [];
 }

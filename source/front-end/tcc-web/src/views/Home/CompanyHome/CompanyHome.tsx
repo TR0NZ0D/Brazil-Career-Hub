@@ -1,14 +1,35 @@
 import { Button, Container, Grid, Typography } from '@mui/material';
-import React, { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import WorkIcon from '@mui/icons-material/Work';
 import { HomeContainer } from './styles';
 import { useNavigate } from 'react-router-dom';
+import useAuthenticated from 'hooks/useAuthenticated';
+import { AuthContext } from 'contexts/AuthContext';
+import { getCompanyJobs } from 'api/job/job-requests';
+import { CompanyAuth } from 'models/Company/CompanyAuth';
+import { Job } from 'models/Job/Job';
 
 const CompanyHome = () => {
+  useAuthenticated("company");
+  const [vacancies, setVacancies] = useState<Job[]>([]);
 
-  const [vacancies, setVacancies] = useState([]);
+  const { entityLogged, adminToken } = useContext(AuthContext);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const company = entityLogged as CompanyAuth;
+    const fetchJobs = async () => {
+      try {
+        const result = await getCompanyJobs(company.company_account!, adminToken!);
+        setVacancies(result.data.content);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    fetchJobs();
+  }, [adminToken]);
 
   return (
     <HomeContainer>
@@ -40,7 +61,10 @@ const CompanyHome = () => {
             </Grid>
 
             <Grid item lg={4}>
-              <div>Hello world</div>
+              <Container>
+                <Typography gutterBottom>Total of jobs: 1</Typography>
+                <Typography gutterBottom>Total of jobs: 1</Typography>
+              </Container>
             </Grid>
           </Grid>
         </>}

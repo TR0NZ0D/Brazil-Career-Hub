@@ -17,6 +17,7 @@ type AdminToken = {
 type AuthContextProps = {
   adminToken: string | undefined;
   entityLogged: CompanyAuth | UserProfile | undefined;
+  entityType: "company" | "user" | undefined;
 
   userLogin: (username: string, pass: string) => Promise<UserProfile | undefined>;
   companyLogin: (cnpj: string, pass: string) => Promise<CompanyAuth | undefined>;
@@ -28,6 +29,7 @@ export const AuthContextProvider = ({ children }: ProviderProps) => {
 
   const [adminToken, setAdminToken] = useState<string | undefined>();
   const [entityLogged, setEntityLogged] = useState<CompanyAuth | UserProfile>();
+  const [entityType, setEntityType] = useState<"company" | "user" | undefined>();
 
   useEffect(() => {
     function getData() {
@@ -46,8 +48,13 @@ export const AuthContextProvider = ({ children }: ProviderProps) => {
     if (entityOnStorage !== null) {
       const entity = JSON.parse(entityOnStorage);
       setEntityLogged(entity);
+
+      if (entity.cnpj !== undefined)
+        setEntityType("company");
+      else
+        setEntityType("user");
     }
-  })
+  }, [])
 
   async function userLogin(username: string, pass: string): Promise<UserProfile | undefined> {
     let user: UserProfile | undefined;
@@ -86,6 +93,7 @@ export const AuthContextProvider = ({ children }: ProviderProps) => {
       // states
       adminToken,
       entityLogged,
+      entityType,
 
       // methods
       userLogin,
