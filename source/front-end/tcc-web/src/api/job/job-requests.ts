@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { baseUrl } from '../../constants';
 import { Job } from 'models/Job/Job';
 
@@ -34,6 +34,18 @@ export async function createJob(job: Job, admToken: string) {
     method: "post",
     url: baseUrl + "/api/vacancy/",
     data: data,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + admToken
+    }
+  })
+}
+
+export async function getCompanyJobs(companyId: number, admToken: string): Promise<AxiosResponse> {
+  return await axios({
+    method: "get",
+    url: baseUrl + "/api/vacancy/",
+    params: { company_pk: companyId },
     headers: {
       "Content-Type": "application/json",
       "Authorization": "Bearer " + admToken

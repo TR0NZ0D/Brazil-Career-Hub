@@ -1,11 +1,20 @@
+import { AuthContext } from 'contexts/AuthContext';
+import { FC, useContext } from 'react';
+import CompanyHome from './CompanyHome/CompanyHome';
 import useAuthenticated from 'hooks/useAuthenticated';
-import { FC } from 'react';
 
 const Home: FC = () => {
-  useAuthenticated();
+  useAuthenticated("any");
+  const { entityType } = useContext(AuthContext);
 
   return (
-    <h2>Home page</h2>
+    <>
+      {entityType === "company" &&
+        <CompanyHome />}
+
+      {entityType === "user" &&
+        <h2>User home page</h2>}
+    </>
   );
 }
 
