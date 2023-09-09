@@ -2,6 +2,7 @@ import { AuthContext } from 'contexts/AuthContext';
 import { FC, useContext } from 'react';
 import CompanyHome from './CompanyHome/CompanyHome';
 import useAuthenticated from 'hooks/useAuthenticated';
+import UserHome from './UserHome/UserHome';
 
 const Home: FC = () => {
   useAuthenticated("any");
@@ -13,7 +14,7 @@ const Home: FC = () => {
         <CompanyHome />}
 
       {entityType === "user" &&
-        <h2>User home page</h2>}
+        <UserHome />}
     </>
   );
 }

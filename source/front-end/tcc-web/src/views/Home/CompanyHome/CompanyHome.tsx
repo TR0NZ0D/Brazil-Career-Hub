@@ -1,8 +1,5 @@
 import {
   Button,
-  Card,
-  CardActionArea,
-  CardContent,
   Container,
   Grid,
   Typography
@@ -16,7 +13,7 @@ import { AuthContext } from 'contexts/AuthContext';
 import { getCompanyJobs } from 'api/job/job-requests';
 import { CompanyAuth } from 'models/Company/CompanyAuth';
 import { Job } from 'models/Job/Job';
-import { cutText } from 'utilities/TextUtilities';
+import JobOverview from 'components/JobOverview/JobOverview';
 
 const CompanyHome = () => {
   useAuthenticated("company");
@@ -31,7 +28,10 @@ const CompanyHome = () => {
     const fetchJobs = async () => {
       try {
         const result = await getCompanyJobs(company.company_account!, adminToken!);
-        setVacancies(result.data.content);
+
+        if (result.status === 200) {
+          setVacancies(result.data.content);
+        }
       } catch (error) {
         console.log(error);
       }
@@ -67,22 +67,10 @@ const CompanyHome = () => {
               flexDirection="row"
               spacing={2}
             >
-              {vacancies.map(x => {
-                let body = x.description;
-                body = cutText(body, 250);
+              {vacancies.map((x, index) => {
                 return (
                   <Grid item lg={12}>
-                    <Card sx={{ maxWidth: 800 }}>
-                      <CardActionArea>
-                        <CardContent>
-                          <Grid container display="flex" justifyContent="space-between">
-                            <Typography variant="h6" gutterBottom>{x.role}</Typography>
-                            <Typography variant="body1" gutterBottom>Applicants: {x.resumes?.length}</Typography>
-                          </Grid>
-                          <Typography variant="body2">{body}</Typography>
-                        </CardContent>
-                      </CardActionArea>
-                    </Card>
+                    <JobOverview job={x} key={index} />
                   </Grid>
                 )
               })}
@@ -122,10 +110,7 @@ const CompanyHome = () => {
             </Grid>
 
             <Grid item lg={4}>
-              <Container>
-                <Typography gutterBottom>Total of jobs: 1</Typography>
-                <Typography gutterBottom>Total of jobs: 1</Typography>
-              </Container>
+              {/* Add job detail */}
             </Grid>
           </Grid>
         </>}

@@ -52,3 +52,14 @@ export async function getCompanyJobs(companyId: number, admToken: string): Promi
     }
   })
 }
+
+export async function getJobs(admToken: string): Promise<AxiosResponse> {
+  return await axios({
+    method: "get",
+    url: baseUrl + "/api/vacancy/",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + admToken
+    }
+  })
+}
