@@ -10,14 +10,22 @@ import { cutText } from 'utilities/TextUtilities';
 
 type Props = {
   job: Job;
+  onClick?: (job: Job) => any;
 }
 
-const JobOverview = ({ job }: Props) => {
+const JobOverview = ({ job, onClick }: Props) => {
+
+  function handleCardClick() {
+    if (onClick) {
+      onClick(job);
+    }
+  }
+
   let body = job.description;
   body = cutText(body, 250);
 
   return (
-    <Card sx={{ maxWidth: 800 }}>
+    <Card sx={{ maxWidth: 800 }} onClick={handleCardClick}>
       <CardActionArea>
         <CardContent>
           <Grid container display="flex" justifyContent="space-between">

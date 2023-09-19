@@ -1,5 +1,6 @@
-import { Container, Grid } from '@mui/material';
+import { Grid } from '@mui/material';
 import { getJobs } from 'api/job/job-requests';
+import JobContainerForApply from 'components/JobContainerForApply/JobContainerForApply';
 import JobOverview from 'components/JobOverview/JobOverview';
 import { AuthContext } from 'contexts/AuthContext';
 import useAuthenticated from 'hooks/useAuthenticated';
@@ -11,6 +12,11 @@ const UserHome = () => {
 
   const { adminToken } = useContext(AuthContext);
   const [vacancies, setVacancies] = useState<Job[]>([]);
+  const [jobDetail, setJobDetail] = useState<Job | undefined>();
+
+  function handleJobClick(index: number): void {
+    setJobDetail(vacancies[index]);
+  }
 
   useEffect(() => {
     const getData = async () => {
@@ -27,23 +33,24 @@ const UserHome = () => {
   }, [adminToken]);
 
   return (
-    <Container style={{ margin: "2% 3%" }}>
-      <Grid container display="flex">
-        <Grid container item lg={9} spacing={3}>
+    <Grid container display="flex" style={{ padding: "2% 3%" }}>
+      <Grid container item display="flex" justifyContent="space-between">
+        <Grid container item lg={5} spacing={1}>
           {vacancies.map((x, index) => {
             return (
               <Grid item lg={12}>
-                <JobOverview key={index} job={x} />
+                <JobOverview key={index} job={x} onClick={() => handleJobClick(index)} />
               </Grid>
             )
           })}
         </Grid>
 
-        <Grid item lg={3}>
-
+        <Grid item lg={6}>
+          {vacancies.length > 0 && jobDetail &&
+            <JobContainerForApply job={jobDetail} />}
         </Grid>
       </Grid>
-    </Container>
+    </Grid>
   )
 }
 
