@@ -1,4 +1,3 @@
-import Navbar from './components/Navbar/Navbar';
 import { ThemeProvider } from 'styled-components';
 import { theme } from './styles/theme';
 import { AuthContextProvider } from 'contexts/AuthContext';
@@ -12,7 +11,6 @@ function App() {
     <AuthContextProvider>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <ThemeProvider theme={theme}>
-          <Navbar />
           <RouterProvider router={router} />
         </ThemeProvider>
       </LocalizationProvider>

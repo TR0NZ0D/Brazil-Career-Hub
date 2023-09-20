@@ -21,6 +21,7 @@ type AuthContextProps = {
 
   userLogin: (username: string, pass: string) => Promise<UserProfile | undefined>;
   companyLogin: (cnpj: string, pass: string) => Promise<CompanyAuth | undefined>;
+  logout: () => void;
 }
 
 export const AuthContext = createContext({} as AuthContextProps);
@@ -88,6 +89,10 @@ export const AuthContextProvider = ({ children }: ProviderProps) => {
     return company;
   }
 
+  function logout(): void {
+    localStorage.removeItem("entity-logged");
+  }
+
   return (
     <AuthContext.Provider value={{
       // states
@@ -97,7 +102,8 @@ export const AuthContextProvider = ({ children }: ProviderProps) => {
 
       // methods
       userLogin,
-      companyLogin
+      companyLogin,
+      logout
     }}>
       {children}
     </AuthContext.Provider>

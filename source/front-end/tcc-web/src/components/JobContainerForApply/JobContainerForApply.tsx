@@ -10,6 +10,7 @@ const JobContainerForApply = ({ job }: Props) => {
   return (
     <JobDetailContainer>
       <Typography variant="h5" gutterBottom>{job.role}</Typography>
+      <Typography variant="body2" gutterBottom>{job.company_name}</Typography>
       <Typography variant="body2" gutterBottom>Number of applicants: {job.resumes?.length}</Typography>
       <Button variant="contained">Apply for this job</Button>
       <ContentBreaker />

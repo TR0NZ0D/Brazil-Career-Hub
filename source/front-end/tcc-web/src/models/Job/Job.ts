@@ -8,4 +8,6 @@ export type Job = {
   address?: CompanyAddress | null;
   companyId?: number;
   resumes?: [];
+  created_by?: number;
+  company_name?: string;
 }
