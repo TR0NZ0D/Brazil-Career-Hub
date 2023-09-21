@@ -6,8 +6,7 @@ import ArticleIcon from '@mui/icons-material/Article';
 import { MainGrid } from "./styles";
 import Experience from "models/Resume/Experience";
 import FieldSeparator from "components/FieldSeparator/FieldSeparator";
-import { DatePicker } from "@mui/x-date-pickers";
-import dayjs, { Dayjs } from 'dayjs';
+import ExperienceFields from "./ExperienceFields/ExperienceFields";
 
 const MyResumes = () => {
 
@@ -15,7 +14,7 @@ const MyResumes = () => {
   const [creating, setCreating] = useState<boolean>(true);
 
   const [title, setTitle] = useState<string>("");
-  const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [experiences, setExperiences] = useState<Experience[]>([{}]);
 
   function handleCreateResume(): void {
 
@@ -65,74 +64,10 @@ const MyResumes = () => {
                     <FieldSeparator margin={1} />
                   </Grid>
 
-                  <Grid item lg={12}>
-                    <Typography variant="h6" gutterBottom>Experiences</Typography>
-                  </Grid>
+                  <ExperienceFields
+                    experiences={experiences}
+                    setExperiences={setExperiences} />
 
-                  <Grid item lg={6}>
-                    <TextField
-                      required
-                      id="role"
-                      label="Role"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      fullWidth
-                    />
-                  </Grid>
-
-                  <Grid item lg={6}>
-                    <TextField
-                      required
-                      id="company"
-                      label="Company"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      fullWidth
-                    />
-                  </Grid>
-
-                  <Grid item lg={12}>
-                    <TextField
-                      required
-                      id="description"
-                      label="Description"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      fullWidth
-                      multiline
-                      rows={10}
-                    />
-                  </Grid>
-
-                  <Grid item lg={6}>
-                    <DatePicker
-                      label="Start date"
-                      maxDate={dayjs(new Date())}
-                      slotProps={{
-                        textField: {
-                          required: true,
-                          fullWidth: true
-                        }
-                      }}
-                    />
-                  </Grid>
-
-                  <Grid item lg={6}>
-                    <DatePicker
-                      label="End date"
-                      maxDate={dayjs(new Date())}
-                      slotProps={{
-                        textField: {
-                          required: true,
-                          fullWidth: true
-                        }
-                      }}
-                    />
-                  </Grid>
-
-                  <Grid container item display="flex" justifyContent="flex-end" lg={12}>
-                    <Button variant="contained">Add experience</Button>
-                  </Grid>
                 </Grid>
               </form>
             </Container>

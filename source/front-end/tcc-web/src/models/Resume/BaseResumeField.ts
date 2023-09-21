@@ -1,5 +1,5 @@
 type BaseResumeField = {
-  profile_pk: string;
+  profile_pk?: string;
 }
 
 export default BaseResumeField;
