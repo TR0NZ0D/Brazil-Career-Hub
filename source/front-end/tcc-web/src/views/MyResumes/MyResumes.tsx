@@ -7,6 +7,8 @@ import { MainGrid } from "./styles";
 import Experience from "models/Resume/Experience";
 import FieldSeparator from "components/FieldSeparator/FieldSeparator";
 import ExperienceFields from "./ExperienceFields/ExperienceFields";
+import CompetenceFields from "./CompetenceFields/CompetenceFields";
+import Competence from "models/Resume/Competence";
 
 const MyResumes = () => {
 
@@ -15,6 +17,7 @@ const MyResumes = () => {
 
   const [title, setTitle] = useState<string>("");
   const [experiences, setExperiences] = useState<Experience[]>([{}]);
+  const [competences, setCompetences] = useState<Competence[]>([{}])
 
   function handleCreateResume(): void {
 
@@ -67,6 +70,14 @@ const MyResumes = () => {
                   <ExperienceFields
                     experiences={experiences}
                     setExperiences={setExperiences} />
+
+                  <Grid item lg={12}>
+                    <FieldSeparator margin={1} />
+                  </Grid>
+
+                  <CompetenceFields
+                    competences={competences}
+                    setCompetences={setCompetences} />
 
                 </Grid>
               </form>
