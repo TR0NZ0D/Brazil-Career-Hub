@@ -9,6 +9,8 @@ import FieldSeparator from "components/FieldSeparator/FieldSeparator";
 import ExperienceFields from "./ExperienceFields/ExperienceFields";
 import CompetenceFields from "./CompetenceFields/CompetenceFields";
 import Competence from "models/Resume/Competence";
+import GraduationFields from "./GraduationFields/GraduationFields";
+import Graduation from "models/Resume/Graduation";
 
 const MyResumes = () => {
 
@@ -17,7 +19,8 @@ const MyResumes = () => {
 
   const [title, setTitle] = useState<string>("");
   const [experiences, setExperiences] = useState<Experience[]>([{}]);
-  const [competences, setCompetences] = useState<Competence[]>([{}])
+  const [competences, setCompetences] = useState<Competence[]>([{}]);
+  const [graduations, setGraduations] = useState<Graduation[]>([{}]);
 
   function handleCreateResume(): void {
 
@@ -78,6 +81,10 @@ const MyResumes = () => {
                   <CompetenceFields
                     competences={competences}
                     setCompetences={setCompetences} />
+
+                  <GraduationFields
+                    graduations={graduations}
+                    setGraduations={setGraduations} />
 
                 </Grid>
               </form>
