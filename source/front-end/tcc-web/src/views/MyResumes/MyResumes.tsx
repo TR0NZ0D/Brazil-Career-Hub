@@ -11,6 +11,8 @@ import CompetenceFields from "./CompetenceFields/CompetenceFields";
 import Competence from "models/Resume/Competence";
 import GraduationFields from "./GraduationFields/GraduationFields";
 import Graduation from "models/Resume/Graduation";
+import LinkFields from "./LinkFields/LinkFields";
+import Link from "models/Resume/Link";
 
 const MyResumes = () => {
 
@@ -21,6 +23,7 @@ const MyResumes = () => {
   const [experiences, setExperiences] = useState<Experience[]>([{}]);
   const [competences, setCompetences] = useState<Competence[]>([{}]);
   const [graduations, setGraduations] = useState<Graduation[]>([{}]);
+  const [links, setLinks] = useState<Link[]>([{}]);
 
   function handleCreateResume(): void {
 
@@ -85,6 +88,10 @@ const MyResumes = () => {
                   <GraduationFields
                     graduations={graduations}
                     setGraduations={setGraduations} />
+
+                  <LinkFields
+                    links={links}
+                    setLinks={setLinks} />
 
                 </Grid>
               </form>

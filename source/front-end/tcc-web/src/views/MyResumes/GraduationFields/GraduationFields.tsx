@@ -11,7 +11,7 @@ type Props = {
   setGraduations: (graduations: Graduation[]) => void;
 }
 
-const CompetenceFields = ({ graduations, setGraduations }: Props) => {
+const GraduationFields = ({ graduations, setGraduations }: Props) => {
 
   function handleGradiationTitleChange(val: string, index: number): void {
     let copy: Graduation[] = [...graduations];
@@ -64,7 +64,6 @@ const CompetenceFields = ({ graduations, setGraduations }: Props) => {
 
             <Grid item lg={6}>
               <TextField
-                required
                 id="title"
                 label="title"
                 variant="outlined"
@@ -76,7 +75,6 @@ const CompetenceFields = ({ graduations, setGraduations }: Props) => {
 
             <Grid item lg={6}>
               <TextField
-                required
                 id="type"
                 label="Graduation type"
                 variant="outlined"
@@ -92,7 +90,6 @@ const CompetenceFields = ({ graduations, setGraduations }: Props) => {
                 maxDate={dayjs(new Date())}
                 slotProps={{
                   textField: {
-                    required: true,
                     fullWidth: true
                   }
                 }}
@@ -106,7 +103,6 @@ const CompetenceFields = ({ graduations, setGraduations }: Props) => {
                 maxDate={dayjs(new Date())}
                 slotProps={{
                   textField: {
-                    required: true,
                     fullWidth: true
                   }
                 }}
@@ -127,4 +123,4 @@ const CompetenceFields = ({ graduations, setGraduations }: Props) => {
   )
 }
 
-export default CompetenceFields;
+export default GraduationFields;

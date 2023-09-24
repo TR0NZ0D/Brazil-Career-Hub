@@ -68,7 +68,6 @@ const ExperienceFields = ({ experiences, setExperiences }: Props) => {
 
             <Grid item lg={6}>
               <TextField
-                required
                 id="role"
                 label="Role"
                 variant="outlined"
@@ -80,7 +79,6 @@ const ExperienceFields = ({ experiences, setExperiences }: Props) => {
 
             <Grid item lg={6}>
               <TextField
-                required
                 id="company"
                 label="Company"
                 variant="outlined"
@@ -92,7 +90,6 @@ const ExperienceFields = ({ experiences, setExperiences }: Props) => {
 
             <Grid item lg={12}>
               <TextField
-                required
                 id="description"
                 label="Description"
                 variant="outlined"
@@ -110,7 +107,6 @@ const ExperienceFields = ({ experiences, setExperiences }: Props) => {
                 maxDate={dayjs(new Date())}
                 slotProps={{
                   textField: {
-                    required: true,
                     fullWidth: true
                   }
                 }}
@@ -124,7 +120,6 @@ const ExperienceFields = ({ experiences, setExperiences }: Props) => {
                 maxDate={dayjs(new Date())}
                 slotProps={{
                   textField: {
-                    required: true,
                     fullWidth: true
                   }
                 }}

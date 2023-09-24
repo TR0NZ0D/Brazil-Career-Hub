@@ -50,7 +50,6 @@ const CompetenceFields = ({ competences, setCompetences }: Props) => {
 
             <Grid item lg={6}>
               <TextField
-                required
                 id="name"
                 label="Name"
                 variant="outlined"
