@@ -1,8 +1,11 @@
-import { Grid, Typography, TextField, Button, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import {
+  Grid,
+  Typography,
+  TextField,
+  Button
+} from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
-import Competence from 'models/Resume/Competence';
-import Experience from 'models/Resume/Experience';
 import Graduation from 'models/Resume/Graduation';
 import { Fragment } from 'react';
 
@@ -65,7 +68,7 @@ const GraduationFields = ({ graduations, setGraduations }: Props) => {
             <Grid item lg={6}>
               <TextField
                 id="title"
-                label="title"
+                label="Title"
                 variant="outlined"
                 value={x.title}
                 onChange={(e) => handleGradiationTitleChange(e.target.value, index)}
@@ -114,10 +117,10 @@ const GraduationFields = ({ graduations, setGraduations }: Props) => {
         )
       })}
       <Grid container item display="flex" justifyContent="flex-end" alignItems="flex-end" lg={12}>
-        <Button variant="contained" onClick={handleAddGraduation}>Add experience</Button>
+        <Button variant="contained" onClick={handleAddGraduation}>Add graduation</Button>
 
         {graduations.length > 1 &&
-          <Button variant="outlined" onClick={handleDeleteGraduation} style={{ marginLeft: "2%" }}>Delete experience</Button>}
+          <Button variant="outlined" onClick={handleDeleteGraduation} style={{ marginLeft: "2%" }}>Delete graduation</Button>}
       </Grid>
     </>
   )

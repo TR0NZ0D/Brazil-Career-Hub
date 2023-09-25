@@ -1,7 +1,13 @@
-import { Button, Container, Grid, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  Container,
+  Grid,
+  TextField,
+  Typography
+} from "@mui/material";
 import Navbar from "components/Navbar/Navbar";
-import Resume from "models/Resume/Resume";
-import { useState } from "react";
+import Resume, { fillAllResumePropertiesWithProfilePk, formatResumeDates } from "models/Resume/Resume";
+import { useState, useContext } from "react";
 import ArticleIcon from '@mui/icons-material/Article';
 import { MainGrid } from "./styles";
 import Experience from "models/Resume/Experience";
@@ -13,11 +19,17 @@ import GraduationFields from "./GraduationFields/GraduationFields";
 import Graduation from "models/Resume/Graduation";
 import LinkFields from "./LinkFields/LinkFields";
 import Link from "models/Resume/Link";
+import { AuthContext } from "contexts/AuthContext";
+import { createResumeAsync } from "api/resume-requests/resume-requests";
+import UserLogged from "models/UserLogged/UserLogged";
 
 const MyResumes = () => {
 
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [creating, setCreating] = useState<boolean>(true);
+  const [selectedResume, setSelectedResume] = useState<Resume | undefined>();
+
+  const { entityLogged, adminToken } = useContext(AuthContext);
 
   const [title, setTitle] = useState<string>("");
   const [experiences, setExperiences] = useState<Experience[]>([{}]);
@@ -25,8 +37,32 @@ const MyResumes = () => {
   const [graduations, setGraduations] = useState<Graduation[]>([{}]);
   const [links, setLinks] = useState<Link[]>([{}]);
 
-  function handleCreateResume(): void {
+  async function handleCreateResume(e: any): Promise<void> {
+    e.preventDefault();
+    const entity = entityLogged as UserLogged;
+    const newResume: Resume = {
+      profile_pk: entity.tag,
+      title,
+      experiences,
+      competences,
+      graduations,
+      links
+    };
 
+    fillAllResumePropertiesWithProfilePk(newResume, entity.id.toString());
+    formatResumeDates(newResume);
+
+    try {
+      const response = await createResumeAsync(newResume, adminToken!);
+
+      if (response.status === 201) {
+        setSelectedResume(undefined);
+      }
+    }
+    catch (error) {
+      console.error(error);
+      alert("An error happened while creating this resume!");
+    }
   }
 
   return (
@@ -45,7 +81,10 @@ const MyResumes = () => {
             lg={5}>
             <ArticleIcon sx={{ fontSize: 110, color: "#3E89FA" }} />
             <Typography gutterBottom>Looks like you didn't create a resume yet</Typography>
-            <Button variant="contained" onClick={() => setCreating(true)}>Create resume</Button>
+            <Button variant="contained" onClick={() => {
+              setCreating(true);
+              setSelectedResume({ profile_pk: "1", title });
+            }}>Create resume</Button>
           </Grid>}
 
         <Grid container item display="flex" justifyContent="center" lg={7}>
@@ -93,6 +132,9 @@ const MyResumes = () => {
                     links={links}
                     setLinks={setLinks} />
 
+                  <Grid container item lg={12} display="flex" justifyContent="flex-end" style={{ marginTop: "5%" }}>
+                    <Button variant="contained" onClick={handleCreateResume}>Create resume</Button>
+                  </Grid>
                 </Grid>
               </form>
             </Container>

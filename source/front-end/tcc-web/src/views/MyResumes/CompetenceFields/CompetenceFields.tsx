@@ -82,10 +82,10 @@ const CompetenceFields = ({ competences, setCompetences }: Props) => {
         )
       })}
       <Grid container item display="flex" justifyContent="flex-end" alignItems="flex-end" lg={12}>
-        <Button variant="contained" onClick={handleAddCompetence}>Add experience</Button>
+        <Button variant="contained" onClick={handleAddCompetence}>Add competence</Button>
 
         {competences.length > 1 &&
-          <Button variant="outlined" onClick={handleDeleteCompetence} style={{ marginLeft: "2%" }}>Delete experience</Button>}
+          <Button variant="outlined" onClick={handleDeleteCompetence} style={{ marginLeft: "2%" }}>Delete competence</Button>}
       </Grid>
     </>
   )

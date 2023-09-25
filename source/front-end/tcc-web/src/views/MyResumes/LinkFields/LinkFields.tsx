@@ -86,7 +86,7 @@ const LinkFields = ({ links, setLinks }: Props) => {
                 variant="outlined"
                 multiline
                 rows={10}
-                value={x.url}
+                value={x.description}
                 onChange={(e) => handleLinkDescriptionChange(e.target.value, index)}
                 fullWidth
               />
@@ -96,10 +96,10 @@ const LinkFields = ({ links, setLinks }: Props) => {
         )
       })}
       <Grid container item display="flex" justifyContent="flex-end" alignItems="flex-end" lg={12}>
-        <Button variant="contained" onClick={handleAddGraduation}>Add experience</Button>
+        <Button variant="contained" onClick={handleAddGraduation}>Add link</Button>
 
         {links.length > 1 &&
-          <Button variant="outlined" onClick={handleDeleteGraduation} style={{ marginLeft: "2%" }}>Delete experience</Button>}
+          <Button variant="outlined" onClick={handleDeleteGraduation} style={{ marginLeft: "2%" }}>Delete link</Button>}
       </Grid>
     </>
   )
