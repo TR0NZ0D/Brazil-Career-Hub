@@ -9,17 +9,22 @@ class ResumeExperience(models.Model):
                                 on_delete=models.CASCADE)
     title = models.CharField("Title",
                              blank=True,
+                             null=True,
                              max_length=255)
     description = models.TextField("Description",
-                                   blank=True)
+                                   blank=True,
+                                   null=True)
     experience_company = models.CharField("Experience company",
                                           blank=True,
+                                          null=True,
                                           max_length=255)
     experience_role = models.CharField("Experience role",
                                        blank=True,
+                                       null=True,
                                        max_length=255)
     experience_description = models.TextField("Experience description",
-                                              blank=True)
+                                              blank=True,
+                                              null=True)
     experience_start_time = models.DateField("Experience start time",
                                              auto_now=False,
                                              auto_now_add=False,
@@ -45,14 +50,18 @@ class ResumeCompetence(models.Model):
                                 on_delete=models.CASCADE)
     title = models.CharField("Title",
                              blank=True,
+                             null=True,
                              max_length=255)
     description = models.TextField("Description",
-                                   blank=True)
+                                   blank=True,
+                                   null=True)
     competence_name = models.CharField("Competence name",
                                        blank=True,
+                                       null=True,
                                        max_length=255)
     competence_level = models.CharField("Competence level",
                                         blank=True,
+                                        null=True,
                                         max_length=255)
 
     def __str__(self) -> str:
@@ -69,20 +78,26 @@ class ResumeCourse(models.Model):
                                 on_delete=models.CASCADE)
     title = models.CharField("Title",
                              blank=True,
+                             null=True,
                              max_length=255)
     description = models.TextField("Description",
-                                   blank=True)
+                                   blank=True,
+                                   null=True)
     course_name = models.CharField("Course name",
                                    blank=True,
+                                   null=True,
                                    max_length=255)
     course_locale = models.CharField("Course locale",
                                      blank=True,
+                                     null=True,
                                      max_length=255)
     course_provider = models.CharField("Course provider",
                                        blank=True,
+                                       null=True,
                                        max_length=255)
     course_hours = models.CharField("Course hours",
                                     blank=True,
+                                    null=True,
                                     max_length=255)
     course_start_time = models.DateField("Course start time",
                                          auto_now=False,
@@ -109,23 +124,30 @@ class ResumeReference(models.Model):
                                 on_delete=models.CASCADE)
     title = models.CharField("Title",
                              blank=True,
+                             null=True,
                              max_length=255)
     description = models.TextField("Description",
-                                   blank=True)
+                                   blank=True,
+                                   null=True)
     reference_name = models.CharField("Reference name",
                                       blank=True,
+                                      null=True,
                                       max_length=255)
     reference_role = models.CharField("Reference role",
                                       blank=True,
+                                      null=True,
                                       max_length=255)
     reference_company = models.CharField("Reference company",
                                          blank=True,
+                                         null=True,
                                          max_length=255)
     reference_phone = models.CharField("Reference Phone",
                                        blank=True,
+                                       null=True,
                                        max_length=255)
     reference_email = models.EmailField("Reference email",
                                         blank=True,
+                                        null=True,
                                         max_length=255)
 
     def __str__(self) -> str:
@@ -142,14 +164,18 @@ class ResumeGraduation(models.Model):
                                 on_delete=models.CASCADE)
     title = models.CharField("Title",
                              blank=True,
+                             null=True,
                              max_length=255)
     description = models.TextField("Description",
-                                   blank=True)
+                                   blank=True,
+                                   null=True)
     graduation_type = models.CharField("Type",
                                        blank=True,
+                                       null=True,
                                        max_length=150)
     graduation_period = models.CharField("Period",
                                          blank=True,
+                                         null=True,
                                          max_length=150)
     graduation_start_time = models.DateField("Graduation start time",
                                              auto_now=False,
@@ -178,14 +204,18 @@ class ResumeProject(models.Model):
                              blank=True,
                              max_length=255)
     description = models.TextField("Description",
-                                   blank=True)
+                                   blank=True,
+                                   null=True)
     project_name = models.CharField("Project name",
                                     blank=True,
+                                    null=True,
                                     max_length=255)
     project_description = models.TextField("Project description",
-                                           blank=True)
+                                           blank=True,
+                                           null=True)
     project_link = models.URLField("Project link",
                                    blank=True,
+                                   null=True,
                                    max_length=255)
 
     def __str__(self) -> str:
@@ -201,9 +231,11 @@ class ResumeLink(models.Model):
                                 verbose_name="Profile",
                                 on_delete=models.CASCADE)
     title = models.CharField(verbose_name="Title",
+                             null=True,
                              max_length=255)
     description = models.CharField(verbose_name="Company's username",
                                    blank=True,
+                                   null=True,
                                    max_length=255)
     url = models.URLField(verbose_name="Website URL")
 
@@ -221,9 +253,11 @@ class ResumeModel(models.Model):
                                 on_delete=models.CASCADE)
     title = models.CharField("Title",
                              blank=True,
+                             null=True,
                              max_length=255)
     description = models.TextField("Description",
-                                   blank=True)
+                                   blank=True,
+                                   null=True)
     experiences = models.ManyToManyField(ResumeExperience,
                                          blank=True,
                                          verbose_name="Experiences")
