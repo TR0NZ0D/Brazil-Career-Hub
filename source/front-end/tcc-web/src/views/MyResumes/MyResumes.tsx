@@ -22,6 +22,7 @@ import Link from "models/Resume/Link";
 import { AuthContext } from "contexts/AuthContext";
 import { createResumeAsync } from "api/resume-requests/resume-requests";
 import UserLogged from "models/UserLogged/UserLogged";
+import { setNullIfPropertiesAreEmpty } from "utilities/ObjectUtilites";
 
 const MyResumes = () => {
 
@@ -42,6 +43,10 @@ const MyResumes = () => {
     const entity = entityLogged as UserLogged;
     const newResume: Resume = {
       profile_pk: entity.tag,
+      courses: null,
+      projects: null,
+      references: null,
+      description: null,
       title,
       experiences,
       competences,
@@ -49,6 +54,7 @@ const MyResumes = () => {
       links
     };
 
+    setNullIfPropertiesAreEmpty(newResume);
     fillAllResumePropertiesWithProfilePk(newResume, entity.id.toString());
     formatResumeDates(newResume);
 
@@ -57,12 +63,27 @@ const MyResumes = () => {
 
       if (response.status === 201) {
         setSelectedResume(undefined);
+        const resumesCopy = [...resumes];
+        resumesCopy.push(newResume);
+        setResumes(resumesCopy);
       }
     }
     catch (error) {
       console.error(error);
       alert("An error happened while creating this resume!");
     }
+  }
+
+  function handleCreateResumeClick(): void {
+    setCreating(true);
+    setSelectedResume({
+      profile_pk: "1",
+      title,
+      courses: null,
+      references: null,
+      projects: null,
+      description: null
+    });
   }
 
   return (
@@ -81,14 +102,11 @@ const MyResumes = () => {
             lg={5}>
             <ArticleIcon sx={{ fontSize: 110, color: "#3E89FA" }} />
             <Typography gutterBottom>Looks like you didn't create a resume yet</Typography>
-            <Button variant="contained" onClick={() => {
-              setCreating(true);
-              setSelectedResume({ profile_pk: "1", title });
-            }}>Create resume</Button>
+            <Button variant="contained" onClick={handleCreateResumeClick}>Create resume</Button>
           </Grid>}
 
         <Grid container item display="flex" justifyContent="center" lg={7}>
-          {creating &&
+          {selectedResume !== undefined &&
             <Container>
               <form onSubmit={handleCreateResume}>
                 <Grid container item lg={12} spacing={2}>
@@ -124,9 +142,17 @@ const MyResumes = () => {
                     competences={competences}
                     setCompetences={setCompetences} />
 
+                  <Grid item lg={12}>
+                    <FieldSeparator margin={1} />
+                  </Grid>
+
                   <GraduationFields
                     graduations={graduations}
                     setGraduations={setGraduations} />
+
+                  <Grid item lg={12}>
+                    <FieldSeparator margin={1} />
+                  </Grid>
 
                   <LinkFields
                     links={links}
