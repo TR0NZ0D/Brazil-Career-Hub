@@ -1,4 +1,4 @@
-﻿asgiref==3.7.2
+asgiref==3.7.2
 astroid==2.15.5
 attrs==23.1.0
 autopep8==2.0.2
@@ -18,7 +18,7 @@ django-stubs==4.2.2
 django-stubs-ext==4.2.2
 djangorestframework==3.14.0
 djangorestframework-stubs==3.14.2
-flake8==6.0.0
+flake8==6.1.0
 gunicorn==20.1.0
 idna==3.4
 inflection==0.5.1
