@@ -7,14 +7,10 @@ import Link from "./Link";
 
 type Resume = BaseResumeField & {
   title: string;
-  description: null;
   competences?: Competence[];
   experiences?: Experience[];
   graduations?: Graduation[];
   links?: Link[];
-  courses: null;
-  references: null;
-  projects: null;
 }
 
 export function fillAllResumePropertiesWithProfilePk(resume: Resume, profilePk: string): void {
@@ -59,6 +55,24 @@ export function formatResumeDates(resume: Resume): void {
       gra.graduation_end_time = formatDatePickerDate(gra.graduation_end_time!);
     }
   }
+}
+
+export function formatGetResumeRequestIntoResumeModel(resumesFromResponse: any[]): Resume[] {
+  const resumes: Resume[] = [];
+  for (const resumeFromResponse of resumesFromResponse) {
+    const resume: Resume = {
+      title: resumeFromResponse.title as string,
+      experiences: resumeFromResponse.all_experiences,
+      competences: resumeFromResponse.all_competences,
+      graduations: resumeFromResponse.all_graduations,
+      links: resumeFromResponse.all_links
+    }
+
+    resumes.push(resume);
+  }
+
+  console.log(resumes);
+  return resumes;
 }
 
 export default Resume;

@@ -2,27 +2,26 @@ import {
   Button,
   Container,
   Grid,
-  TextField,
   Typography
 } from "@mui/material";
 import Navbar from "components/Navbar/Navbar";
-import Resume, { fillAllResumePropertiesWithProfilePk, formatResumeDates } from "models/Resume/Resume";
-import { useState, useContext } from "react";
+import Resume, {
+  fillAllResumePropertiesWithProfilePk,
+  formatGetResumeRequestIntoResumeModel,
+  formatResumeDates
+} from "models/Resume/Resume";
+import { useState, useContext, useEffect } from "react";
 import ArticleIcon from '@mui/icons-material/Article';
-import { MainGrid } from "./styles";
+import { MainGrid, ResumeItem } from "./styles";
 import Experience from "models/Resume/Experience";
-import FieldSeparator from "components/FieldSeparator/FieldSeparator";
-import ExperienceFields from "./ExperienceFields/ExperienceFields";
-import CompetenceFields from "./CompetenceFields/CompetenceFields";
 import Competence from "models/Resume/Competence";
-import GraduationFields from "./GraduationFields/GraduationFields";
 import Graduation from "models/Resume/Graduation";
-import LinkFields from "./LinkFields/LinkFields";
 import Link from "models/Resume/Link";
 import { AuthContext } from "contexts/AuthContext";
-import { createResumeAsync } from "api/resume-requests/resume-requests";
+import { createResumeAsync, getUserResumes } from "api/resume-requests/resume-requests";
 import UserLogged from "models/UserLogged/UserLogged";
 import { setNullIfPropertiesAreEmpty } from "utilities/ObjectUtilites";
+import ResumeForm from "components/ResumeForm/ResumeForm";
 
 const MyResumes = () => {
 
@@ -38,15 +37,26 @@ const MyResumes = () => {
   const [graduations, setGraduations] = useState<Graduation[]>([{}]);
   const [links, setLinks] = useState<Link[]>([{}]);
 
+  useEffect(() => {
+    if (entityLogged && adminToken) {
+      const userLogged = entityLogged as UserLogged;
+      const getResumes = async () => {
+        const response = await getUserResumes(userLogged.id, adminToken!);
+        if (response.status === 200) {
+          setResumes(formatGetResumeRequestIntoResumeModel(response.data.content));
+        }
+      }
+
+      getResumes();
+    }
+
+  }, [entityLogged, adminToken]);
+
   async function handleCreateResume(e: any): Promise<void> {
     e.preventDefault();
     const entity = entityLogged as UserLogged;
     const newResume: Resume = {
       profile_pk: entity.tag,
-      courses: null,
-      projects: null,
-      references: null,
-      description: null,
       title,
       experiences,
       competences,
@@ -78,12 +88,18 @@ const MyResumes = () => {
     setCreating(true);
     setSelectedResume({
       profile_pk: "1",
-      title,
-      courses: null,
-      references: null,
-      projects: null,
-      description: null
+      title: ""
     });
+  }
+
+  function handleResumeClick(index: number): void {
+    const resume = resumes[index];
+    setSelectedResume(resume);
+    setTitle(resume.title);
+    setExperiences(resume.experiences!);
+    // setCompetences(resume.competences!);
+    setGraduations(resume.graduations!);
+    setLinks(resume.links!);
   }
 
   return (
@@ -105,64 +121,44 @@ const MyResumes = () => {
             <Button variant="contained" onClick={handleCreateResumeClick}>Create resume</Button>
           </Grid>}
 
+        {resumes.length > 0 &&
+          <Grid
+            container
+            item
+            display="flex"
+            justifyContent="flex-start"
+            alignItems="flex-start"
+            lg={5}
+            spacing={2}>
+            {resumes.map((x, index) => (
+              <ResumeItem item lg={12} onClick={() => handleResumeClick(index)}>
+                <Typography>{x.title}</Typography>
+              </ResumeItem>
+            ))}
+
+            <Grid container item lg={12} display="flex" justifyContent="flex-start" alignItems="flex-start">
+              <Button variant="contained" onClick={handleCreateResumeClick}>Add Resume</Button>
+            </Grid>
+
+          </Grid>}
+
         <Grid container item display="flex" justifyContent="center" lg={7}>
           {selectedResume !== undefined &&
             <Container>
-              <form onSubmit={handleCreateResume}>
-                <Grid container item lg={12} spacing={2}>
-                  <Grid item lg={12}>
-                    <Typography variant="h6" gutterBottom>Create resume</Typography>
-                  </Grid>
+              <ResumeForm
+                title={title}
+                experiences={experiences}
+                competences={competences}
+                graduations={graduations}
+                links={links}
 
-                  <Grid item lg={12}>
-                    <TextField
-                      required
-                      id="title"
-                      label="Title"
-                      helperText="Title to help you identify this resume"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      fullWidth
-                    />
-                  </Grid>
-
-                  <Grid item lg={12}>
-                    <FieldSeparator margin={1} />
-                  </Grid>
-
-                  <ExperienceFields
-                    experiences={experiences}
-                    setExperiences={setExperiences} />
-
-                  <Grid item lg={12}>
-                    <FieldSeparator margin={1} />
-                  </Grid>
-
-                  <CompetenceFields
-                    competences={competences}
-                    setCompetences={setCompetences} />
-
-                  <Grid item lg={12}>
-                    <FieldSeparator margin={1} />
-                  </Grid>
-
-                  <GraduationFields
-                    graduations={graduations}
-                    setGraduations={setGraduations} />
-
-                  <Grid item lg={12}>
-                    <FieldSeparator margin={1} />
-                  </Grid>
-
-                  <LinkFields
-                    links={links}
-                    setLinks={setLinks} />
-
-                  <Grid container item lg={12} display="flex" justifyContent="flex-end" style={{ marginTop: "5%" }}>
-                    <Button variant="contained" onClick={handleCreateResume}>Create resume</Button>
-                  </Grid>
-                </Grid>
-              </form>
+                onTitleChange={setTitle}
+                onExperienceChange={setExperiences}
+                onCompetenceChange={setCompetences}
+                onGraduationsChange={setGraduations}
+                onLinksChange={setLinks}
+                onSubmit={handleCreateResume}
+              />
             </Container>
           }
         </Grid>

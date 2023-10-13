@@ -2,6 +2,17 @@ import axios, { AxiosResponse } from 'axios';
 import { baseUrl } from '../../constants';
 import Resume from 'models/Resume/Resume';
 
+export async function getUserResumes(userId: number, admToken: string): Promise<AxiosResponse> {
+  return await axios({
+    method: "get",
+    url: baseUrl + "/api/resumes/",
+    headers: {
+      "Authorization": "Bearer " + admToken
+    },
+    params: { profile_pk: userId }
+  })
+}
+
 export async function createResumeAsync(resume: Resume, admToken: string): Promise<AxiosResponse> {
   return await axios({
     method: "post",
