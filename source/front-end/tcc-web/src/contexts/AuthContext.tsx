@@ -4,10 +4,7 @@ import { loginUser } from 'api/users-requests/auth-requests';
 import { loginCompany } from 'api/company-requests/company-auth-requests';
 import { CompanyAuth } from 'models/Company/CompanyAuth';
 import UserLogged from 'models/UserLogged/UserLogged';
-
-type ProviderProps = {
-  children: ReactNode;
-}
+import { ProviderProps } from './ProviderProps';
 
 type AdminToken = {
   message: string;

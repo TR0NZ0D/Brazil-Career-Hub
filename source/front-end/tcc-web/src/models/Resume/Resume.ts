@@ -6,6 +6,7 @@ import Graduation from "./Graduation";
 import Link from "./Link";
 
 type Resume = BaseResumeField & {
+  pk?: number;
   title: string;
   competencies?: Competencie[];
   experiences?: Experience[];
@@ -39,6 +40,20 @@ export function fillAllResumePropertiesWithProfilePk(resume: Resume, profilePk: 
       link.profile_pk = profilePk;
     }
   }
+}
+
+export function checkForDefaultValues(resume: Resume): void {
+  resume.links = resume.links?.filter(x => {
+    if (!x.url || x.url === "") {
+      return false;
+    }
+
+    if ((!x.title || x.title === "") && (!x.description || x.description === "")) {
+      return false;
+    }
+
+    return true;
+  })
 }
 
 export function formatResumeDates(resume: Resume): void {

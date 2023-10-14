@@ -1,11 +1,13 @@
 import {
   Button,
+  CircularProgress,
   Container,
   Grid,
   Typography
 } from "@mui/material";
 import Navbar from "components/Navbar/Navbar";
 import Resume, {
+  checkForDefaultValues,
   fillAllResumePropertiesWithProfilePk,
   formatGetResumeRequestIntoResumeModel,
   formatResumeDates
@@ -22,14 +24,16 @@ import { createResumeAsync, getUserResumes } from "api/resume-requests/resume-re
 import UserLogged from "models/UserLogged/UserLogged";
 import { setNullIfPropertiesAreEmpty } from "utilities/ObjectUtilites";
 import ResumeForm from "components/ResumeForm/ResumeForm";
+import { UIContext } from "contexts/UIContext";
 
 const MyResumes = () => {
 
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [creating, setCreating] = useState<boolean>(true);
-  const [selectedResume, setSelectedResume] = useState<Resume | undefined>();
+  const [showResumeForm, setShowResumeForm] = useState<boolean>(false);
 
   const { entityLogged, adminToken } = useContext(AuthContext);
+  const { loading, setLoading } = useContext(UIContext);
 
   const [title, setTitle] = useState<string>("");
   const [experiences, setExperiences] = useState<Experience[]>([{}]);
@@ -38,19 +42,26 @@ const MyResumes = () => {
   const [links, setLinks] = useState<Link[]>([{}]);
 
   useEffect(() => {
+    setLoading(true);
     if (entityLogged && adminToken) {
-      const userLogged = entityLogged as UserLogged;
-      const getResumes = async () => {
-        const response = await getUserResumes(userLogged.id, adminToken!);
-        if (response.status === 200) {
-          setResumes(formatGetResumeRequestIntoResumeModel(response.data.content));
-        }
-      }
-
       getResumes();
     }
 
   }, [entityLogged, adminToken]);
+
+  function getResumes(): void {
+    if (entityLogged && adminToken) {
+      const userLogged = entityLogged as UserLogged;
+      setLoading(true);
+      getUserResumes(userLogged.id, adminToken!)
+        .then(response => {
+          if (response.status === 200) {
+            setResumes(formatGetResumeRequestIntoResumeModel(response.data.content));
+          }
+        })
+        .finally(() => setLoading(false));
+    }
+  }
 
   async function handleCreateResume(e: any): Promise<void> {
     e.preventDefault();
@@ -66,17 +77,22 @@ const MyResumes = () => {
 
     setNullIfPropertiesAreEmpty(newResume);
     fillAllResumePropertiesWithProfilePk(newResume, entity.id.toString());
+    checkForDefaultValues(newResume);
     formatResumeDates(newResume);
 
     try {
-      const response = await createResumeAsync(newResume, adminToken!);
+      setLoading(true);
+      createResumeAsync(newResume, adminToken!)
+        .then(response => {
+          if (response.status === 201) {
+            setShowResumeForm(false);
+            getResumes();
+          }
+        })
+        .finally(() => {
+          setLoading(false);
+        })
 
-      if (response.status === 201) {
-        setSelectedResume(undefined);
-        const resumesCopy = [...resumes];
-        resumesCopy.push(newResume);
-        setResumes(resumesCopy);
-      }
     }
     catch (error) {
       console.error(error);
@@ -86,10 +102,7 @@ const MyResumes = () => {
 
   function handleCreateResumeClick(): void {
     setCreating(true);
-    setSelectedResume({
-      profile_pk: "1",
-      title: ""
-    });
+    setShowResumeForm(true);
     setTitle("");
     setExperiences([]);
     setCompetencies([]);
@@ -99,7 +112,7 @@ const MyResumes = () => {
 
   function handleResumeClick(index: number): void {
     const resume = resumes[index];
-    setSelectedResume(resume);
+    setShowResumeForm(true);
     setTitle(resume.title);
     setExperiences(resume.experiences!);
     setCompetencies(resume.competencies!);
@@ -112,7 +125,7 @@ const MyResumes = () => {
       <Navbar />
       <MainGrid container display="flex">
 
-        {resumes.length === 0 &&
+        {resumes.length === 0 && !loading && adminToken !== undefined &&
           <Grid
             container
             item
@@ -125,6 +138,19 @@ const MyResumes = () => {
             <Typography gutterBottom>Looks like you didn't create a resume yet</Typography>
             <Button variant="contained" onClick={handleCreateResumeClick}>Create resume</Button>
           </Grid>}
+
+        {loading &&
+          <Grid
+            container
+            item
+            display="flex"
+            justifyContent="flex-start"
+            alignItems="center"
+            flexDirection="column"
+            lg={5}>
+            <CircularProgress />
+          </Grid>
+        }
 
         {resumes.length > 0 &&
           <Grid
@@ -151,7 +177,7 @@ const MyResumes = () => {
           </Grid>}
 
         <Grid container item display="flex" justifyContent="center" lg={7}>
-          {selectedResume !== undefined &&
+          {showResumeForm &&
             <Container>
               <ResumeForm
                 title={title}
