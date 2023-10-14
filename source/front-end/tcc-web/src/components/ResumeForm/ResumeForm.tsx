@@ -1,6 +1,6 @@
 import { Grid, Typography, TextField, Button } from '@mui/material';
 import FieldSeparator from 'components/FieldSeparator/FieldSeparator';
-import Competence from 'models/Resume/Competence';
+import Competencie from 'models/Resume/Competence';
 import Experience from 'models/Resume/Experience';
 import Graduation from 'models/Resume/Graduation';
 import Link from 'models/Resume/Link';
@@ -12,13 +12,13 @@ import LinkFields from './LinkFields/LinkFields';
 type Props = {
   title: string;
   experiences: Experience[];
-  competences: Competence[];
+  competencies: Competencie[];
   graduations: Graduation[];
   links: Link[];
 
   onTitleChange: (text: string) => void;
   onExperienceChange: (experiences: Experience[]) => void;
-  onCompetenceChange: (competences: Competence[]) => void;
+  onCompetenceChange: (competencies: Competencie[]) => void;
   onGraduationsChange: (graduations: Graduation[]) => void;
   onLinksChange: (links: Link[]) => void;
   onSubmit: (event: any) => any;
@@ -27,7 +27,7 @@ type Props = {
 const ResumeForm = ({
   title,
   experiences,
-  competences,
+  competencies,
   graduations,
   links,
 
@@ -71,7 +71,7 @@ const ResumeForm = ({
         </Grid>
 
         <CompetenceFields
-          competences={competences}
+          competencies={competencies}
           setCompetences={onCompetenceChange} />
 
         <Grid item lg={12}>

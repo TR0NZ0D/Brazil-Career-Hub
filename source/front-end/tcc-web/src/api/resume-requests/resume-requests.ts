@@ -21,7 +21,7 @@ export async function createResumeAsync(resume: Resume, admToken: string): Promi
       profile_pk: resume.profile_pk,
       title: resume.title,
       experiences: resume.experiences,
-      competences: resume.competences,
+      competencies: resume.competencies,
       graduations: resume.graduations,
       links: resume.links,
       projects: null,

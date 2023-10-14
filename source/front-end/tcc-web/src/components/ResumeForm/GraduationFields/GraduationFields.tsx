@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
+import useNeverEmptyArray from 'hooks/useNeverEmptyArray';
 import Graduation from 'models/Resume/Graduation';
 import { Fragment } from 'react';
 
@@ -15,6 +16,8 @@ type Props = {
 }
 
 const GraduationFields = ({ graduations, setGraduations }: Props) => {
+
+  useNeverEmptyArray(graduations, setGraduations);
 
   function handleGradiationTitleChange(val: string, index: number): void {
     let copy: Graduation[] = [...graduations];

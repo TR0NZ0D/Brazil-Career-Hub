@@ -4,6 +4,7 @@ import {
   TextField,
   Button
 } from '@mui/material';
+import useNeverEmptyArray from 'hooks/useNeverEmptyArray';
 import Link from 'models/Resume/Link';
 import { Fragment } from 'react';
 
@@ -13,6 +14,8 @@ type Props = {
 }
 
 const LinkFields = ({ links, setLinks }: Props) => {
+
+  useNeverEmptyArray(links, setLinks);
 
   function handleLinkTitleChange(val: string, index: number): void {
     let copy: Link[] = [...links];

@@ -1,13 +1,13 @@
 import { formatDatePickerDate } from "utilities/DateUtilities";
 import BaseResumeField from "./BaseResumeField";
-import Competence from "./Competence";
+import Competencie from "./Competence";
 import Experience from "./Experience";
 import Graduation from "./Graduation";
 import Link from "./Link";
 
 type Resume = BaseResumeField & {
   title: string;
-  competences?: Competence[];
+  competencies?: Competencie[];
   experiences?: Experience[];
   graduations?: Graduation[];
   links?: Link[];
@@ -16,8 +16,8 @@ type Resume = BaseResumeField & {
 export function fillAllResumePropertiesWithProfilePk(resume: Resume, profilePk: string): void {
   resume.profile_pk = profilePk;
 
-  if (resume.competences !== undefined && resume.competences !== null) {
-    for (let competence of resume.competences) {
+  if (resume.competencies !== undefined && resume.competencies !== null) {
+    for (let competence of resume.competencies) {
       competence.profile_pk = profilePk;
     }
   }
@@ -59,11 +59,12 @@ export function formatResumeDates(resume: Resume): void {
 
 export function formatGetResumeRequestIntoResumeModel(resumesFromResponse: any[]): Resume[] {
   const resumes: Resume[] = [];
+
   for (const resumeFromResponse of resumesFromResponse) {
     const resume: Resume = {
       title: resumeFromResponse.title as string,
       experiences: resumeFromResponse.all_experiences,
-      competences: resumeFromResponse.all_competences,
+      competencies: resumeFromResponse.all_competencies,
       graduations: resumeFromResponse.all_graduations,
       links: resumeFromResponse.all_links
     }
@@ -71,7 +72,6 @@ export function formatGetResumeRequestIntoResumeModel(resumesFromResponse: any[]
     resumes.push(resume);
   }
 
-  console.log(resumes);
   return resumes;
 }
 

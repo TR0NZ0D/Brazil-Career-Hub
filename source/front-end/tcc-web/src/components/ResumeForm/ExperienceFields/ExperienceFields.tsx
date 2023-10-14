@@ -1,6 +1,7 @@
 import { Grid, Typography, TextField, Button } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
+import useNeverEmptyArray from 'hooks/useNeverEmptyArray';
 import Experience from 'models/Resume/Experience';
 import { Fragment } from 'react';
 
@@ -10,6 +11,8 @@ type Props = {
 }
 
 const ExperienceFields = ({ experiences, setExperiences }: Props) => {
+
+  useNeverEmptyArray(experiences, setExperiences);
 
   function handleExperienceRoleChange(val: string, index: number): void {
     let experiencesCopy: Experience[] = [...experiences];

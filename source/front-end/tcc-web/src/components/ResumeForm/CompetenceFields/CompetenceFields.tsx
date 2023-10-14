@@ -1,35 +1,46 @@
-import { Grid, Typography, TextField, Button, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
-import Competence from 'models/Resume/Competence';
-import Experience from 'models/Resume/Experience';
+import {
+  Grid,
+  Typography,
+  TextField,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select
+} from '@mui/material';
+import useNeverEmptyArray from 'hooks/useNeverEmptyArray';
+import Competencie from 'models/Resume/Competence';
 import { Fragment } from 'react';
 
 type Props = {
-  competences: Competence[];
-  setCompetences: (competences: Competence[]) => void;
+  competencies: Competencie[];
+  setCompetences: (competences: Competencie[]) => void;
 }
 
-const CompetenceFields = ({ competences, setCompetences }: Props) => {
+const CompetenceFields = ({ competencies, setCompetences }: Props) => {
+
+  useNeverEmptyArray(competencies, setCompetences);
 
   function handleCompetenceNameChange(val: string, index: number): void {
-    let copy: Competence[] = [...competences];
+    let copy: Competencie[] = [...competencies];
     copy[index].competence_name = val;
     setCompetences(copy);
   }
 
   function handleCompetenceLevelChange(val: string, index: number): void {
-    let copy: Competence[] = [...competences];
+    let copy: Competencie[] = [...competencies];
     copy[index].competence_level = val;
     setCompetences(copy);
   }
 
   function handleAddCompetence(): void {
-    let copy: Competence[] = [...competences];
+    let copy: Competencie[] = [...competencies];
     copy.push({});
     setCompetences(copy);
   }
 
   function handleDeleteCompetence(): void {
-    let copy: Competence[] = [...competences];
+    let copy: Competencie[] = [...competencies];
     copy.pop();
     setCompetences(copy);
   }
@@ -40,7 +51,7 @@ const CompetenceFields = ({ competences, setCompetences }: Props) => {
         <Typography variant="h6" gutterBottom>Competences</Typography>
       </Grid>
 
-      {competences.map((x, index) => {
+      {competencies.map((x, index) => {
         const competenceId = `competence-label-${index}`;
         return (
           <Fragment key={index}>
@@ -69,11 +80,11 @@ const CompetenceFields = ({ competences, setCompetences }: Props) => {
                   label="Age"
                   onChange={(e) => handleCompetenceLevelChange(e.target.value, index)}
                 >
-                  <MenuItem value={1}>Beginner</MenuItem>
-                  <MenuItem value={2}>Amateur</MenuItem>
-                  <MenuItem value={3}>Intermediate</MenuItem>
-                  <MenuItem value={4}>Professional</MenuItem>
-                  <MenuItem value={5}>Master</MenuItem>
+                  <MenuItem value="1">Beginner</MenuItem>
+                  <MenuItem value="2">Amateur</MenuItem>
+                  <MenuItem value="3">Intermediate</MenuItem>
+                  <MenuItem value="4">Professional</MenuItem>
+                  <MenuItem value="5">Master</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -84,7 +95,7 @@ const CompetenceFields = ({ competences, setCompetences }: Props) => {
       <Grid container item display="flex" justifyContent="flex-end" alignItems="flex-end" lg={12}>
         <Button variant="contained" onClick={handleAddCompetence}>Add competence</Button>
 
-        {competences.length > 1 &&
+        {competencies.length > 1 &&
           <Button variant="outlined" onClick={handleDeleteCompetence} style={{ marginLeft: "2%" }}>Delete competence</Button>}
       </Grid>
     </>

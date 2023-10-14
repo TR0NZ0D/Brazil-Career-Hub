@@ -14,7 +14,7 @@ import { useState, useContext, useEffect } from "react";
 import ArticleIcon from '@mui/icons-material/Article';
 import { MainGrid, ResumeItem } from "./styles";
 import Experience from "models/Resume/Experience";
-import Competence from "models/Resume/Competence";
+import Competencie from "models/Resume/Competence";
 import Graduation from "models/Resume/Graduation";
 import Link from "models/Resume/Link";
 import { AuthContext } from "contexts/AuthContext";
@@ -33,7 +33,7 @@ const MyResumes = () => {
 
   const [title, setTitle] = useState<string>("");
   const [experiences, setExperiences] = useState<Experience[]>([{}]);
-  const [competences, setCompetences] = useState<Competence[]>([{}]);
+  const [competencies, setCompetencies] = useState<Competencie[]>([{}]);
   const [graduations, setGraduations] = useState<Graduation[]>([{}]);
   const [links, setLinks] = useState<Link[]>([{}]);
 
@@ -59,7 +59,7 @@ const MyResumes = () => {
       profile_pk: entity.tag,
       title,
       experiences,
-      competences,
+      competencies,
       graduations,
       links
     };
@@ -90,6 +90,11 @@ const MyResumes = () => {
       profile_pk: "1",
       title: ""
     });
+    setTitle("");
+    setExperiences([]);
+    setCompetencies([]);
+    setGraduations([]);
+    setLinks([]);
   }
 
   function handleResumeClick(index: number): void {
@@ -97,7 +102,7 @@ const MyResumes = () => {
     setSelectedResume(resume);
     setTitle(resume.title);
     setExperiences(resume.experiences!);
-    // setCompetences(resume.competences!);
+    setCompetencies(resume.competencies!);
     setGraduations(resume.graduations!);
     setLinks(resume.links!);
   }
@@ -105,7 +110,7 @@ const MyResumes = () => {
   return (
     <>
       <Navbar />
-      <MainGrid container>
+      <MainGrid container display="flex">
 
         {resumes.length === 0 &&
           <Grid
@@ -126,12 +131,15 @@ const MyResumes = () => {
             container
             item
             display="flex"
-            justifyContent="flex-start"
-            alignItems="flex-start"
-            lg={5}
-            spacing={2}>
+            justifyContent="center"
+            alignItems="center"
+            lg={5}>
             {resumes.map((x, index) => (
-              <ResumeItem item lg={12} onClick={() => handleResumeClick(index)}>
+              <ResumeItem
+                key={x.title}
+                item
+                lg={12}
+                onClick={() => handleResumeClick(index)}>
                 <Typography>{x.title}</Typography>
               </ResumeItem>
             ))}
@@ -148,13 +156,13 @@ const MyResumes = () => {
               <ResumeForm
                 title={title}
                 experiences={experiences}
-                competences={competences}
+                competencies={competencies}
                 graduations={graduations}
                 links={links}
 
                 onTitleChange={setTitle}
                 onExperienceChange={setExperiences}
-                onCompetenceChange={setCompetences}
+                onCompetenceChange={setCompetencies}
                 onGraduationsChange={setGraduations}
                 onLinksChange={setLinks}
                 onSubmit={handleCreateResume}
