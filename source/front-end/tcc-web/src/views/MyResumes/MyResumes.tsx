@@ -20,7 +20,12 @@ import Competencie from "models/Resume/Competence";
 import Graduation from "models/Resume/Graduation";
 import Link from "models/Resume/Link";
 import { AuthContext } from "contexts/AuthContext";
-import { createResumeAsync, deleteResumeAsync, getUserResumes, updateResumeAsync } from "api/resume-requests/resume-requests";
+import {
+  createResumeAsync,
+  deleteResumeAsync,
+  getUserResumes,
+  updateResumeAsync
+} from "api/resume-requests/resume-requests";
 import UserLogged from "models/UserLogged/UserLogged";
 import { setNullIfPropertiesAreEmpty } from "utilities/ObjectUtilites";
 import ResumeForm from "components/ResumeForm/ResumeForm";
@@ -173,7 +178,8 @@ const MyResumes = () => {
             justifyContent="flex-start"
             alignItems="center"
             flexDirection="column"
-            lg={5}>
+            lg={5}
+          >
             <ArticleIcon sx={{ fontSize: 110, color: "#3E89FA" }} />
             <Typography gutterBottom>Looks like you didn't create a resume yet</Typography>
             <Button variant="contained" onClick={handleCreateResumeClick}>Create resume</Button>
@@ -193,27 +199,33 @@ const MyResumes = () => {
         }
 
         {resumes.length > 0 &&
-          <Grid
-            container
-            item
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            lg={5}>
-            {resumes.map((x, index) => (
-              <ResumeItem
-                key={x.title}
-                item
-                lg={12}
-                onClick={() => handleResumeClick(index)}>
-                <Typography>{x.title}</Typography>
-              </ResumeItem>
-            ))}
-
-            <Grid container item lg={12} display="flex" justifyContent="flex-start" alignItems="flex-start">
+          <>
+            <Grid
+              container
+              item
+              display="flex"
+              justifyContent="flex-start"
+              alignItems="flex-start"
+              lg={5}
+              height="17rem"
+            >
+              <Grid container item lg={12}
+                style={{
+                  maxHeight: "24rem",
+                  overflowY: "scroll",
+                  marginBottom: "4%",
+                }}>
+                {resumes.map((x, index) => (
+                  <ResumeItem
+                    key={x.title}
+                    onClick={() => handleResumeClick(index)}>
+                    <Typography>{x.title}</Typography>
+                  </ResumeItem>
+                ))}
+              </Grid>
               <Button variant="contained" onClick={handleCreateResumeClick}>Add Resume</Button>
             </Grid>
-          </Grid>}
+          </>}
 
         <Grid container item display="flex" justifyContent="center" lg={7}>
           {showResumeForm &&
@@ -238,7 +250,7 @@ const MyResumes = () => {
             </Container>
           }
         </Grid>
-      </MainGrid>
+      </MainGrid >
     </>
   )
 }

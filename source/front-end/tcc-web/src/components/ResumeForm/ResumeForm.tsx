@@ -50,7 +50,9 @@ const ResumeForm = ({
     <form>
       <Grid container item lg={12} spacing={2}>
         <Grid item lg={12}>
-          <Typography variant="h6" gutterBottom>Create resume</Typography>
+          {action === "create" && <Typography variant="h6" gutterBottom>Create resume</Typography>}
+          {action === "edit" && <Typography variant="h6" gutterBottom>Edit resume</Typography>}
+
         </Grid>
 
         <Grid item lg={12}>
