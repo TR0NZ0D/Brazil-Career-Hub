@@ -20,7 +20,7 @@ import Competencie from "models/Resume/Competence";
 import Graduation from "models/Resume/Graduation";
 import Link from "models/Resume/Link";
 import { AuthContext } from "contexts/AuthContext";
-import { createResumeAsync, getUserResumes } from "api/resume-requests/resume-requests";
+import { createResumeAsync, deleteResumeAsync, getUserResumes, updateResumeAsync } from "api/resume-requests/resume-requests";
 import UserLogged from "models/UserLogged/UserLogged";
 import { setNullIfPropertiesAreEmpty } from "utilities/ObjectUtilites";
 import ResumeForm from "components/ResumeForm/ResumeForm";
@@ -29,12 +29,12 @@ import { UIContext } from "contexts/UIContext";
 const MyResumes = () => {
 
   const [resumes, setResumes] = useState<Resume[]>([]);
-  const [creating, setCreating] = useState<boolean>(true);
   const [showResumeForm, setShowResumeForm] = useState<boolean>(false);
 
   const { entityLogged, adminToken } = useContext(AuthContext);
   const { loading, setLoading } = useContext(UIContext);
 
+  const [id, setId] = useState<number | undefined>();
   const [title, setTitle] = useState<string>("");
   const [experiences, setExperiences] = useState<Experience[]>([{}]);
   const [competencies, setCompetencies] = useState<Competencie[]>([{}]);
@@ -63,8 +63,7 @@ const MyResumes = () => {
     }
   }
 
-  async function handleCreateResume(e: any): Promise<void> {
-    e.preventDefault();
+  async function handleCreateResume(): Promise<void> {
     const entity = entityLogged as UserLogged;
     const newResume: Resume = {
       profile_pk: entity.tag,
@@ -101,7 +100,7 @@ const MyResumes = () => {
   }
 
   function handleCreateResumeClick(): void {
-    setCreating(true);
+    setId(undefined);
     setShowResumeForm(true);
     setTitle("");
     setExperiences([]);
@@ -112,12 +111,53 @@ const MyResumes = () => {
 
   function handleResumeClick(index: number): void {
     const resume = resumes[index];
+    setId(resume.id!);
     setShowResumeForm(true);
     setTitle(resume.title);
     setExperiences(resume.experiences!);
     setCompetencies(resume.competencies!);
     setGraduations(resume.graduations!);
     setLinks(resume.links!);
+  }
+
+  function handleUpdateResume(): void {
+    const entity = entityLogged as UserLogged;
+    const newResume: Resume = {
+      id,
+      profile_pk: entity.tag,
+      title,
+      experiences,
+      competencies,
+      graduations,
+      links
+    };
+
+    setNullIfPropertiesAreEmpty(newResume);
+    fillAllResumePropertiesWithProfilePk(newResume, entity.id.toString());
+    checkForDefaultValues(newResume);
+    formatResumeDates(newResume);
+
+    setLoading(true);
+    updateResumeAsync(newResume, adminToken!)
+      .then(response => {
+        if (response.status === 200) {
+          setShowResumeForm(false);
+          getResumes();
+        }
+      })
+      .finally(() => setLoading(false));
+  }
+
+  function handleDeleteResume(): void {
+    setLoading(true);
+    deleteResumeAsync(id!, adminToken!)
+      .then(response => {
+        if (response.status === 204) {
+          setShowResumeForm(false);
+          getResumes();
+        }
+      })
+      .finally(() => setLoading(false))
   }
 
   return (
@@ -173,7 +213,6 @@ const MyResumes = () => {
             <Grid container item lg={12} display="flex" justifyContent="flex-start" alignItems="flex-start">
               <Button variant="contained" onClick={handleCreateResumeClick}>Add Resume</Button>
             </Grid>
-
           </Grid>}
 
         <Grid container item display="flex" justifyContent="center" lg={7}>
@@ -185,13 +224,16 @@ const MyResumes = () => {
                 competencies={competencies}
                 graduations={graduations}
                 links={links}
+                action={id === undefined ? "create" : "edit"}
 
                 onTitleChange={setTitle}
                 onExperienceChange={setExperiences}
                 onCompetenceChange={setCompetencies}
                 onGraduationsChange={setGraduations}
                 onLinksChange={setLinks}
-                onSubmit={handleCreateResume}
+                onCreate={handleCreateResume}
+                onUpdate={handleUpdateResume}
+                onDelete={handleDeleteResume}
               />
             </Container>
           }

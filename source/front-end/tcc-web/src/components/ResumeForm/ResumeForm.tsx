@@ -15,13 +15,17 @@ type Props = {
   competencies: Competencie[];
   graduations: Graduation[];
   links: Link[];
+  action: "create" | "edit";
 
   onTitleChange: (text: string) => void;
   onExperienceChange: (experiences: Experience[]) => void;
   onCompetenceChange: (competencies: Competencie[]) => void;
   onGraduationsChange: (graduations: Graduation[]) => void;
   onLinksChange: (links: Link[]) => void;
-  onSubmit: (event: any) => any;
+
+  onCreate: (event: any) => any;
+  onUpdate: (event: any) => any;
+  onDelete: (event: any) => any;
 }
 
 const ResumeForm = ({
@@ -30,17 +34,20 @@ const ResumeForm = ({
   competencies,
   graduations,
   links,
+  action,
 
   onTitleChange,
   onExperienceChange,
   onCompetenceChange,
   onGraduationsChange,
   onLinksChange,
-  onSubmit
+  onCreate,
+  onUpdate,
+  onDelete
 
 }: Props) => {
   return (
-    <form onSubmit={onSubmit}>
+    <form>
       <Grid container item lg={12} spacing={2}>
         <Grid item lg={12}>
           <Typography variant="h6" gutterBottom>Create resume</Typography>
@@ -90,9 +97,22 @@ const ResumeForm = ({
           links={links}
           setLinks={onLinksChange} />
 
-        <Grid container item lg={12} display="flex" justifyContent="flex-end" style={{ marginTop: "5%" }}>
-          <Button variant="contained" type="submit">Create resume</Button>
-        </Grid>
+        {action === "create" &&
+          <Grid container item lg={12} display="flex" justifyContent="flex-end" style={{ marginTop: "5%" }}>
+            <Button variant="contained" onClick={onCreate}>Create resume</Button>
+          </Grid>}
+
+        {action === "edit" &&
+          <Grid container item lg={12} display="flex" justifyContent="flex-end" style={{ marginTop: "5%" }}>
+            <Grid container item lg={2} display="flex" justifyContent="flex-end">
+              <Button variant="contained" onClick={onUpdate}>Update</Button>
+            </Grid>
+
+            <Grid container item lg={2} display="flex" justifyContent="flex-end">
+              <Button variant="outlined" onClick={onDelete}>Delete</Button>
+            </Grid>
+          </Grid>}
+
       </Grid>
     </form>
   )

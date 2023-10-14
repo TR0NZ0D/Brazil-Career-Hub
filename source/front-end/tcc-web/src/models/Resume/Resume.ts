@@ -7,6 +7,7 @@ import Link from "./Link";
 
 type Resume = BaseResumeField & {
   pk?: number;
+  id?: number;
   title: string;
   competencies?: Competencie[];
   experiences?: Experience[];
@@ -77,6 +78,7 @@ export function formatGetResumeRequestIntoResumeModel(resumesFromResponse: any[]
 
   for (const resumeFromResponse of resumesFromResponse) {
     const resume: Resume = {
+      id: resumeFromResponse.pk as number,
       title: resumeFromResponse.title as string,
       experiences: resumeFromResponse.all_experiences,
       competencies: resumeFromResponse.all_competencies,
