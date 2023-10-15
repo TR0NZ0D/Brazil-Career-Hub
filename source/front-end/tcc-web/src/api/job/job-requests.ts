@@ -63,3 +63,16 @@ export async function getJobs(admToken: string): Promise<AxiosResponse> {
     }
   })
 }
+
+export async function updateJob(job: Job, admToken: string): Promise<AxiosResponse> {
+  return await axios({
+    method: "patch",
+    url: baseUrl + "/api/vacancy/",
+    params: { pk: job.pk },
+    data: { job },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + admToken
+    }
+  })
+}

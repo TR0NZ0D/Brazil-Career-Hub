@@ -6,7 +6,6 @@ import Graduation from "./Graduation";
 import Link from "./Link";
 
 type Resume = BaseResumeField & {
-  pk?: number;
   id?: number;
   title: string;
   competencies?: Competencie[];
