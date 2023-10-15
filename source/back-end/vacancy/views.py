@@ -454,7 +454,7 @@ class Vacancy(Base):
 
         if vacancy_data.get("created_by", None):
             created_by = vacancy_data.get("created_by", None)
-            vacancy.created_by = created_by
+            vacancy.created_by = created_by.company_account
         if vacancy_data.get("role", None):
             role = vacancy_data.get("role", "")
             vacancy.role = role
