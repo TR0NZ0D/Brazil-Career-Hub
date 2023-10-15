@@ -25,7 +25,7 @@ const JobOverview = ({ job, onClick }: Props) => {
   body = cutText(body, 250);
 
   return (
-    <Card sx={{ maxWidth: 800 }} onClick={handleCardClick}>
+    <Card onClick={handleCardClick}>
       <CardActionArea>
         <CardContent>
           <Grid container display="flex" justifyContent="space-between">

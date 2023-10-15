@@ -23,20 +23,22 @@ const UserHome = () => {
   }
 
   useEffect(() => {
+    setLoading(true);
     const getData = async () => {
-      try {
-        setLoading(true);
-        getJobs(adminToken!)
-          .then(response => {
-            if (response.status === 200) {
-              setVacancies(response.data.content);
-            }
-          })
-          .finally(() => setLoading(false));
+      if (adminToken) {
+        try {
+          getJobs(adminToken!)
+            .then(response => {
+              if (response.status === 200) {
+                setVacancies(response.data.content);
+              }
+            })
+            .finally(() => setLoading(false));
 
-      }
-      catch (error) {
-        console.error(error);
+        }
+        catch (error) {
+          console.error(error);
+        }
       }
     }
 
@@ -45,9 +47,9 @@ const UserHome = () => {
 
   return (
     <Grid container display="flex" style={{ padding: "2% 3%" }}>
-      <Grid container item display="flex" justifyContent="space-between">
+      <Grid container item display="flex" justifyContent="space-between" lg={12} spacing={3}>
         {vacancies.length > 0 &&
-          <Grid container item lg={5} spacing={1}>
+          <Grid container item lg={5}>
             {vacancies.map((x, index) => {
               return (
                 <Grid item lg={12}>
@@ -62,7 +64,7 @@ const UserHome = () => {
             <CircularProgress />
           </Grid>}
 
-        {vacancies.length === 0 && !loading &&
+        {vacancies.length === 0 && !loading && adminToken &&
           <Grid
             container
             lg={5}

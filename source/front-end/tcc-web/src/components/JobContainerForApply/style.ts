@@ -9,7 +9,3 @@ export const JobDetailContainer = styled(Container)`
   height: 100%;
   width: 100%;
 `;
-
-export const ContentBreaker = styled.hr`
-  margin: 2% 0%;
-`
