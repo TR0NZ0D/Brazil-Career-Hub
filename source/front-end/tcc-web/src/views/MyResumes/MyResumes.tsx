@@ -170,6 +170,19 @@ const MyResumes = () => {
       <Navbar />
       <MainGrid container display="flex">
 
+        {loading &&
+          <Grid
+            container
+            item
+            display="flex"
+            justifyContent="flex-start"
+            alignItems="center"
+            flexDirection="column"
+            lg={5}>
+            <CircularProgress />
+          </Grid>
+        }
+
         {resumes.length === 0 && !loading && adminToken !== undefined &&
           <Grid
             container
@@ -185,21 +198,12 @@ const MyResumes = () => {
             <Button variant="contained" onClick={handleCreateResumeClick}>Create resume</Button>
           </Grid>}
 
-        {loading &&
-          <Grid
-            container
-            item
-            display="flex"
-            justifyContent="flex-start"
-            alignItems="center"
-            flexDirection="column"
-            lg={5}>
-            <CircularProgress />
-          </Grid>
-        }
-
         {resumes.length > 0 &&
           <>
+            <Grid item lg={12}>
+              <Typography variant="h5" gutterBottom>My Resumes</Typography>
+            </Grid>
+
             <Grid
               container
               item
