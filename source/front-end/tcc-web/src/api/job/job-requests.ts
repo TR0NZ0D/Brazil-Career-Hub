@@ -69,7 +69,7 @@ export async function updateJob(job: Job, admToken: string): Promise<AxiosRespon
     method: "patch",
     url: baseUrl + "/api/vacancy/",
     params: { pk: job.pk },
-    data: { job },
+    data: job,
     headers: {
       "Content-Type": "application/json",
       "Authorization": "Bearer " + admToken

@@ -1,4 +1,9 @@
-import { Box, Button, CircularProgress, Grid, Modal, Typography } from '@mui/material';
+import {
+  Button,
+  CircularProgress,
+  Modal,
+  Typography
+} from '@mui/material';
 import { getUserResumes } from 'api/resume-requests/resume-requests';
 import { AuthContext } from 'contexts/AuthContext';
 import { UIContext } from 'contexts/UIContext';
@@ -18,10 +23,11 @@ type Props = {
 const ResumeSelector = ({ show, forJob, onClose }: Props) => {
 
   const [resumes, setResumes] = useState<Resume[]>([]);
+  const [selectedResume, setSelectedResume] = useState<number | undefined>();
+  const [canApply, setCanApply] = useState<boolean>(false);
 
   const { loading, setLoading } = useContext(UIContext);
   const { entityLogged, adminToken } = useContext(AuthContext);
-  const [selectedResume, setSelectedResume] = useState<number | undefined>();
 
   useEffect(() => {
     setLoading(true);
@@ -34,7 +40,25 @@ const ResumeSelector = ({ show, forJob, onClose }: Props) => {
         })
         .finally(() => setLoading(false));
     }
-  }, [adminToken, entityLogged])
+  }, [adminToken, entityLogged]);
+
+  useEffect(() => {
+    if (!selectedResume) {
+      setCanApply(false);
+      return;
+    }
+
+    for (const jobResumes of forJob?.resumes!) {
+      for (const resume of resumes) {
+        if (jobResumes === resume.id) {
+          setCanApply(false);
+          return;
+        }
+      }
+    }
+
+    setCanApply(true);
+  }, [canApply]);
 
   function handleApply(): void {
     const resumeId = resumes[selectedResume!].id;
@@ -49,16 +73,6 @@ const ResumeSelector = ({ show, forJob, onClose }: Props) => {
       .catch(() => {
         alert("An error occurred while applying for this job");
       })
-  }
-
-  function canApply(): boolean {
-    if (!selectedResume)
-      return false;
-
-    else if (forJob.resumes?.includes(resumes[selectedResume!].id!))
-      return false;
-
-    return true;
   }
 
   return (

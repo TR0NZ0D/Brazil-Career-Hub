@@ -11,7 +11,7 @@ type Props = {
 
 const JobContainerForApply = ({ job }: Props) => {
 
-  const [showResumeSelector, setShowResumeSelector] = useState<boolean>(true);
+  const [showResumeSelector, setShowResumeSelector] = useState<boolean>(false);
 
   return (
     <>

@@ -51,9 +51,10 @@ const UserHome = () => {
         {vacancies.length > 0 &&
           <Grid container item lg={5}>
             {vacancies.map((x, index) => {
+              console.log(x);
               return (
                 <Grid item lg={12}>
-                  <JobOverview key={index} job={x} onClick={() => handleJobClick(index)} />
+                  <JobOverview key={x.pk} job={x} onClick={() => handleJobClick(index)} />
                 </Grid>
               )
             })}
