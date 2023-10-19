@@ -48,15 +48,6 @@ const ResumeSelector = ({ show, forJob, onClose }: Props) => {
       return;
     }
 
-    for (const jobResumes of forJob?.resumes!) {
-      for (const resume of resumes) {
-        if (jobResumes === resume.id) {
-          setCanApply(false);
-          return;
-        }
-      }
-    }
-
     setCanApply(true);
   }, [canApply]);
 
