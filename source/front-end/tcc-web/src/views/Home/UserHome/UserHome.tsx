@@ -9,6 +9,7 @@ import { useContext, useEffect, useState } from 'react';
 import WorkOffIcon from '@mui/icons-material/WorkOff';
 import { UIContext } from 'contexts/UIContext';
 import JobSearch from 'components/JobSearch/JobSearch';
+import { JobsDiv, MainDiv } from './styles';
 
 const UserHome = () => {
   useAuthenticated("user");
@@ -49,48 +50,41 @@ const UserHome = () => {
   }, [adminToken]);
 
   return (
-    <Grid container display="flex" style={{ padding: "2% 3%" }}>
-      <Grid container item display="flex" justifyContent="space-between" lg={12} spacing={3}>
-        <Grid container item lg={5}>
-          <Grid item lg={12}>
-            <JobSearch allJobs={vacancies} jobs={vacanciesOnSearch} onSearchChange={setVacanciesOnSearch} />
-          </Grid>
+    <MainDiv>
 
-          {vacanciesOnSearch.length > 0 &&
-            vacanciesOnSearch.map((x, index) => {
-              return (
-                <Grid item lg={12}>
-                  <JobOverview key={x.pk} job={x} onClick={() => handleJobClick(index)} />
-                </Grid>
-              )
-            })
-          }
+      <JobsDiv>
+        <JobSearch allJobs={vacancies} jobs={vacanciesOnSearch} onSearchChange={setVacanciesOnSearch} />
 
-          {loading &&
-            <Grid container item lg={12} display="flex" justifyContent="center" alignItems="center">
-              <CircularProgress />
-            </Grid>}
+        {vacanciesOnSearch.length > 0 &&
+          vacanciesOnSearch.map((x, index) => {
+            return (
+              <Grid item lg={12}>
+                <JobOverview key={x.pk} job={x} onClick={() => handleJobClick(index)} />
+              </Grid>
+            )
+          })
+        }
 
-          {vacancies.length === 0 && !loading && adminToken &&
-            <Grid
-              container
-              lg={12}
-              display="flex"
-              flexDirection="column"
-              justifyContent="center"
-              alignItems="center"
-            >
-              <WorkOffIcon sx={{ fontSize: 65, color: "#3E89FA" }} />
-              <Typography variant="body1">Looks like there is no job posted right now, come back later</Typography>
-            </Grid>}
-        </Grid>
+        {loading &&
+          <Grid display="flex" justifyContent="center" alignItems="center">
+            <CircularProgress />
+          </Grid>}
 
-        <Grid item lg={7}>
-          {vacancies.length > 0 && jobDetail &&
-            <JobContainerForApply job={jobDetail} />}
-        </Grid>
-      </Grid>
-    </Grid>
+        {vacancies.length === 0 && !loading && adminToken &&
+          <Grid
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <WorkOffIcon sx={{ fontSize: 65, color: "#3E89FA" }} />
+            <Typography variant="body1">Looks like there is no job posted right now, come back later</Typography>
+          </Grid>}
+      </JobsDiv>
+
+      {vacancies.length > 0 && jobDetail &&
+        <JobContainerForApply job={jobDetail} />}
+    </MainDiv>
   )
 }
 

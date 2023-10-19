@@ -30,6 +30,7 @@ import UserLogged from "models/UserLogged/UserLogged";
 import { setNullIfPropertiesAreEmpty } from "utilities/ObjectUtilites";
 import ResumeForm from "components/ResumeForm/ResumeForm";
 import { UIContext } from "contexts/UIContext";
+import useAuthenticated from "hooks/useAuthenticated";
 
 const MyResumes = () => {
 
@@ -45,6 +46,8 @@ const MyResumes = () => {
   const [competencies, setCompetencies] = useState<Competencie[]>([{}]);
   const [graduations, setGraduations] = useState<Graduation[]>([{}]);
   const [links, setLinks] = useState<Link[]>([{}]);
+
+  useAuthenticated("user");
 
   useEffect(() => {
     setLoading(true);

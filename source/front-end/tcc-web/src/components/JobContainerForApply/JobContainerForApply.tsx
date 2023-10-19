@@ -20,7 +20,7 @@ const JobContainerForApply = ({ job }: Props) => {
   const [userAlreadyApplied, setUserAlreadyApplied] = useState<boolean>(false);
 
   const { entityLogged, adminToken } = useContext(AuthContext);
-  const { loading, setLoading } = useContext(UIContext);
+  const { setLoading } = useContext(UIContext);
 
   useEffect(() => {
     setLoading(true);
@@ -55,12 +55,12 @@ const JobContainerForApply = ({ job }: Props) => {
           <Button variant="contained" onClick={() => setShowResumeSelector(true)}>Apply for this job</Button>}
 
         {userAlreadyApplied &&
-          <Typography variant="h6">You already applied for this job!</Typography>}
+          <Typography variant="button">You already applied for this job!</Typography>}
 
         <FieldSeparator />
 
         <Typography variant="h6" gutterBottom>Description</Typography>
-        <Typography variant="body2" gutterBottom>{job.description}</Typography>
+        <Typography variant="body1" gutterBottom>{job.description}</Typography>
 
         <Typography variant="h6" gutterBottom>Salary</Typography>
         <Typography variant="body2" gutterBottom>RS{job.salary}</Typography>
@@ -81,7 +81,6 @@ const JobContainerForApply = ({ job }: Props) => {
           show={showResumeSelector}
           onClose={() => setShowResumeSelector(false)}
         />}
-
     </>
   )
 }
