@@ -8,11 +8,13 @@ import { Job } from 'models/Job/Job';
 import { useContext, useEffect, useState } from 'react';
 import WorkOffIcon from '@mui/icons-material/WorkOff';
 import { UIContext } from 'contexts/UIContext';
+import JobSearch from 'components/JobSearch/JobSearch';
 
 const UserHome = () => {
   useAuthenticated("user");
 
   const { adminToken } = useContext(AuthContext);
+  const [vacanciesOnSearch, setVacanciesOnSearch] = useState<Job[]>([]);
   const [vacancies, setVacancies] = useState<Job[]>([]);
   const [jobDetail, setJobDetail] = useState<Job | undefined>();
 
@@ -31,6 +33,7 @@ const UserHome = () => {
             .then(response => {
               if (response.status === 200) {
                 setVacancies(response.data.content);
+                setVacanciesOnSearch(response.data.content);
               }
             })
             .finally(() => setLoading(false));
@@ -48,35 +51,39 @@ const UserHome = () => {
   return (
     <Grid container display="flex" style={{ padding: "2% 3%" }}>
       <Grid container item display="flex" justifyContent="space-between" lg={12} spacing={3}>
-        {vacancies.length > 0 &&
-          <Grid container item lg={5}>
-            {vacancies.map((x, index) => {
-              console.log(x);
+        <Grid container item lg={5}>
+          <Grid item lg={12}>
+            <JobSearch allJobs={vacancies} jobs={vacanciesOnSearch} onSearchChange={setVacanciesOnSearch} />
+          </Grid>
+
+          {vacanciesOnSearch.length > 0 &&
+            vacanciesOnSearch.map((x, index) => {
               return (
                 <Grid item lg={12}>
                   <JobOverview key={x.pk} job={x} onClick={() => handleJobClick(index)} />
                 </Grid>
               )
-            })}
-          </Grid>}
+            })
+          }
 
-        {loading &&
-          <Grid container item lg={5} display="flex" justifyContent="center" alignItems="center">
-            <CircularProgress />
-          </Grid>}
+          {loading &&
+            <Grid container item lg={12} display="flex" justifyContent="center" alignItems="center">
+              <CircularProgress />
+            </Grid>}
 
-        {vacancies.length === 0 && !loading && adminToken &&
-          <Grid
-            container
-            lg={5}
-            display="flex"
-            flexDirection="column"
-            justifyContent="center"
-            alignItems="center"
-          >
-            <WorkOffIcon sx={{ fontSize: 65, color: "#3E89FA" }} />
-            <Typography variant="body1">Looks like there is no job posted right now, come back later</Typography>
-          </Grid>}
+          {vacancies.length === 0 && !loading && adminToken &&
+            <Grid
+              container
+              lg={12}
+              display="flex"
+              flexDirection="column"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <WorkOffIcon sx={{ fontSize: 65, color: "#3E89FA" }} />
+              <Typography variant="body1">Looks like there is no job posted right now, come back later</Typography>
+            </Grid>}
+        </Grid>
 
         <Grid item lg={7}>
           {vacancies.length > 0 && jobDetail &&
