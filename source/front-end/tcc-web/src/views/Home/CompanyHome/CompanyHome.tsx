@@ -17,6 +17,7 @@ import JobOverview from 'components/JobOverview/JobOverview';
 import JobSearch from 'components/JobSearch/JobSearch';
 import JobForm from 'components/JobForm/JobForm';
 import { UIContext } from 'contexts/UIContext';
+import CenteredLoading from 'components/CenteredLoading/CenteredLoading';
 
 const CompanyHome = () => {
 
@@ -29,9 +30,8 @@ const CompanyHome = () => {
   const { entityLogged, adminToken } = useContext(AuthContext);
   const { loading, setLoading } = useContext(UIContext);
 
-  const navigate = useNavigate();
-
   useEffect(() => {
+    setLoading(true);
     if (adminToken && entityLogged) {
       getJobs();
     }
@@ -53,7 +53,6 @@ const CompanyHome = () => {
   }
 
   function getJobs(): void {
-    setLoading(true);
     const company = entityLogged as CompanyAuth;
     getCompanyJobs(company.company_account!, adminToken!)
       .then(response => {
@@ -71,7 +70,9 @@ const CompanyHome = () => {
     <HomeContainer>
       <JobsDiv>
 
-        {vacancies.length === 0 &&
+        <CenteredLoading show={loading} />
+
+        {vacancies.length === 0 && !loading && entityLogged && adminToken &&
           <>
             <Grid
               container
