@@ -46,6 +46,9 @@ const Navbar: FC = () => {
           ))}
         </Grid>}
 
+      {entityType === "company" &&
+        <Grid lg={6}></Grid>}
+
       <Grid container item display="flex" lg={6} justifyContent="flex-end" alignItems="center">
         <Grid item>
           <Button

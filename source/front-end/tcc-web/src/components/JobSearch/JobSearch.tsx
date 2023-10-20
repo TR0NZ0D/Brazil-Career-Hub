@@ -16,7 +16,7 @@ const JobSearch = ({ allJobs, jobs, onSearchChange }: Props) => {
       return;
     }
 
-    const jobsCopy: Job[] = jobs.filter(x => x.role.includes(text));
+    const jobsCopy: Job[] = jobs.filter(x => x.role!.includes(text));
     onSearchChange(jobsCopy);
   }
 
@@ -33,7 +33,6 @@ const JobSearch = ({ allJobs, jobs, onSearchChange }: Props) => {
       }}
       onChange={(e) => handleSearchChange(e.target.value)}
       fullWidth
-      style={{ marginBottom: "5%" }}
     />
   )
 }

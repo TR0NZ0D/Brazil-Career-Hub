@@ -10,7 +10,7 @@ export const JobCreationContainer = styled.form`
   border-radius: 10px;
   background: #FFF;
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-  width: 45%;
+  width: 90%;
   height: 100%;
   margin-bottom: 5%;
 `;
