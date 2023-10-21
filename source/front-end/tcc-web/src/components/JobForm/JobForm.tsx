@@ -10,10 +10,11 @@ import {
   TextField,
   Typography
 } from '@mui/material';
-import { JobApplicant, JobCreationContainer, ResumeViewer } from './styles';
+import { JobApplicantDiv, JobCreationContainer, ResumeViewer } from './styles';
 import { useContext, useEffect, useState } from 'react';
 import { createJob, deleteJob, updateJob } from 'api/job/job-requests';
 import { Job } from 'models/Job/Job';
+import { JobApplicant } from 'models/JobApplicant/JobApplicant';
 import { AuthContext } from 'contexts/AuthContext';
 import { CompanyAuth } from 'models/Company/CompanyAuth';
 import FieldSeparator from 'components/FieldSeparator/FieldSeparator';
@@ -21,15 +22,12 @@ import Resume, { formatGetResumeResponseIntoResumeModel } from 'models/Resume/Re
 import { getResume } from 'api/resume-requests/resume-requests';
 import { getUserProfile } from 'api/users-requests/user-profile-requests';
 import ResumeForm from 'components/ResumeForm/ResumeForm';
+import UserProfile from 'models/User/UserProfile';
+import ApplicantReview from 'components/ApplicantReview/ApplicantReview';
 
 type Props = {
   job?: Job;
   onActionExecuted?: () => void;
-}
-
-type JobApplicant = {
-  name: string;
-  resume: Resume;
 }
 
 const JobForm = ({ job, onActionExecuted }: Props) => {
@@ -47,7 +45,7 @@ const JobForm = ({ job, onActionExecuted }: Props) => {
   const [address, setAddress] = useState<string>("");
   const [addressNumber, setAddressNumber] = useState<number>(100);
   const [applicants, setApplicants] = useState<JobApplicant[]>([]);
-  const [resumeToView, setResumeToView] = useState<Resume | undefined>();
+  const [applicantToReview, setApplicantToReview] = useState<JobApplicant | undefined>();
 
   useEffect(() => {
     if (job !== undefined) {
@@ -74,8 +72,8 @@ const JobForm = ({ job, onActionExecuted }: Props) => {
             const resume: Resume = formatGetResumeResponseIntoResumeModel(response.data.content);
             response = await getUserProfile(userId, adminToken!);
             if (response.status === 200) {
-              const content = response.data.content;
-              jobApplicants.push({ name: `${content.first_name} ${content.last_name}`, resume });
+              const profile: UserProfile = response.data.content;
+              jobApplicants.push({ profile, resume });
             }
 
           }
@@ -180,25 +178,20 @@ const JobForm = ({ job, onActionExecuted }: Props) => {
   }
 
   function handleViewApplicantClick(index: number): void {
-    setResumeToView(applicants[index].resume);
+    setApplicantToReview(applicants[index]);
   }
 
   return (
     <JobCreationContainer>
 
       <Modal
-        open={resumeToView !== undefined}
-        onClose={() => setResumeToView(undefined)}
+        open={applicantToReview !== undefined}
+        onClose={() => setApplicantToReview(undefined)}
       >
         <ResumeViewer>
           <Grid container display="flex" alignItems="flex-start" justifyContent="flex-start">
-            <ResumeForm
-              title={resumeToView?.title!}
-              experiences={resumeToView?.experiences!}
-              competencies={resumeToView?.competencies!}
-              graduations={resumeToView?.graduations!}
-              links={resumeToView?.links!}
-              action="read"
+            <ApplicantReview
+              applicant={applicantToReview!}
             />
           </Grid>
         </ResumeViewer>
@@ -346,15 +339,15 @@ const JobForm = ({ job, onActionExecuted }: Props) => {
 
           {applicants.map((x, index) => {
             return (
-              <JobApplicant key={x.resume.id}>
-                <Typography>{x.name}</Typography>
+              <JobApplicantDiv key={x.resume.id}>
+                <Typography>{x.profile.username}</Typography>
                 <Button
                   variant="contained"
                   onClick={() => handleViewApplicantClick(index)}
                 >
                   View Resume
                 </Button>
-              </JobApplicant>
+              </JobApplicantDiv>
             )
           })}
         </>

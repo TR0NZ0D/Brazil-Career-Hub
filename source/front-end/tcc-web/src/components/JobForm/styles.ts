@@ -15,7 +15,7 @@ export const JobCreationContainer = styled.form`
   height: auto;
 `;
 
-export const JobApplicant = styled.div`
+export const JobApplicantDiv = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;

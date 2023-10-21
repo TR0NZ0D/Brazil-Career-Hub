@@ -55,7 +55,7 @@ class UserProfile extends User {
 
   public getJsonForProfileCreation() {
     return {
-      user_username: this.userName,
+      user_username: this.username,
       languages: this.languages,
       gender: this.gender,
       nationality: this.nationality,

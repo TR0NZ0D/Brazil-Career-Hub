@@ -47,7 +47,7 @@ const ResumeForm = ({
 
 }: Props) => {
   return (
-    <form>
+    <form style={{ boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25)" }}>
       <Grid container item lg={12} spacing={2}>
         <Grid item lg={12}>
           {action === "create" && <Typography variant="h6" gutterBottom>Create resume</Typography>}

@@ -4,18 +4,18 @@ abstract class User {
   public name: string | undefined;
   public surname: string | undefined;
 
-  constructor(userName: string, email?: string, name?: string, surname?: string) {
-    this.userName = userName;
+  constructor(username: string, email?: string, name?: string, surname?: string) {
+    this.username = username;
     this.email = email;
     this.name = name;
     this.surname = surname;
   }
 
-  public get userName(): string | undefined {
+  public get username(): string | undefined {
     return this._userName;
   }
 
-  public set userName(theUserName: string | undefined) {
+  public set username(theUserName: string | undefined) {
     if (theUserName === "" || theUserName === undefined) {
       throw new Error("Invalid userName");
     }

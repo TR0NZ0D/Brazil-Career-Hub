@@ -3,7 +3,6 @@ import Grid from '@mui/material/Grid';
 import Container from '@mui/material/Container';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import Typography from '@mui/material/Typography';
 import UserForm from './components/UserForm';
 import CompanyForm from './components/CompanyForm';
 
@@ -21,7 +20,6 @@ const Signup: FC = () => {
           borderRadius: "10",
           margin: "7% 0 5% 0",
           border: "2px solid #ebe8e8",
-          boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
           padding: "2%"
         }}>
           <Tabs value={tabValue} onChange={(_, index) => setTabValue(index)} aria-label="options-tab">
