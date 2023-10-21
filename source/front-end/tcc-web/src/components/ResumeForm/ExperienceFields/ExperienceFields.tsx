@@ -7,53 +7,68 @@ import { Fragment } from 'react';
 
 type Props = {
   experiences: Experience[];
-  setExperiences: (experiences: Experience[]) => void;
+  setExperiences?: (experiences: Experience[]) => void;
+  readonly?: boolean;
 }
 
-const ExperienceFields = ({ experiences, setExperiences }: Props) => {
+const ExperienceFields = ({ experiences, setExperiences, readonly }: Props) => {
 
   useNeverEmptyArray(experiences, setExperiences);
 
   function handleExperienceRoleChange(val: string, index: number): void {
-    let experiencesCopy: Experience[] = [...experiences];
-    experiencesCopy[index].experience_role = val;
-    setExperiences(experiencesCopy);
+    if (setExperiences) {
+      let experiencesCopy: Experience[] = [...experiences];
+      experiencesCopy[index].experience_role = val;
+      setExperiences(experiencesCopy);
+    }
   }
 
   function handleExperienceCompanyChange(val: string, index: number): void {
-    let experiencesCopy: Experience[] = [...experiences];
-    experiencesCopy[index].experience_company = val;
-    setExperiences(experiencesCopy);
+    if (setExperiences) {
+      let experiencesCopy: Experience[] = [...experiences];
+      experiencesCopy[index].experience_company = val;
+      setExperiences(experiencesCopy);
+    }
   }
 
   function handleExperienceDescriptionChange(val: string, index: number): void {
-    let experiencesCopy: Experience[] = [...experiences];
-    experiencesCopy[index].description = val;
-    setExperiences(experiencesCopy);
+    if (setExperiences) {
+      let experiencesCopy: Experience[] = [...experiences];
+      experiencesCopy[index].description = val;
+      setExperiences(experiencesCopy);
+    }
   }
 
   function handleExperienceStartDateChange(val: string, index: number): void {
-    let experiencesCopy: Experience[] = [...experiences];
-    experiencesCopy[index].experience_start_time = val;
-    setExperiences(experiencesCopy);
+    if (setExperiences) {
+      let experiencesCopy: Experience[] = [...experiences];
+      experiencesCopy[index].experience_start_time = val;
+      setExperiences(experiencesCopy);
+    }
   }
 
   function handleExperienceEndDateChange(val: string, index: number): void {
-    let experiencesCopy: Experience[] = [...experiences];
-    experiencesCopy[index].experience_end_time = val;
-    setExperiences(experiencesCopy);
+    if (setExperiences) {
+      let experiencesCopy: Experience[] = [...experiences];
+      experiencesCopy[index].experience_end_time = val;
+      setExperiences(experiencesCopy);
+    }
   }
 
   function handleAddExperience(): void {
-    let copy: Experience[] = [...experiences];
-    copy.push({});
-    setExperiences(copy);
+    if (setExperiences) {
+      let copy: Experience[] = [...experiences];
+      copy.push({});
+      setExperiences(copy);
+    }
   }
 
   function handleDeleteExperience(): void {
-    let copy: Experience[] = [...experiences];
-    copy.pop();
-    setExperiences(copy);
+    if (setExperiences) {
+      let copy: Experience[] = [...experiences];
+      copy.pop();
+      setExperiences(copy);
+    }
   }
 
   return (
@@ -77,6 +92,7 @@ const ExperienceFields = ({ experiences, setExperiences }: Props) => {
                 value={x.experience_role}
                 onChange={(e) => handleExperienceRoleChange(e.target.value, index)}
                 fullWidth
+                disabled={readonly}
               />
             </Grid>
 
@@ -88,6 +104,7 @@ const ExperienceFields = ({ experiences, setExperiences }: Props) => {
                 value={x.experience_company}
                 onChange={(e) => handleExperienceCompanyChange(e.target.value, index)}
                 fullWidth
+                disabled={readonly}
               />
             </Grid>
 
@@ -101,6 +118,7 @@ const ExperienceFields = ({ experiences, setExperiences }: Props) => {
                 fullWidth
                 multiline
                 rows={10}
+                disabled={readonly}
               />
             </Grid>
 
@@ -114,6 +132,7 @@ const ExperienceFields = ({ experiences, setExperiences }: Props) => {
                   }
                 }}
                 onChange={(e) => handleExperienceStartDateChange(e!.toString(), index)}
+                disabled={readonly}
               />
             </Grid>
 
@@ -127,18 +146,23 @@ const ExperienceFields = ({ experiences, setExperiences }: Props) => {
                   }
                 }}
                 onChange={(e) => handleExperienceEndDateChange(e!.toString(), index)}
+                disabled={readonly}
               />
             </Grid>
 
           </Fragment>
         )
       })}
-      <Grid container item display="flex" justifyContent="flex-end" alignItems="flex-end" lg={12}>
-        <Button variant="contained" onClick={handleAddExperience}>Add experience</Button>
 
-        {experiences.length > 1 &&
-          <Button variant="outlined" onClick={handleDeleteExperience} style={{ marginLeft: "2%" }}>Delete experience</Button>}
-      </Grid>
+      {!readonly &&
+        <>
+          <Grid container item display="flex" justifyContent="flex-end" alignItems="flex-end" lg={12}>
+            <Button variant="contained" onClick={handleAddExperience}>Add experience</Button>
+
+            {experiences.length > 1 &&
+              <Button variant="outlined" onClick={handleDeleteExperience} style={{ marginLeft: "2%" }}>Delete experience</Button>}
+          </Grid>
+        </>}
     </>
   )
 }

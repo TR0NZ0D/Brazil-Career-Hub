@@ -7,6 +7,7 @@ import {
 } from '@mui/material';
 import { Job } from 'models/Job/Job';
 import { cutText } from 'utilities/TextUtilities';
+import { JobOverviewCard, JobOverviewCardHeader } from './styles';
 
 type Props = {
   job: Job;
@@ -25,17 +26,13 @@ const JobOverview = ({ job, onClick }: Props) => {
   body = cutText(body!, 250);
 
   return (
-    <Card onClick={handleCardClick} style={{ height: "15%", width: "100%" }}>
-      <CardActionArea>
-        <CardContent>
-          <Grid container display="flex" justifyContent="space-between">
-            <Typography variant="h6" gutterBottom>{job.role}</Typography>
-            <Typography variant="body1" gutterBottom>Applicants: {job.resumes?.length}</Typography>
-          </Grid>
-          <Typography variant="body2">{body}</Typography>
-        </CardContent>
-      </CardActionArea>
-    </Card>
+    <JobOverviewCard onClick={handleCardClick}>
+      <JobOverviewCardHeader>
+        <Typography variant="h6" gutterBottom>{job.role}</Typography>
+        <Typography variant="body1" gutterBottom>Applicants: {job.resumes?.length}</Typography>
+      </JobOverviewCardHeader>
+      <Typography variant="body2">{body}</Typography>
+    </JobOverviewCard>
   )
 }
 

@@ -15,17 +15,17 @@ type Props = {
   competencies: Competencie[];
   graduations: Graduation[];
   links: Link[];
-  action: "create" | "edit";
+  action: "create" | "edit" | "read";
 
-  onTitleChange: (text: string) => void;
-  onExperienceChange: (experiences: Experience[]) => void;
-  onCompetenceChange: (competencies: Competencie[]) => void;
-  onGraduationsChange: (graduations: Graduation[]) => void;
-  onLinksChange: (links: Link[]) => void;
+  onTitleChange?: (text: string) => void;
+  onExperienceChange?: (experiences: Experience[]) => void;
+  onCompetenceChange?: (competencies: Competencie[]) => void;
+  onGraduationsChange?: (graduations: Graduation[]) => void;
+  onLinksChange?: (links: Link[]) => void;
 
-  onCreate: (event: any) => any;
-  onUpdate: (event: any) => any;
-  onDelete: (event: any) => any;
+  onCreate?: (event: any) => any;
+  onUpdate?: (event: any) => any;
+  onDelete?: (event: any) => any;
 }
 
 const ResumeForm = ({
@@ -62,8 +62,9 @@ const ResumeForm = ({
             label="Title"
             helperText="Title to help you identify this resume"
             value={title}
-            onChange={(e) => onTitleChange(e.target.value)}
+            onChange={(e) => onTitleChange && onTitleChange(e.target.value)}
             fullWidth
+            disabled={action === "read"}
           />
         </Grid>
 
@@ -73,7 +74,8 @@ const ResumeForm = ({
 
         <ExperienceFields
           experiences={experiences}
-          setExperiences={onExperienceChange} />
+          setExperiences={onExperienceChange}
+          readonly={action === "read"} />
 
         <Grid item lg={12}>
           <FieldSeparator margin={1} />
@@ -81,7 +83,8 @@ const ResumeForm = ({
 
         <CompetenceFields
           competencies={competencies}
-          setCompetences={onCompetenceChange} />
+          setCompetences={onCompetenceChange}
+          readonly={action === "read"} />
 
         <Grid item lg={12}>
           <FieldSeparator margin={1} />
@@ -89,7 +92,8 @@ const ResumeForm = ({
 
         <GraduationFields
           graduations={graduations}
-          setGraduations={onGraduationsChange} />
+          setGraduations={onGraduationsChange}
+          readonly={action === "read"} />
 
         <Grid item lg={12}>
           <FieldSeparator margin={1} />
@@ -97,7 +101,8 @@ const ResumeForm = ({
 
         <LinkFields
           links={links}
-          setLinks={onLinksChange} />
+          setLinks={onLinksChange}
+          readonly={action === "read"} />
 
         {action === "create" &&
           <Grid container item lg={12} display="flex" justifyContent="flex-end" style={{ marginTop: "5%" }}>

@@ -6,7 +6,7 @@ import { useState, useEffect, useContext } from 'react';
 import ResumeSelector from 'components/ResumeSelector/ResumeSelector';
 import { AuthContext } from 'contexts/AuthContext';
 import { UIContext } from 'contexts/UIContext';
-import { formatGetResumeRequestIntoResumeModel } from 'models/Resume/Resume';
+import { formatGetResumesResponseIntoResumeModel } from 'models/Resume/Resume';
 import { getUserResumes } from 'api/resume-requests/resume-requests';
 import UserLogged from 'models/UserLogged/UserLogged';
 
@@ -29,7 +29,7 @@ const JobContainerForApply = ({ job }: Props) => {
       getUserResumes(user.id, adminToken!)
         .then(response => {
           if (response.status === 200) {
-            const resumes = formatGetResumeRequestIntoResumeModel(response.data.content);
+            const resumes = formatGetResumesResponseIntoResumeModel(response.data.content);
             for (const jobResumes of job?.resumes!) {
               for (const resume of resumes) {
                 if (jobResumes === resume.id) {

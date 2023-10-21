@@ -10,41 +10,52 @@ import { Fragment } from 'react';
 
 type Props = {
   links: Link[];
-  setLinks: (links: Link[]) => void;
+  setLinks?: (links: Link[]) => void;
+  readonly?: boolean;
 }
 
-const LinkFields = ({ links, setLinks }: Props) => {
+const LinkFields = ({ links, setLinks, readonly }: Props) => {
 
   useNeverEmptyArray(links, setLinks);
 
   function handleLinkTitleChange(val: string, index: number): void {
-    let copy: Link[] = [...links];
-    copy[index].title = val;
-    setLinks(copy);
+    if (setLinks) {
+      let copy: Link[] = [...links];
+      copy[index].title = val;
+      setLinks(copy);
+    }
   }
 
   function handleLinkUrlChange(val: string, index: number): void {
-    let copy: Link[] = [...links];
-    copy[index].url = val;
-    setLinks(copy);
+    if (setLinks) {
+      let copy: Link[] = [...links];
+      copy[index].url = val;
+      setLinks(copy);
+    }
   }
 
   function handleLinkDescriptionChange(val: string, index: number): void {
-    let copy: Link[] = [...links];
-    copy[index].description = val;
-    setLinks(copy);
+    if (setLinks) {
+      let copy: Link[] = [...links];
+      copy[index].description = val;
+      setLinks(copy);
+    }
   }
 
   function handleAddGraduation(): void {
-    let copy: Link[] = [...links];
-    copy.push({});
-    setLinks(copy);
+    if (setLinks) {
+      let copy: Link[] = [...links];
+      copy.push({});
+      setLinks(copy);
+    }
   }
 
   function handleDeleteGraduation(): void {
-    let copy: Link[] = [...links];
-    copy.pop();
-    setLinks(copy);
+    if (setLinks) {
+      let copy: Link[] = [...links];
+      copy.pop();
+      setLinks(copy);
+    }
   }
 
   return (
@@ -68,6 +79,7 @@ const LinkFields = ({ links, setLinks }: Props) => {
                 value={x.title}
                 onChange={(e) => handleLinkTitleChange(e.target.value, index)}
                 fullWidth
+                disabled={readonly}
               />
             </Grid>
 
@@ -79,6 +91,7 @@ const LinkFields = ({ links, setLinks }: Props) => {
                 value={x.url}
                 onChange={(e) => handleLinkUrlChange(e.target.value, index)}
                 fullWidth
+                disabled={readonly}
               />
             </Grid>
 
@@ -92,18 +105,23 @@ const LinkFields = ({ links, setLinks }: Props) => {
                 value={x.description}
                 onChange={(e) => handleLinkDescriptionChange(e.target.value, index)}
                 fullWidth
+                disabled={readonly}
               />
             </Grid>
 
           </Fragment>
         )
       })}
-      <Grid container item display="flex" justifyContent="flex-end" alignItems="flex-end" lg={12}>
-        <Button variant="contained" onClick={handleAddGraduation}>Add link</Button>
 
-        {links.length > 1 &&
-          <Button variant="outlined" onClick={handleDeleteGraduation} style={{ marginLeft: "2%" }}>Delete link</Button>}
-      </Grid>
+      {!readonly &&
+        <>
+          <Grid container item display="flex" justifyContent="flex-end" alignItems="flex-end" lg={12}>
+            <Button variant="contained" onClick={handleAddGraduation}>Add link</Button>
+
+            {links.length > 1 &&
+              <Button variant="outlined" onClick={handleDeleteGraduation} style={{ marginLeft: "2%" }}>Delete link</Button>}
+          </Grid>
+        </>}
     </>
   )
 }

@@ -8,7 +8,7 @@ import { getUserResumes } from 'api/resume-requests/resume-requests';
 import { AuthContext } from 'contexts/AuthContext';
 import { UIContext } from 'contexts/UIContext';
 import { Job } from 'models/Job/Job';
-import Resume, { formatGetResumeRequestIntoResumeModel } from 'models/Resume/Resume';
+import Resume, { formatGetResumesResponseIntoResumeModel } from 'models/Resume/Resume';
 import UserLogged from 'models/UserLogged/UserLogged';
 import { useState, useEffect, useContext } from 'react';
 import { DivWrapper, LoadingDiv, MainDiv, ResumeOption, ResumeSelectorBody, ResumeSelectorFooter } from './styles';
@@ -36,20 +36,20 @@ const ResumeSelector = ({ show, forJob, onClose }: Props) => {
       getUserResumes(user.id, adminToken!)
         .then(response => {
           if (response.status === 200)
-            setResumes(formatGetResumeRequestIntoResumeModel(response.data.content));
+            setResumes(formatGetResumesResponseIntoResumeModel(response.data.content));
         })
         .finally(() => setLoading(false));
     }
   }, [adminToken, entityLogged]);
 
   useEffect(() => {
-    if (!selectedResume) {
+    if (selectedResume === undefined) {
       setCanApply(false);
       return;
     }
 
     setCanApply(true);
-  }, [canApply]);
+  }, [selectedResume]);
 
   function handleApply(): void {
     const resumeId = resumes[selectedResume!].id;
@@ -66,6 +66,7 @@ const ResumeSelector = ({ show, forJob, onClose }: Props) => {
       })
   }
 
+  console.log(canApply);
   return (
     <Modal
       open={show}

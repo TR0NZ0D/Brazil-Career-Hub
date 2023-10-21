@@ -4,21 +4,32 @@ import {
   FormControlLabel,
   FormLabel,
   Grid,
+  Modal,
   Radio,
   RadioGroup,
   TextField,
   Typography
 } from '@mui/material';
-import { JobCreationContainer } from './styles';
+import { JobApplicant, JobCreationContainer, ResumeViewer } from './styles';
 import { useContext, useEffect, useState } from 'react';
 import { createJob, deleteJob, updateJob } from 'api/job/job-requests';
 import { Job } from 'models/Job/Job';
 import { AuthContext } from 'contexts/AuthContext';
 import { CompanyAuth } from 'models/Company/CompanyAuth';
+import FieldSeparator from 'components/FieldSeparator/FieldSeparator';
+import Resume, { formatGetResumeResponseIntoResumeModel } from 'models/Resume/Resume';
+import { getResume } from 'api/resume-requests/resume-requests';
+import { getUserProfile } from 'api/users-requests/user-profile-requests';
+import ResumeForm from 'components/ResumeForm/ResumeForm';
 
 type Props = {
   job?: Job;
   onActionExecuted?: () => void;
+}
+
+type JobApplicant = {
+  name: string;
+  resume: Resume;
 }
 
 const JobForm = ({ job, onActionExecuted }: Props) => {
@@ -30,10 +41,13 @@ const JobForm = ({ job, onActionExecuted }: Props) => {
   const [description, setDescription] = useState<string>("");
   const [modality, setModality] = useState<"remote" | "onsite">("remote");
   const [salary, setSalary] = useState<number>(1320);
+  const [applicantsFetched, setApplicantsFetched] = useState<boolean>(false);
 
   const [addressTitle, setAddressTitle] = useState<string>("");
   const [address, setAddress] = useState<string>("");
   const [addressNumber, setAddressNumber] = useState<number>(100);
+  const [applicants, setApplicants] = useState<JobApplicant[]>([]);
+  const [resumeToView, setResumeToView] = useState<Resume | undefined>();
 
   useEffect(() => {
     if (job !== undefined) {
@@ -45,6 +59,36 @@ const JobForm = ({ job, onActionExecuted }: Props) => {
       resetProps();
     }
   }, [job]);
+
+  useEffect(() => {
+    if (job !== undefined && adminToken && entityLogged && !applicantsFetched) {
+
+      const getApplicants = async () => {
+        const resumes = job.resumes!;
+        const jobApplicants: JobApplicant[] = [];
+
+        for (const resumeId of resumes) {
+          let response = await getResume(resumeId, adminToken!);
+          if (response.status === 200) {
+            const userId: number = response.data.content.profile;
+            const resume: Resume = formatGetResumeResponseIntoResumeModel(response.data.content);
+            response = await getUserProfile(userId, adminToken!);
+            if (response.status === 200) {
+              const content = response.data.content;
+              jobApplicants.push({ name: `${content.first_name} ${content.last_name}`, resume });
+            }
+
+          }
+        }
+
+        setApplicants(jobApplicants);
+        setApplicantsFetched(true);
+      }
+
+      getApplicants();
+    }
+
+  }, [job, adminToken, entityLogged]);
 
   function resetProps(): void {
     setRole("");
@@ -135,8 +179,30 @@ const JobForm = ({ job, onActionExecuted }: Props) => {
     return jobData;
   }
 
+  function handleViewApplicantClick(index: number): void {
+    setResumeToView(applicants[index].resume);
+  }
+
   return (
     <JobCreationContainer>
+
+      <Modal
+        open={resumeToView !== undefined}
+        onClose={() => setResumeToView(undefined)}
+      >
+        <ResumeViewer>
+          <Grid container display="flex" alignItems="flex-start" justifyContent="flex-start">
+            <ResumeForm
+              title={resumeToView?.title!}
+              experiences={resumeToView?.experiences!}
+              competencies={resumeToView?.competencies!}
+              graduations={resumeToView?.graduations!}
+              links={resumeToView?.links!}
+              action="read"
+            />
+          </Grid>
+        </ResumeViewer>
+      </Modal>
 
       {formAction === "create" &&
         <Typography variant="h5">Create Job</Typography>}
@@ -272,7 +338,28 @@ const JobForm = ({ job, onActionExecuted }: Props) => {
             Submit
           </Button>}
       </Grid>
-    </JobCreationContainer>
+
+      {formAction === "update" && applicants.length > 0 &&
+        <>
+          <FieldSeparator />
+          <Typography variant="h5">Applicants</Typography>
+
+          {applicants.map((x, index) => {
+            return (
+              <JobApplicant key={x.resume.id}>
+                <Typography>{x.name}</Typography>
+                <Button
+                  variant="contained"
+                  onClick={() => handleViewApplicantClick(index)}
+                >
+                  View Resume
+                </Button>
+              </JobApplicant>
+            )
+          })}
+        </>
+      }
+    </JobCreationContainer >
   )
 }
 

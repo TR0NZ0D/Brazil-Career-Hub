@@ -12,47 +12,60 @@ import { Fragment } from 'react';
 
 type Props = {
   graduations: Graduation[];
-  setGraduations: (graduations: Graduation[]) => void;
+  setGraduations?: (graduations: Graduation[]) => void;
+  readonly?: boolean;
 }
 
-const GraduationFields = ({ graduations, setGraduations }: Props) => {
+const GraduationFields = ({ graduations, setGraduations, readonly }: Props) => {
 
   useNeverEmptyArray(graduations, setGraduations);
 
   function handleGradiationTitleChange(val: string, index: number): void {
-    let copy: Graduation[] = [...graduations];
-    copy[index].title = val;
-    setGraduations(copy);
+    if (setGraduations) {
+      let copy: Graduation[] = [...graduations];
+      copy[index].title = val;
+      setGraduations(copy);
+    }
   }
 
   function handleGraduationTypeChange(val: string, index: number): void {
-    let copy: Graduation[] = [...graduations];
-    copy[index].graduation_type = val;
-    setGraduations(copy);
+    if (setGraduations) {
+      let copy: Graduation[] = [...graduations];
+      copy[index].graduation_type = val;
+      setGraduations(copy);
+    }
   }
 
   function handleGraduationStartChange(val: string, index: number): void {
-    let copy: Graduation[] = [...graduations];
-    copy[index].graduation_start_time = val;
-    setGraduations(copy);
+    if (setGraduations) {
+      let copy: Graduation[] = [...graduations];
+      copy[index].graduation_start_time = val;
+      setGraduations(copy);
+    }
   }
 
   function handleGraduationEndChange(val: string, index: number): void {
-    let copy: Graduation[] = [...graduations];
-    copy[index].graduation_end_time = val;
-    setGraduations(copy);
+    if (setGraduations) {
+      let copy: Graduation[] = [...graduations];
+      copy[index].graduation_end_time = val;
+      setGraduations(copy);
+    }
   }
 
   function handleAddGraduation(): void {
-    let copy: Graduation[] = [...graduations];
-    copy.push({});
-    setGraduations(copy);
+    if (setGraduations) {
+      let copy: Graduation[] = [...graduations];
+      copy.push({});
+      setGraduations(copy);
+    }
   }
 
   function handleDeleteGraduation(): void {
-    let copy: Graduation[] = [...graduations];
-    copy.pop();
-    setGraduations(copy);
+    if (setGraduations) {
+      let copy: Graduation[] = [...graduations];
+      copy.pop();
+      setGraduations(copy);
+    }
   }
 
   return (
@@ -76,6 +89,7 @@ const GraduationFields = ({ graduations, setGraduations }: Props) => {
                 value={x.title}
                 onChange={(e) => handleGradiationTitleChange(e.target.value, index)}
                 fullWidth
+                disabled={readonly}
               />
             </Grid>
 
@@ -87,6 +101,7 @@ const GraduationFields = ({ graduations, setGraduations }: Props) => {
                 value={x.graduation_type}
                 onChange={(e) => handleGraduationTypeChange(e.target.value, index)}
                 fullWidth
+                disabled={readonly}
               />
             </Grid>
 
@@ -100,6 +115,7 @@ const GraduationFields = ({ graduations, setGraduations }: Props) => {
                   }
                 }}
                 onChange={(e) => handleGraduationStartChange(e!.toString(), index)}
+                disabled={readonly}
               />
             </Grid>
 
@@ -113,18 +129,23 @@ const GraduationFields = ({ graduations, setGraduations }: Props) => {
                   }
                 }}
                 onChange={(e) => handleGraduationEndChange(e!.toString(), index)}
+                disabled={readonly}
               />
             </Grid>
 
           </Fragment>
         )
       })}
-      <Grid container item display="flex" justifyContent="flex-end" alignItems="flex-end" lg={12}>
-        <Button variant="contained" onClick={handleAddGraduation}>Add graduation</Button>
 
-        {graduations.length > 1 &&
-          <Button variant="outlined" onClick={handleDeleteGraduation} style={{ marginLeft: "2%" }}>Delete graduation</Button>}
-      </Grid>
+      {!readonly &&
+        <>
+          <Grid container item display="flex" justifyContent="flex-end" alignItems="flex-end" lg={12}>
+            <Button variant="contained" onClick={handleAddGraduation}>Add graduation</Button>
+
+            {graduations.length > 1 &&
+              <Button variant="outlined" onClick={handleDeleteGraduation} style={{ marginLeft: "2%" }}>Delete graduation</Button>}
+          </Grid>
+        </>}
     </>
   )
 }

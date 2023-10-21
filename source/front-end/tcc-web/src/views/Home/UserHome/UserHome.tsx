@@ -58,9 +58,7 @@ const UserHome = () => {
         {vacanciesOnSearch.length > 0 &&
           vacanciesOnSearch.map((x, index) => {
             return (
-              <Grid item lg={12}>
-                <JobOverview key={x.pk} job={x} onClick={() => handleJobClick(index)} />
-              </Grid>
+              <JobOverview key={x.pk} job={x} onClick={() => handleJobClick(index)} />
             )
           })
         }

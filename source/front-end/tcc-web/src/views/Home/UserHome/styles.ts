@@ -14,6 +14,7 @@ export const JobsDiv = styled.div`
   height: 100%;
   flex-direction: column;
   padding-left: 2%;
+  gap: 2%;
 `
 
 export const JobContainerDiv = styled.div`

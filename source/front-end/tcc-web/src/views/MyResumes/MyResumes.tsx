@@ -9,7 +9,7 @@ import Navbar from "components/Navbar/Navbar";
 import Resume, {
   checkForDefaultValues,
   fillAllResumePropertiesWithProfilePk,
-  formatGetResumeRequestIntoResumeModel,
+  formatGetResumesResponseIntoResumeModel,
   formatResumeDates
 } from "models/Resume/Resume";
 import { useState, useContext, useEffect } from "react";
@@ -64,7 +64,7 @@ const MyResumes = () => {
       getUserResumes(userLogged.id, adminToken!)
         .then(response => {
           if (response.status === 200) {
-            setResumes(formatGetResumeRequestIntoResumeModel(response.data.content));
+            setResumes(formatGetResumesResponseIntoResumeModel(response.data.content));
           }
         })
         .finally(() => setLoading(false));

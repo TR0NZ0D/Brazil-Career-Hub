@@ -2,10 +2,10 @@ import styled from "styled-components";
 
 export const HomeContainer = styled.div`
   display: flex;
-  justify-content: space-between;
   height: 100%;
   width: 100%;
   padding-top: 3%;
+  gap: 5%;
 `
 
 export const JobsDiv = styled.div`

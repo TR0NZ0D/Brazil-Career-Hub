@@ -72,7 +72,7 @@ export function formatResumeDates(resume: Resume): void {
   }
 }
 
-export function formatGetResumeRequestIntoResumeModel(resumesFromResponse: any[]): Resume[] {
+export function formatGetResumesResponseIntoResumeModel(resumesFromResponse: any[]): Resume[] {
   const resumes: Resume[] = [];
 
   for (const resumeFromResponse of resumesFromResponse) {
@@ -89,6 +89,17 @@ export function formatGetResumeRequestIntoResumeModel(resumesFromResponse: any[]
   }
 
   return resumes;
+}
+
+export function formatGetResumeResponseIntoResumeModel(resumeFromResponse: any): Resume {
+  return {
+    id: resumeFromResponse.pk as number,
+    title: resumeFromResponse.title as string,
+    experiences: resumeFromResponse.all_experiences,
+    competencies: resumeFromResponse.all_competencies,
+    graduations: resumeFromResponse.all_graduations,
+    links: resumeFromResponse.all_links
+  }
 }
 
 export default Resume;

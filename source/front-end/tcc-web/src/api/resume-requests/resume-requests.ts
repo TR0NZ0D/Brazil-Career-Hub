@@ -13,6 +13,16 @@ export async function getUserResumes(userId: number, admToken: string): Promise<
   })
 }
 
+export function getResume(resumeId: number, admToken: string): Promise<AxiosResponse> {
+  return axios({
+    url: baseUrl + "/api/resumes/",
+    headers: {
+      "Authorization": "Bearer " + admToken
+    },
+    params: { pk: resumeId }
+  })
+}
+
 export async function createResumeAsync(resume: Resume, admToken: string): Promise<AxiosResponse> {
   return await axios({
     method: "post",
