@@ -15,7 +15,7 @@ export async function createUserAccount(user: UserAccount, admToken: string) {
     method: "post",
     url: baseUrl + "/api/users/",
     data: {
-      "username": user.userName,
+      "username": user.username,
       "password": user.password,
       "email": user.email,
       "name": user.name,

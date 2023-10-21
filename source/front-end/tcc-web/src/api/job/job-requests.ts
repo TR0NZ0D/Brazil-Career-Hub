@@ -28,9 +28,9 @@ function createJobAccordingToAddress(job: Job): object {
   }
 }
 
-export async function createJob(job: Job, admToken: string) {
+export async function createJob(job: Job, admToken: string): Promise<AxiosResponse> {
   const data = createJobAccordingToAddress(job);
-  await axios({
+  return await axios({
     method: "post",
     url: baseUrl + "/api/vacancy/",
     data: data,
@@ -46,6 +46,42 @@ export async function getCompanyJobs(companyId: number, admToken: string): Promi
     method: "get",
     url: baseUrl + "/api/vacancy/",
     params: { company_pk: companyId },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + admToken
+    }
+  })
+}
+
+export async function getJobs(admToken: string): Promise<AxiosResponse> {
+  return await axios({
+    method: "get",
+    url: baseUrl + "/api/vacancy/",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + admToken
+    }
+  })
+}
+
+export async function updateJob(job: Job, admToken: string): Promise<AxiosResponse> {
+  return await axios({
+    method: "patch",
+    url: baseUrl + "/api/vacancy/",
+    params: { pk: job.pk },
+    data: job,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + admToken
+    }
+  })
+}
+
+export async function deleteJob(id: number, admToken: string): Promise<AxiosResponse> {
+  return await axios({
+    method: "delete",
+    url: baseUrl + "/api/vacancy/",
+    params: { pk: id },
     headers: {
       "Content-Type": "application/json",
       "Authorization": "Bearer " + admToken

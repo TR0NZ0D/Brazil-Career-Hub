@@ -1,13 +1,10 @@
 import { ReactNode, createContext, useState, useEffect } from 'react';
 import { getToken } from 'api/admin/admin-requests';
-import UserProfile from 'models/User/UserProfile';
 import { loginUser } from 'api/users-requests/auth-requests';
 import { loginCompany } from 'api/company-requests/company-auth-requests';
 import { CompanyAuth } from 'models/Company/CompanyAuth';
-
-type ProviderProps = {
-  children: ReactNode;
-}
+import UserLogged from 'models/UserLogged/UserLogged';
+import { ProviderProps } from './ProviderProps';
 
 type AdminToken = {
   message: string;
@@ -16,11 +13,12 @@ type AdminToken = {
 
 type AuthContextProps = {
   adminToken: string | undefined;
-  entityLogged: CompanyAuth | UserProfile | undefined;
+  entityLogged: CompanyAuth | UserLogged | undefined;
   entityType: "company" | "user" | undefined;
 
-  userLogin: (username: string, pass: string) => Promise<UserProfile | undefined>;
+  userLogin: (username: string, pass: string) => Promise<UserLogged | undefined>;
   companyLogin: (cnpj: string, pass: string) => Promise<CompanyAuth | undefined>;
+  logout: () => void;
 }
 
 export const AuthContext = createContext({} as AuthContextProps);
@@ -28,7 +26,7 @@ export const AuthContext = createContext({} as AuthContextProps);
 export const AuthContextProvider = ({ children }: ProviderProps) => {
 
   const [adminToken, setAdminToken] = useState<string | undefined>();
-  const [entityLogged, setEntityLogged] = useState<CompanyAuth | UserProfile>();
+  const [entityLogged, setEntityLogged] = useState<CompanyAuth | UserLogged>();
   const [entityType, setEntityType] = useState<"company" | "user" | undefined>();
 
   useEffect(() => {
@@ -48,20 +46,27 @@ export const AuthContextProvider = ({ children }: ProviderProps) => {
     if (entityOnStorage !== null) {
       const entity = JSON.parse(entityOnStorage);
       setEntityLogged(entity);
+    }
+  }, [])
+
+  useEffect(() => {
+    if (entityLogged !== undefined) {
+      const entity = JSON.parse(JSON.stringify(entityLogged));
 
       if (entity.cnpj !== undefined)
         setEntityType("company");
       else
         setEntityType("user");
     }
-  }, [])
 
-  async function userLogin(username: string, pass: string): Promise<UserProfile | undefined> {
-    let user: UserProfile | undefined;
+  }, [entityLogged])
+
+  async function userLogin(username: string, pass: string): Promise<UserLogged | undefined> {
+    let user: UserLogged | undefined;
     try {
       const response = await loginUser(username, pass, adminToken!);
       if (response.status === 200) {
-        user = response.data.content as UserProfile;
+        user = response.data.content as UserLogged;
       }
     } catch (error) {
       console.log(error);
@@ -88,6 +93,10 @@ export const AuthContextProvider = ({ children }: ProviderProps) => {
     return company;
   }
 
+  function logout(): void {
+    localStorage.removeItem("entity-logged");
+  }
+
   return (
     <AuthContext.Provider value={{
       // states
@@ -97,7 +106,8 @@ export const AuthContextProvider = ({ children }: ProviderProps) => {
 
       // methods
       userLogin,
-      companyLogin
+      companyLogin,
+      logout
     }}>
       {children}
     </AuthContext.Provider>
