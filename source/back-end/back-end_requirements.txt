@@ -54,7 +54,7 @@ sqlparse==0.4.4
 tomli==2.0.1
 tomlkit==0.11.8
 tr0nz0d==0.1.6
-types-Pillow==10.0.0.1
+types-Pillow==10.1.0.2
 types-pytz==2023.3.0.0
 types-PyYAML==6.0.12.10
 types-requests==2.31.0.0
