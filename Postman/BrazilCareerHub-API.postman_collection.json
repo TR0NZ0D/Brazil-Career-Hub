@@ -1,0 +1,2487 @@
+{
+	"info": {
+		"_postman_id": "bc42fcb3-c362-4112-917d-6d87328f7feb",
+		"name": "BrazilCareerHub-API",
+		"description": "# Brazil Career Hub API\n\nTCC project API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24996295",
+		"_collection_link": "https://tr0nz0d-team.postman.co/workspace/Team-Workspace~31bf625f-4029-42fa-83fe-c477c430a64d/collection/24996295-bc42fcb3-c362-4112-917d-6d87328f7feb?action=share&source=collection_link&creator=24996295"
+	},
+	"item": [
+		{
+			"name": "API Info",
+			"item": [
+				{
+					"name": "API Version",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/info/version/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"info",
+								"version",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "API Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/info/status/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"info",
+								"status",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Token",
+			"item": [
+				{
+					"name": "Get Token",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.json().token != null) {\r",
+									"    pm.environment.set(\"token\", pm.response.json().token);\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "username",
+								"value": "{{username}}",
+								"type": "text"
+							},
+							{
+								"key": "password",
+								"value": "{{password}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/token/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"token",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.json().token != null) {\r",
+									"    pm.environment.set(\"token\", pm.response.json().token);\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "username",
+								"value": "{{username}}",
+								"type": "text"
+							},
+							{
+								"key": "password",
+								"value": "{{password}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/token/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"token",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Bans",
+					"item": [
+						{
+							"name": "Get All Banned Users",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/bans/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"bans",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Banned User",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/bans/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"bans",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "slug",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Ban Issue",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "user_username",
+											"value": "",
+											"description": "Banned user username",
+											"type": "text"
+										},
+										{
+											"key": "profile_slug",
+											"value": "",
+											"description": "banned user profile slug",
+											"type": "text"
+										},
+										{
+											"key": "reason",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "responsible_username",
+											"value": "",
+											"description": "Administrator username",
+											"type": "text"
+										},
+										{
+											"key": "ip",
+											"value": "",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/users/bans/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"bans",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Ban Issue",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/bans/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"bans",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "slug",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Authentication",
+					"item": [
+						{
+							"name": "Logout user",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/auth/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"auth",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login user",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "username",
+											"value": "{{username}}",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "{{password}}",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/users/auth/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"auth",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Account",
+					"item": [
+						{
+							"name": "Get user account",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										""
+									],
+									"query": [
+										{
+											"key": "username",
+											"value": "{{username}}",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create user account",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "username",
+											"value": "",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "password",
+											"value": "",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "email",
+											"value": "",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "name",
+											"value": "",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "surname",
+											"value": "",
+											"type": "text",
+											"disabled": true
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/users/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update specific user account data",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "username",
+											"value": "",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "password",
+											"value": "",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "email",
+											"value": "",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "name",
+											"value": "",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "surname",
+											"value": "",
+											"type": "text",
+											"disabled": true
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/users/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										""
+									],
+									"query": [
+										{
+											"key": "username",
+											"value": "{{username}}",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete user account",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										""
+									],
+									"query": [
+										{
+											"key": "username",
+											"value": "{{username}}",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Profile",
+					"item": [
+						{
+							"name": "Get user profile",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.json().id != null) {\r",
+											"    pm.environment.set(\"id\", pm.response.json().id);\r",
+											"}\r",
+											"\r",
+											"if (pm.response.json().slug != null) {\r",
+											"    pm.environment.set(\"slug\", pm.response.json().slug);\r",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/profile/?pk=3",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"profile",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": "3"
+										},
+										{
+											"key": "slug",
+											"value": "gustavin",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create user profile",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/users/profile/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"profile",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update specific user profile data",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.json().id != null) {\r",
+											"    pm.environment.set(\"id\", pm.response.json().id);\r",
+											"}\r",
+											"\r",
+											"if (pm.response.json().slug != null) {\r",
+											"    pm.environment.set(\"slug\", pm.response.json().slug);\r",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/users/profile/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"profile",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": "{{id}}",
+											"disabled": true
+										},
+										{
+											"key": "slug",
+											"value": "{{slug}}",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete user profile",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/users/profile/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"users",
+										"profile",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": "{{id}}",
+											"disabled": true
+										},
+										{
+											"key": "slug",
+											"value": "{{slug}}",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Company",
+			"item": [
+				{
+					"name": "Profile",
+					"item": [
+						{
+							"name": "Get Company Profile",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/company/profile/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"company",
+										"profile",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Company Profile",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"company_id\": \"\",\r\n  \"address\": [\r\n      {\r\n          \"title\": \"\",\r\n          \"address\": \"\",\r\n          \"number\": 0\r\n      }\r\n  ],\r\n  \"contact\": \"\",\r\n  \"creation_date\": \"\",\r\n  \"financial_capital\": 0,\r\n  \"employees\": 0,\r\n  \"site_url\": \"\",\r\n  \"social_media\": [\r\n      {\r\n          \"title\": \"\",\r\n          \"url\": \"\",\r\n          \"username\": \"\"\r\n      }\r\n  ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/company/profile/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"company",
+										"profile",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Company Profile",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"company_id\": \"\",\r\n  \"address\": [\r\n      {\r\n          \"title\": \"\",\r\n          \"address\": \"\",\r\n          \"number\": 0\r\n      }\r\n  ],\r\n  \"contact\": \"\",\r\n  \"creation_date\": \"\",\r\n  \"financial_capital\": 0,\r\n  \"employees\": 0,\r\n  \"site_url\": \"\",\r\n  \"social_media\": [\r\n      {\r\n          \"title\": \"\",\r\n          \"url\": \"\",\r\n          \"username\": \"\"\r\n      }\r\n  ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/company/profile/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"company",
+										"profile",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Company Profile",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/company/profile/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"company",
+										"profile",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Account",
+					"item": [
+						{
+							"name": "Get Company Account",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/company/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"company",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": "",
+											"description": "Company integer primary key",
+											"disabled": true
+										},
+										{
+											"key": "slug",
+											"value": "",
+											"description": "Company slug",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Company Account",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "cnpj",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "corporate_name",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "registration_status",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "fantasy_name",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "cnae",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "legal_nature",
+											"value": "",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/company/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"company",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Company Account",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "cnpj",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "corporate_name",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "registration_status",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "fantasy_name",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "cnae",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "legal_nature",
+											"value": "",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/company/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"company",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "slug",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Company Account",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/company/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"company",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "slug",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Auth",
+					"item": [
+						{
+							"name": "Logout company",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/company/auth/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"company",
+										"auth",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Login company",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "cnpj",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/company/auth/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"company",
+										"auth",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Vacancy",
+			"item": [
+				{
+					"name": "Get all vacancies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/vacancy/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"vacancy",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all company vacancies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/vacancy/?company_pk=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"vacancy",
+								""
+							],
+							"query": [
+								{
+									"key": "company_pk",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get vacancy",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/vacancy/?pk=0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"vacancy",
+								""
+							],
+							"query": [
+								{
+									"key": "pk",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create vacancy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"created_by\": 0,\r\n    \"role\": \"\",\r\n    \"description\": \"\",\r\n    \"modality\": \"\",\r\n    \"salary\": 0,\r\n    \"address\": {\r\n        \"title\": \"\",\r\n        \"address\": \"\",\r\n        \"number\": 0\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/vacancy/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"vacancy",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update vacancy",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"created_by\": 0,\r\n    \"role\": \"\",\r\n    \"description\": \"\",\r\n    \"modality\": \"\",\r\n    \"salary\": 0,\r\n    \"address\": {\r\n        \"title\": \"\",\r\n        \"address\": \"\",\r\n        \"number\": 0\r\n    },\r\n    \"resumes\": [\r\n        0,\r\n        0\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/vacancy/?pk=0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"vacancy",
+								""
+							],
+							"query": [
+								{
+									"key": "pk",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete vacancy",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/vacancy/?pk=0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"vacancy",
+								""
+							],
+							"query": [
+								{
+									"key": "pk",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Resume",
+			"item": [
+				{
+					"name": "Competence",
+					"item": [
+						{
+							"name": "Get Competence",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/competence/?pk",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"competence",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Competencies",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/competence/?slug",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"competence",
+										""
+									],
+									"query": [
+										{
+											"key": "user_pk",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "profile_pk",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "slug",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Competence",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"profile_pk\": \"\",\r\n  \"title\": \"\",\r\n  \"description\": \"\",\r\n  \"competence_name\": \"\",\r\n  \"competence_level\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/resumes/competence/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"competence",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Competence",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"profile_pk\": \"\",\r\n  \"title\": \"\",\r\n  \"description\": \"\",\r\n  \"competence_name\": \"\",\r\n  \"competence_level\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/resumes/competence/?pk=",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"competence",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Competence",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/competence/?pk",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"competence",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Course",
+					"item": [
+						{
+							"name": "Get Course",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/course/?pk",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"course",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Courses",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/course/?slug",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"course",
+										""
+									],
+									"query": [
+										{
+											"key": "user_pk",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "profile_pk",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "slug",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Course",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"profile_pk\": \"\",\r\n  \"title\": \"\",\r\n  \"description\": \"\",\r\n  \"course_name\": \"\",\r\n  \"course_locale\": \"\",\r\n  \"course_provider\": \"\",\r\n  \"course_hours\": \"\",\r\n  \"course_start_time\": \"\",\r\n  \"course_end_time\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/resumes/course/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"course",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Course",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"profile_pk\": \"\",\r\n  \"title\": \"\",\r\n  \"description\": \"\",\r\n  \"course_name\": \"\",\r\n  \"course_locale\": \"\",\r\n  \"course_provider\": \"\",\r\n  \"course_hours\": \"\",\r\n  \"course_start_time\": \"\",\r\n  \"course_end_time\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/resumes/course/?pk",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"course",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Course",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/course/?pk",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"course",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Experience",
+					"item": [
+						{
+							"name": "Get Experience",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/experience/?pk",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"experience",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Experiences",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/experience/?slug",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"experience",
+										""
+									],
+									"query": [
+										{
+											"key": "user_pk",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "profile_pk",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "slug",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Experience",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"profile_pk\": \"\",\r\n  \"title\": \"\",\r\n  \"description\": \"\",\r\n  \"experience_company\": \"\",\r\n  \"experience_role\": \"\",\r\n  \"experience_description\": \"\",\r\n  \"experience_start_time\": \"\",\r\n  \"experience_end_time\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/resumes/experience/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"experience",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Experience",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"profile_pk\": \"\",\r\n  \"title\": \"\",\r\n  \"description\": \"\",\r\n  \"experience_company\": \"\",\r\n  \"experience_role\": \"\",\r\n  \"experience_description\": \"\",\r\n  \"experience_start_time\": \"\",\r\n  \"experience_end_time\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/resumes/experience/?pk",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"experience",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Experience",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/experience/?pk",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"experience",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Graduation",
+					"item": [
+						{
+							"name": "Get Graduation",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/graduation/?pk",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"graduation",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Graduations",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/graduation/?slug",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"graduation",
+										""
+									],
+									"query": [
+										{
+											"key": "user_pk",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "profile_pk",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "slug",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Graduation",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"profile_pk\": \"\",\r\n  \"title\": \"\",\r\n  \"description\": \"\",\r\n  \"graduation_type\": \"\",\r\n  \"graduation_period\": \"\",\r\n  \"graduation_start_time\": \"\",\r\n  \"graduation_end_time\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/resumes/graduation/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"graduation",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Graduation",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"profile_pk\": \"\",\r\n  \"title\": \"\",\r\n  \"description\": \"\",\r\n  \"graduation_type\": \"\",\r\n  \"graduation_period\": \"\",\r\n  \"graduation_start_time\": \"\",\r\n  \"graduation_end_time\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/resumes/graduation/?pk",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"graduation",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Graduation",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/graduation/?pk",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"graduation",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Link",
+					"item": [
+						{
+							"name": "Get Link",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/link/?pk",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"link",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Links",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/link/?slug",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"link",
+										""
+									],
+									"query": [
+										{
+											"key": "user_pk",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "profile_pk",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "slug",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Link",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"profile_pk\": \"\",\r\n  \"title\": \"\",\r\n  \"description\": \"\",\r\n  \"url\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/resumes/link/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"link",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Link",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"profile_pk\": \"\",\r\n  \"title\": \"\",\r\n  \"description\": \"\",\r\n  \"url\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/resumes/link/?pk",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"link",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Link",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/link/?pk",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"link",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Project",
+					"item": [
+						{
+							"name": "Get Project",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/project/?pk",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"project",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Projects",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/project/?slug",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"project",
+										""
+									],
+									"query": [
+										{
+											"key": "user_pk",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "profile_pk",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "slug",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Project",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"profile_pk\": \"\",\r\n  \"title\": \"\",\r\n  \"description\": \"\",\r\n  \"project_name\": \"\",\r\n  \"project_description\": \"\",\r\n  \"project_link\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/resumes/project/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"project",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Project",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"profile_pk\": \"\",\r\n  \"title\": \"\",\r\n  \"description\": \"\",\r\n  \"project_name\": \"\",\r\n  \"project_description\": \"\",\r\n  \"project_link\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/resumes/project/?pk",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"project",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Project",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/project/?pk",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"project",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Reference",
+					"item": [
+						{
+							"name": "Get Reference",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/reference/?pk",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"reference",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All References",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/reference/?slug",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"reference",
+										""
+									],
+									"query": [
+										{
+											"key": "user_pk",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "profile_pk",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "slug",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Reference",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"profile_pk\": \"\",\r\n  \"title\": \"\",\r\n  \"description\": \"\",\r\n  \"reference_name\": \"\",\r\n  \"reference_role\": \"\",\r\n  \"reference_company\": \"\",\r\n  \"reference_phone\": \"\",\r\n  \"reference_email\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/resumes/reference/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"reference",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Reference",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"profile_pk\": \"\",\r\n  \"title\": \"\",\r\n  \"description\": \"\",\r\n  \"reference_name\": \"\",\r\n  \"reference_role\": \"\",\r\n  \"reference_company\": \"\",\r\n  \"reference_phone\": \"\",\r\n  \"reference_email\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/resumes/reference/?pk",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"reference",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Reference",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/resumes/reference/?pk",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"resumes",
+										"reference",
+										""
+									],
+									"query": [
+										{
+											"key": "pk",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Get Resume",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/resumes/?pk=3",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"resumes",
+								""
+							],
+							"query": [
+								{
+									"key": "pk",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Resumes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/resumes/?slug",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"resumes",
+								""
+							],
+							"query": [
+								{
+									"key": "user_pk",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "profile_pk",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "slug",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Resume",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"profile_pk\": \"\",\r\n  \"title\": \"\",\r\n  \"description\": \"\",\r\n  \"experiences\": [\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"experience_company\": \"\",\r\n        \"experience_role\": \"\",\r\n        \"experience_description\": \"\",\r\n        \"experience_start_time\": \"\",\r\n        \"experience_end_time\": \"\"\r\n    },\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"experience_company\": \"\",\r\n        \"experience_role\": \"\",\r\n        \"experience_description\": \"\",\r\n        \"experience_start_time\": \"\",\r\n        \"experience_end_time\": \"\"\r\n    }\r\n  ],\r\n  \"competencies\": [\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"competence_name\": \"\",\r\n        \"competence_level\": \"\"\r\n    },\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"competence_name\": \"\",\r\n        \"competence_level\": \"\"\r\n    }\r\n  ],\r\n  \"courses\": [\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"course_name\": \"\",\r\n        \"course_locale\": \"\",\r\n        \"course_provider\": \"\",\r\n        \"course_hours\": \"\",\r\n        \"course_start_time\": \"\",\r\n        \"course_end_time\": \"\"\r\n    },\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"course_name\": \"\",\r\n        \"course_locale\": \"\",\r\n        \"course_provider\": \"\",\r\n        \"course_hours\": \"\",\r\n        \"course_start_time\": \"\",\r\n        \"course_end_time\": \"\"\r\n    }\r\n  ],\r\n  \"references\": [\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"reference_name\": \"\",\r\n        \"reference_role\": \"\",\r\n        \"reference_company\": \"\",\r\n        \"reference_phone\": \"\",\r\n        \"reference_email\": \"\"\r\n    },\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"reference_name\": \"\",\r\n        \"reference_role\": \"\",\r\n        \"reference_company\": \"\",\r\n        \"reference_phone\": \"\",\r\n        \"reference_email\": \"\"\r\n    }\r\n  ],\r\n  \"graduations\": [\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"graduation_type\": \"\",\r\n        \"graduation_period\": \"\",\r\n        \"graduation_start_time\": \"\",\r\n        \"graduation_end_time\": \"\"\r\n    },\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"graduation_type\": \"\",\r\n        \"graduation_period\": \"\",\r\n        \"graduation_start_time\": \"\",\r\n        \"graduation_end_time\": \"\"\r\n    }\r\n  ],\r\n  \"projects\": [\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"project_name\": \"\",\r\n        \"project_description\": \"\",\r\n        \"project_link\": \"\"\r\n    },\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"project_name\": \"\",\r\n        \"project_description\": \"\",\r\n        \"project_link\": \"\"\r\n    }\r\n  ],\r\n  \"links\": [\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"url\": \"\"\r\n    },\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"url\": \"\"\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/resumes/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"resumes",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Resume",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"profile_pk\": \"\",\r\n  \"title\": \"\",\r\n  \"description\": \"\",\r\n  \"experiences\": [\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"experience_company\": \"\",\r\n        \"experience_role\": \"\",\r\n        \"experience_description\": \"\",\r\n        \"experience_start_time\": \"\",\r\n        \"experience_end_time\": \"\"\r\n    },\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"experience_company\": \"\",\r\n        \"experience_role\": \"\",\r\n        \"experience_description\": \"\",\r\n        \"experience_start_time\": \"\",\r\n        \"experience_end_time\": \"\"\r\n    }\r\n  ],\r\n  \"competencies\": [\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"competence_name\": \"\",\r\n        \"competence_level\": \"\"\r\n    },\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"competence_name\": \"\",\r\n        \"competence_level\": \"\"\r\n    }\r\n  ],\r\n  \"courses\": [\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"course_name\": \"\",\r\n        \"course_locale\": \"\",\r\n        \"course_provider\": \"\",\r\n        \"course_hours\": \"\",\r\n        \"course_start_time\": \"\",\r\n        \"course_end_time\": \"\"\r\n    },\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"course_name\": \"\",\r\n        \"course_locale\": \"\",\r\n        \"course_provider\": \"\",\r\n        \"course_hours\": \"\",\r\n        \"course_start_time\": \"\",\r\n        \"course_end_time\": \"\"\r\n    }\r\n  ],\r\n  \"references\": [\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"reference_name\": \"\",\r\n        \"reference_role\": \"\",\r\n        \"reference_company\": \"\",\r\n        \"reference_phone\": \"\",\r\n        \"reference_email\": \"\"\r\n    },\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"reference_name\": \"\",\r\n        \"reference_role\": \"\",\r\n        \"reference_company\": \"\",\r\n        \"reference_phone\": \"\",\r\n        \"reference_email\": \"\"\r\n    }\r\n  ],\r\n  \"graduations\": [\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"graduation_type\": \"\",\r\n        \"graduation_period\": \"\",\r\n        \"graduation_start_time\": \"\",\r\n        \"graduation_end_time\": \"\"\r\n    },\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"graduation_type\": \"\",\r\n        \"graduation_period\": \"\",\r\n        \"graduation_start_time\": \"\",\r\n        \"graduation_end_time\": \"\"\r\n    }\r\n  ],\r\n  \"projects\": [\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"project_name\": \"\",\r\n        \"project_description\": \"\",\r\n        \"project_link\": \"\"\r\n    },\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"project_name\": \"\",\r\n        \"project_description\": \"\",\r\n        \"project_link\": \"\"\r\n    }\r\n  ],\r\n  \"links\": [\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"url\": \"\"\r\n    },\r\n    {\r\n        \"profile_pk\": \"\",\r\n        \"title\": \"\",\r\n        \"description\": \"\",\r\n        \"url\": \"\"\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/resumes/?pk",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"resumes",
+								""
+							],
+							"query": [
+								{
+									"key": "pk",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Resume",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/resumes/?pk",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"resumes",
+								""
+							],
+							"query": [
+								{
+									"key": "pk",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "7b9bd1a6fd42a1c456c9603f79f61a55",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

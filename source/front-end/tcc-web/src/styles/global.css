@@ -1,0 +1,38 @@
+body,
+html {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+form {
+  padding: 3% 4%;
+  border-radius: 10px;
+  background: #FFF;
+  height: auto;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: white;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #3E89FA;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #2a75e4;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
