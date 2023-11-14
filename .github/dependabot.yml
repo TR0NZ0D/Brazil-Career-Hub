@@ -1,0 +1,42 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+  # Maintain dependencies for pip (back-end)
+  - package-ecosystem: "pip"
+    directory: "/source" # Location of package manifests
+    schedule:
+      interval: "weekly"
+    allow:
+      # Allow both direct and indirect updates for all packages
+      - dependency-type: "all"
+    commit-message:
+      prefix: "[BCH-0][pip] "
+      prefix-development: "[BCH-0][pip-dev] "
+    labels:
+      - "dependencies"
+    pull-request-branch-name:
+      # Separate sections of the branch name with a forward slash
+      separator: "/"
+    target-branch: "development"
+
+  # Maintain dependencies for npm (front-end)
+  - package-ecosystem: "npm"
+    directory: "/source"
+    schedule:
+      interval: "weekly"
+    # allow:
+      # Allow both direct and indirect updates for all packages
+      # - dependency-type: "all"
+    commit-message:
+      prefix: "[BCH-0][npm]"
+      prefix-development: "[BCH-0][npm-dev]"
+    labels:
+      - "dependencies"
+    pull-request-branch-name:
+      # Separate sections of the branch name with a forward slash
+      separator: "/"
+    target-branch: "development"
